@@ -1,0 +1,117 @@
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
+project_id = "language-map"
+
+[api]
+enabled = true
+port = 54331
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54332
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54333
+
+# Email testing tool. Messages sent using the dev SMTP server are written to local files in this directory.
+[inbucket]
+enabled = true
+port = 54334
+smtp_port = 54335
+pop3_port = 54336
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3001"
+additional_redirect_urls = ["https://localhost:3001"]
+jwt_expiry = 3600
+enable_signup = true
+enable_email_confirmations = false
+enable_sms_confirmations = false
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+# Email testing tool
+[auth.email.external.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+# Use a custom SMTP server
+[auth.email.smtp]
+admin_email = "admin@example.com"
+host = "localhost"
+port = 54335
+user = ""
+pass = ""
+
+# Use SMTP test credentials for dev auth
+[auth.email.test_otp]
+enable_signup = true
+double_confirm_changes = true
+
+[auth.external.apple]
+enabled = false
+
+[auth.external.azure]
+enabled = false
+
+[auth.external.bitbucket]
+enabled = false
+
+[auth.external.discord]
+enabled = false
+
+[auth.external.facebook]
+enabled = false
+
+[auth.external.figma]
+enabled = false
+
+[auth.external.github]
+enabled = false
+
+[auth.external.gitlab]
+enabled = false
+
+[auth.external.google]
+enabled = false
+
+[auth.external.keycloak]
+enabled = false
+
+[auth.external.linkedin]
+enabled = false
+
+[auth.external.notion]
+enabled = false
+
+[auth.external.twitch]
+enabled = false
+
+[auth.external.twitter]
+enabled = false
+
+[auth.external.workos]
+enabled = false
+
+[edge_functions]
+enabled = true
+port = 54337
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54338

@@ -1,3 +1,10 @@
+---
+title: "Phase 4: Reusable Code Checklist"
+description: Checklist of reusable code from Amsterdam App for Phase 4 implementation including map assets and components
+category: implementation
+tags: [reusable-code, phase-4, checklist, assets]
+---
+
 # Phase 4: Reusable Code from Amsterdam App
 
 **Reference:** `/reusable-code/` folder contains extracted code from original Amsterdam Language Map

@@ -26,7 +26,7 @@ export default async function LocaleLayout({ children, params }: Props) {
   const { locale } = await params
 
   // Validate locale
-  if (!locales.includes(locale as any)) {
+  if (!locales.includes(locale as (typeof locales)[number])) {
     notFound()
   }
 
@@ -44,6 +44,6 @@ export default async function LocaleLayout({ children, params }: Props) {
   )
 }
 
-export function generateStaticParams() {
+export function generateStaticParams(): Array<{ locale: string }> {
   return locales.map((locale) => ({ locale }))
 }

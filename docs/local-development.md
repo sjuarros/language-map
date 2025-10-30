@@ -104,7 +104,7 @@ The port configuration is defined in `supabase/config.toml`.
    ```
 
 8. **Open the application**:
-   - Application: http://localhost:3000
+   - Application: http://localhost:3001
    - Supabase Studio: http://localhost:54333
 
 ---
@@ -166,7 +166,7 @@ OPENAI_API_KEY=sk-your-key-here
 ANTHROPIC_API_KEY=sk-ant-your-key-here
 
 # Next.js
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3001
 ```
 
 ### Environment Files
@@ -496,7 +496,7 @@ Test RLS policies in Supabase Studio → Authentication → Policies
 
 ## Useful Links
 
-- **Application**: http://localhost:3000
+- **Application**: http://localhost:3001
 - **Supabase Studio**: http://localhost:54333
 - **Email Testing**: http://localhost:54334
 - **API Docs**: http://localhost:54331/rest/v1/

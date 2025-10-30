@@ -1,3 +1,10 @@
+---
+title: "Local CI Script"
+description: Local CI script for running all GitHub Actions checks locally before pushing code
+category: implementation
+tags: [ci, scripts, automation, local-development, phase-1]
+---
+
 # Local CI Script
 
 **Created:** October 30, 2025

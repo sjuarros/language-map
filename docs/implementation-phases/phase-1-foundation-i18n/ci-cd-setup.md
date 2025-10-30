@@ -1,3 +1,10 @@
+---
+title: "GitHub CI/CD Setup"
+description: Comprehensive GitHub Actions CI/CD setup for continuous integration, code quality checks, and automated dependency management
+category: implementation
+tags: [ci-cd, github-actions, automation, phase-1]
+---
+
 # GitHub CI/CD Setup
 
 **Created:** October 30, 2025

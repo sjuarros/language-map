@@ -1,3 +1,9 @@
+/**
+ * @file tailwind.config.ts
+ * @description Tailwind CSS configuration with custom design tokens.
+ * Defines color variables for light/dark mode support.
+ */
+
 import type { Config } from "tailwindcss";
 
 export default {

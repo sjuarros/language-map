@@ -1,3 +1,9 @@
+/**
+ * @file globals.css
+ * @description Global styles with Tailwind utilities and CSS custom properties.
+ * Defines design tokens for light/dark mode theming.
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

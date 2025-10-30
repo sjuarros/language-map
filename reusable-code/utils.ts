@@ -86,7 +86,7 @@ export const toProperCase = (srcText: string): string =>
 export const showWelcomeIfSupport = (): string | null | boolean => {
   try {
     return window.localStorage.getItem(HIDE_WELCOME_LOCAL_STG_KEY)
-  } catch (e) {
+  } catch {
     return true
   }
 }

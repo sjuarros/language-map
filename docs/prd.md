@@ -1,5 +1,11 @@
+---
+title: Product Requirements Document (PRD)
+description: Product requirements, features, user stories, and success metrics for the Multi-City Language Mapping Platform
+category: product
+tags: [product-requirements, user-stories, features, planning]
+---
+
 # Product Requirements Document (PRD)
-# Multi-City Language Mapping Platform
 
 **Version:** 3.1
 **Date:** October 29, 2025

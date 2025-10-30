@@ -1,3 +1,10 @@
+---
+title: "Next.js Version Decision"
+description: Decision log for using Next.js 15+ instead of Next.js 14, including analysis and justification
+category: implementation
+tags: [next.js, version, decision, phase-1]
+---
+
 # Next.js Version Decision
 
 **Date:** October 30, 2025
