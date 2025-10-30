@@ -1,0 +1,25 @@
+{
+  "common": {
+    "appName": "Language Map",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "close": "Close"
+  },
+  "home": {
+    "title": "Language Map Platform",
+    "subtitle": "Documenting and visualizing linguistic diversity across cities worldwide",
+    "description": "Multi-city language mapping platform - Phase 1: Foundation & i18n"
+  },
+  "navigation": {
+    "home": "Home",
+    "map": "Map",
+    "about": "About",
+    "languages": "Languages"
+  }
+}

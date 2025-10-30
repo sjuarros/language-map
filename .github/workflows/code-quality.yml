@@ -1,0 +1,71 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history for better analysis
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for console.log statements
+        run: |
+          if grep -r "console\.log" app/ lib/ --include="*.ts" --include="*.tsx" --exclude-dir=node_modules; then
+            echo "❌ Found console.log statements. Please remove them before merging."
+            exit 1
+          else
+            echo "✅ No console.log statements found."
+          fi
+
+      - name: Check for TODO comments
+        run: |
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|HACK" app/ lib/ --include="*.ts" --include="*.tsx" --exclude-dir=node_modules | wc -l || echo "0")
+          echo "Found $TODO_COUNT TODO/FIXME/HACK comments"
+          if [ "$TODO_COUNT" -gt 0 ]; then
+            echo "⚠️ Warning: Found TODO/FIXME/HACK comments. Consider addressing them."
+            grep -r "TODO\|FIXME\|HACK" app/ lib/ --include="*.ts" --include="*.tsx" --exclude-dir=node_modules || true
+          fi
+          # Don't fail on TODOs, just warn
+          exit 0
+
+      - name: Check file naming conventions
+        run: |
+          echo "Checking for PascalCase component files..."
+          INVALID_FILES=$(find app/ lib/components -name "*.tsx" ! -name "[A-Z]*" -type f 2>/dev/null || echo "")
+          if [ -n "$INVALID_FILES" ]; then
+            echo "⚠️ Warning: Found component files not using PascalCase:"
+            echo "$INVALID_FILES"
+          else
+            echo "✅ All component files follow PascalCase naming."
+          fi
+
+      - name: Check for large files
+        run: |
+          echo "Checking for files larger than 500 lines..."
+          LARGE_FILES=$(find app/ lib/ -type f \( -name "*.ts" -o -name "*.tsx" \) -exec wc -l {} + | awk '$1 > 500 {print $2, "has", $1, "lines"}' || echo "")
+          if [ -n "$LARGE_FILES" ]; then
+            echo "⚠️ Warning: Found large files (>500 lines):"
+            echo "$LARGE_FILES"
+            echo "Consider breaking them into smaller modules."
+          else
+            echo "✅ No large files found."
+          fi

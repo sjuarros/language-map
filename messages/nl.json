@@ -1,0 +1,25 @@
+{
+  "common": {
+    "appName": "Talenkaart",
+    "loading": "Laden...",
+    "error": "Er is een fout opgetreden",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "create": "Aanmaken",
+    "search": "Zoeken",
+    "close": "Sluiten"
+  },
+  "home": {
+    "title": "Talenkaart Platform",
+    "subtitle": "Documenteren en visualiseren van taalkundige diversiteit in steden wereldwijd",
+    "description": "Multi-city talenkaart platform - Fase 1: Fundering & i18n"
+  },
+  "navigation": {
+    "home": "Home",
+    "map": "Kaart",
+    "about": "Over",
+    "languages": "Talen"
+  }
+}
