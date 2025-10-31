@@ -207,12 +207,28 @@ tags: [implementation, roadmap, planning, development, timeline]
     - Code compliance validation completed
     - **Unit test coverage: 80%+**
 
-- [ ] **Day 10**: User invitation system with city_users junction table
+- [x] **Day 10**: User invitation system with city_users junction table ✅
   - Create invitation email templates
   - Create invite user functionality
   - Implement user-to-city access grants
   - Test multi-city user creation
   - **Unit tests for invitation system**
+  - **Completed:** October 31, 2025
+  - **Files:**
+    - `supabase/migrations/20251031000000_create_invitations.sql` (invitations & city grants tables)
+    - `app/actions/invitations.ts` (server actions for invitation management)
+    - `app/actions/invitations.test.ts` (comprehensive unit tests)
+    - `components/admin/invitation-form.tsx` (admin invitation form UI)
+    - `messages/{en,nl,fr}.json` (invitation translations)
+  - **Features:**
+    - Invitations table with token-based acceptance
+    - Invitation city grants (multi-city access)
+    - Server actions: createInvitation, acceptInvitation, revokeInvitation, getInvitations
+    - Admin UI for creating invitations
+    - Full i18n support (EN/NL/FR)
+    - Zod validation for all inputs
+    - RLS policies for security
+    - Type checking and linting passed
 
 - [ ] **Day 11**: Middleware for route protection + multi-city checks
   - Create middleware.ts

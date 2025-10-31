@@ -61,6 +61,66 @@
       "confirmMessage": "Weet u zeker dat u wilt uitloggen?",
       "confirmButton": "Uitloggen",
       "cancelButton": "Annuleren"
+    },
+    "invitation": {
+      "title": "U bent uitgenodigd!",
+      "subtitle": "Doe mee aan het Talenkaart platform",
+      "welcomeMessage": "U bent uitgenodigd om deel te nemen aan {appName} als {role} voor {cityCount, plural, one {# stad} other {# steden}}.",
+      "acceptButton": "Uitnodiging accepteren",
+      "declineButton": "Afwijzen",
+      "expiredTitle": "Uitnodiging verlopen",
+      "expiredMessage": "Deze uitnodiging is verlopen. Neem contact op met de beheerder voor een nieuwe uitnodiging.",
+      "revokedTitle": "Uitnodiging ingetrokken",
+      "revokedMessage": "Deze uitnodiging is ingetrokken. Neem contact op met de beheerder.",
+      "acceptedTitle": "Uitnodiging geaccepteerd",
+      "acceptedMessage": "Welkom! U heeft nu toegang tot de gevraagde steden.",
+      "errorInvalidToken": "Ongeldig uitnodigingstoken",
+      "errorGeneric": "Er is een fout opgetreden bij het verwerken van de uitnodiging."
+    },
+    "admin": {
+      "invitations": {
+        "title": "Gebruikersuitnodigingen",
+        "subtitle": "Beheer gebruikersuitnodigingen en stads-toegang",
+        "form": {
+          "title": "Nieuwe Gebruiker Uitnodigen",
+          "description": "Stuur een uitnodiging naar een nieuwe gebruiker en verleen toegang tot geselecteerde steden",
+          "emailLabel": "E-mailadres",
+          "emailPlaceholder": "gebruiker@voorbeeld.com",
+          "fullNameLabel": "Volledige naam",
+          "fullNamePlaceholder": "Voer volledige naam in",
+          "roleLabel": "Rol",
+          "rolePlaceholder": "Selecteer een rol",
+          "roleAdmin": "Beheerder",
+          "roleOperator": "Operator",
+          "roleHelpText": "Beheerders kunnen gebruikers en stads-instellingen beheren. Operators kunnen gegevens beheren.",
+          "cityAccessLabel": "Stad Toegang",
+          "selectAll": "Alles Selecteren",
+          "deselectAll": "Alles Deselecteren",
+          "selectedCities": "{count, plural, one {# stad geselecteerd} other {# steden geselecteerd}}",
+          "cancel": "Annuleren",
+          "submitButton": "Uitnodiging Versturen",
+          "submitting": "Versturen...",
+          "successTitle": "Succes!",
+          "successMessage": "Uitnodiging succesvol verstuurd. De gebruiker ontvangt een e-mail met instructies.",
+          "errorTitle": "Fout",
+          "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+        },
+        "list": {
+          "title": "Uitstaande Uitnodigingen",
+          "subtitle": "Bekijk en beheer openstaande uitnodigingen",
+          "invitedBy": "Uitgenodigd door",
+          "role": "Rol",
+          "cities": "Steden",
+          "expiresAt": "Verloopt",
+          "actions": "Acties",
+          "revoke": "Intrekken",
+          "revoking": "Intrekken...",
+          "copied": "Gekopieerd!",
+          "copyToken": "Token Kopiëren",
+          "emptyState": "Geen uitstaande uitnodigingen",
+          "emptyStateDescription": "Uitnodigingen verschijnen hier zodra u ze aanmaakt."
+        }
+      }
     }
   }
 }

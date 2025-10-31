@@ -61,6 +61,66 @@
       "confirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
       "confirmButton": "Se déconnecter",
       "cancelButton": "Annuler"
+    },
+    "invitation": {
+      "title": "Vous avez été invité !",
+      "subtitle": "Rejoignez la plateforme Carte des Langues",
+      "welcomeMessage": "Vous avez été invité à rejoindre {appName} en tant que {role} pour {cityCount, plural, one {# ville} other {# villes}}.",
+      "acceptButton": "Accepter l'invitation",
+      "declineButton": "Refuser",
+      "expiredTitle": "Invitation expirée",
+      "expiredMessage": "Cette invitation a expiré. Veuillez contacter l'administrateur pour une nouvelle invitation.",
+      "revokedTitle": "Invitation révoquée",
+      "revokedMessage": "Cette invitation a été révoquée. Veuillez contacter l'administrateur.",
+      "acceptedTitle": "Invitation acceptée",
+      "acceptedMessage": "Bienvenue ! Vous avez maintenant accès aux villes demandées.",
+      "errorInvalidToken": "Jeton d'invitation invalide",
+      "errorGeneric": "Une erreur s'est produite lors du traitement de l'invitation."
+    },
+    "admin": {
+      "invitations": {
+        "title": "Invitations Utilisateur",
+        "subtitle": "Gérer les invitations utilisateur et l'accès aux villes",
+        "form": {
+          "title": "Inviter un Nouvel Utilisateur",
+          "description": "Envoyer une invitation à un nouvel utilisateur et lui accorder l'accès aux villes sélectionnées",
+          "emailLabel": "Adresse e-mail",
+          "emailPlaceholder": "utilisateur@exemple.com",
+          "fullNameLabel": "Nom complet",
+          "fullNamePlaceholder": "Entrez le nom complet",
+          "roleLabel": "Rôle",
+          "rolePlaceholder": "Sélectionnez un rôle",
+          "roleAdmin": "Administrateur",
+          "roleOperator": "Opérateur",
+          "roleHelpText": "Les administrateurs peuvent gérer les utilisateurs et les paramètres des villes. Les opérateurs peuvent gérer les données.",
+          "cityAccessLabel": "Accès aux Villes",
+          "selectAll": "Tout Sélectionner",
+          "deselectAll": "Tout Désélectionner",
+          "selectedCities": "{count, plural, one {# ville sélectionnée} other {# villes sélectionnées}}",
+          "cancel": "Annuler",
+          "submitButton": "Envoyer l'Invitation",
+          "submitting": "Envoi...",
+          "successTitle": "Succès !",
+          "successMessage": "Invitation envoyée avec succès. L'utilisateur recevra un e-mail avec des instructions.",
+          "errorTitle": "Erreur",
+          "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+        },
+        "list": {
+          "title": "Invitations en Attente",
+          "subtitle": "Voir et gérer les invitations en attente",
+          "invitedBy": "Invité par",
+          "role": "Rôle",
+          "cities": "Villes",
+          "expiresAt": "Expire",
+          "actions": "Actions",
+          "revoke": "Révoquer",
+          "revoking": "Révocation...",
+          "copied": "Copié !",
+          "copyToken": "Copier le Jeton",
+          "emptyState": "Aucune invitation en attente",
+          "emptyStateDescription": "Les invitations apparaîtront ici une fois créées."
+        }
+      }
     }
   }
 }
