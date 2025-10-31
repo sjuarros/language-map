@@ -203,7 +203,7 @@ afterEach(() => {
 // Mock environment variables
 process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
-process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000';
+process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3001';
 ```
 
 ### Example Component Test
@@ -567,7 +567,7 @@ export default defineConfig({
     ['list']
   ],
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3001',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     actionTimeout: 10000,
@@ -593,7 +593,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

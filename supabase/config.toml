@@ -1,0 +1,47 @@
+# A string used to distinguish different Supabase projects on the same host. Defaults to the
+# working directory name when running `supabase init`.
+project_id = "language-map"
+
+[api]
+enabled = true
+port = 54331
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54332
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54333
+
+# Email testing tool. Messages sent using the dev SMTP server are written to local files in this directory.
+[inbucket]
+enabled = true
+port = 54334
+smtp_port = 54335
+pop3_port = 54336
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3001"
+additional_redirect_urls = ["https://localhost:3001"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = false
+
+[analytics]
+enabled = false
+port = 54327
+vector_port = 54338

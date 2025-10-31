@@ -1,3 +1,9 @@
+/**
+ * @file next.config.ts
+ * @description Next.js configuration for internationalized routing.
+ * Integrates with next-intl plugin for locale-aware routing.
+ */
+
 import type { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 

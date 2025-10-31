@@ -5,12 +5,13 @@
  * Displays welcome message with i18n support.
  */
 
+'use client'
+
 import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
 
 export default function Home() {
   const t = useTranslations('home')
-  const tCommon = useTranslations('common')
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">

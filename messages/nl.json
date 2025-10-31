@@ -20,6 +20,142 @@
     "home": "Home",
     "map": "Kaart",
     "about": "Over",
-    "languages": "Talen"
+    "languages": "Talen",
+    "login": "Inloggen",
+    "signup": "Registreren",
+    "logout": "Uitloggen"
+  },
+  "auth": {
+    "login": {
+      "title": "Inloggen",
+      "subtitle": "Log in op uw account",
+      "emailLabel": "E-mailadres",
+      "emailPlaceholder": "Voer uw e-mailadres in",
+      "submitButton": "Verstuur magic link",
+      "submitting": "Versturen...",
+      "successTitle": "Controleer uw e-mail!",
+      "successMessage": "We hebben u een magic link gestuurd om in te loggen. Klik op de link in de e-mail om door te gaan.",
+      "backToHome": "Terug naar home",
+      "noAccount": "Nog geen account?",
+      "signupLink": "Registreren",
+      "errorInvalidEmail": "Voer een geldig e-mailadres in",
+      "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+    },
+    "signup": {
+      "title": "Registreren",
+      "subtitle": "Maak uw account aan",
+      "emailLabel": "E-mailadres",
+      "emailPlaceholder": "Voer uw e-mailadres in",
+      "submitButton": "Verstuur magic link",
+      "submitting": "Versturen...",
+      "successTitle": "Controleer uw e-mail!",
+      "successMessage": "We hebben u een magic link gestuurd om uw registratie te voltooien. Klik op de link in de e-mail om door te gaan.",
+      "backToHome": "Terug naar home",
+      "haveAccount": "Al een account?",
+      "loginLink": "Inloggen",
+      "errorInvalidEmail": "Voer een geldig e-mailadres in",
+      "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+    },
+    "logout": {
+      "confirmTitle": "Uitloggen?",
+      "confirmMessage": "Weet u zeker dat u wilt uitloggen?",
+      "confirmButton": "Uitloggen",
+      "cancelButton": "Annuleren"
+    },
+    "invitation": {
+      "title": "U bent uitgenodigd!",
+      "subtitle": "Doe mee aan het Talenkaart platform",
+      "welcomeMessage": "U bent uitgenodigd om deel te nemen aan {appName} als {role} voor {cityCount, plural, one {# stad} other {# steden}}.",
+      "acceptButton": "Uitnodiging accepteren",
+      "declineButton": "Afwijzen",
+      "expiredTitle": "Uitnodiging verlopen",
+      "expiredMessage": "Deze uitnodiging is verlopen. Neem contact op met de beheerder voor een nieuwe uitnodiging.",
+      "revokedTitle": "Uitnodiging ingetrokken",
+      "revokedMessage": "Deze uitnodiging is ingetrokken. Neem contact op met de beheerder.",
+      "acceptedTitle": "Uitnodiging geaccepteerd",
+      "acceptedMessage": "Welkom! U heeft nu toegang tot de gevraagde steden.",
+      "errorInvalidToken": "Ongeldig uitnodigingstoken",
+      "errorGeneric": "Er is een fout opgetreden bij het verwerken van de uitnodiging."
+    },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Onvoldoende rechten",
+        "insufficientPermissionsMessage": "U heeft geen toegang tot deze pagina. Neem contact op met uw beheerder als u denkt dat dit een fout is.",
+        "accountInactive": "Account inactief",
+        "accountInactiveMessage": "Uw account is gedeactiveerd. Neem contact op met uw beheerder.",
+        "loginRequired": "Log in om door te gaan"
+      },
+      "roles": {
+        "operator": "Operator",
+        "admin": "Beheerder",
+        "superuser": "Superuser"
+      },
+      "permissions": {
+        "createCity": "steden aanmaken",
+        "manageUsers": "gebruikers beheren",
+        "manageData": "gegevens beheren",
+        "viewAnalytics": "analyses bekijken"
+      },
+      "navigation": {
+        "dashboard": "Dashboard",
+        "map": "Kaart",
+        "languages": "Talen",
+        "users": "Gebruikers",
+        "settings": "Instellingen",
+        "cities": "Steden"
+      },
+      "messages": {
+        "redirectingToLogin": "Doorverwijzen naar inlogpagina...",
+        "redirectingToDashboard": "Doorverwijzen naar dashboard...",
+        "accessDenied": "Toegang Geweigerd",
+        "youNeedRole": "U heeft {role} rechten nodig om toegang te krijgen tot deze pagina.",
+        "currentRole": "Uw huidige rol: {role}"
+      }
+    },
+    "admin": {
+      "invitations": {
+        "title": "Gebruikersuitnodigingen",
+        "subtitle": "Beheer gebruikersuitnodigingen en stads-toegang",
+        "form": {
+          "title": "Nieuwe Gebruiker Uitnodigen",
+          "description": "Stuur een uitnodiging naar een nieuwe gebruiker en verleen toegang tot geselecteerde steden",
+          "emailLabel": "E-mailadres",
+          "emailPlaceholder": "gebruiker@voorbeeld.com",
+          "fullNameLabel": "Volledige naam",
+          "fullNamePlaceholder": "Voer volledige naam in",
+          "roleLabel": "Rol",
+          "rolePlaceholder": "Selecteer een rol",
+          "roleAdmin": "Beheerder",
+          "roleOperator": "Operator",
+          "roleHelpText": "Beheerders kunnen gebruikers en stads-instellingen beheren. Operators kunnen gegevens beheren.",
+          "cityAccessLabel": "Stad Toegang",
+          "selectAll": "Alles Selecteren",
+          "deselectAll": "Alles Deselecteren",
+          "selectedCities": "{count, plural, one {# stad geselecteerd} other {# steden geselecteerd}}",
+          "cancel": "Annuleren",
+          "submitButton": "Uitnodiging Versturen",
+          "submitting": "Versturen...",
+          "successTitle": "Succes!",
+          "successMessage": "Uitnodiging succesvol verstuurd. De gebruiker ontvangt een e-mail met instructies.",
+          "errorTitle": "Fout",
+          "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+        },
+        "list": {
+          "title": "Uitstaande Uitnodigingen",
+          "subtitle": "Bekijk en beheer openstaande uitnodigingen",
+          "invitedBy": "Uitgenodigd door",
+          "role": "Rol",
+          "cities": "Steden",
+          "expiresAt": "Verloopt",
+          "actions": "Acties",
+          "revoke": "Intrekken",
+          "revoking": "Intrekken...",
+          "copied": "Gekopieerd!",
+          "copyToken": "Token Kopiëren",
+          "emptyState": "Geen uitstaande uitnodigingen",
+          "emptyStateDescription": "Uitnodigingen verschijnen hier zodra u ze aanmaakt."
+        }
+      }
+    }
   }
 }

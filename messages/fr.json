@@ -20,6 +20,142 @@
     "home": "Accueil",
     "map": "Carte",
     "about": "À propos",
-    "languages": "Langues"
+    "languages": "Langues",
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "logout": "Se déconnecter"
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter",
+      "subtitle": "Connectez-vous à votre compte",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "submitButton": "Envoyer le lien magique",
+      "submitting": "Envoi...",
+      "successTitle": "Vérifiez votre e-mail !",
+      "successMessage": "Nous vous avons envoyé un lien magique pour vous connecter. Cliquez sur le lien dans l'e-mail pour continuer.",
+      "backToHome": "Retour à l'accueil",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signupLink": "S'inscrire",
+      "errorInvalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "signup": {
+      "title": "S'inscrire",
+      "subtitle": "Créez votre compte",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "submitButton": "Envoyer le lien magique",
+      "submitting": "Envoi...",
+      "successTitle": "Vérifiez votre e-mail !",
+      "successMessage": "Nous vous avons envoyé un lien magique pour compléter votre inscription. Cliquez sur le lien dans l'e-mail pour continuer.",
+      "backToHome": "Retour à l'accueil",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "errorInvalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "logout": {
+      "confirmTitle": "Se déconnecter ?",
+      "confirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "confirmButton": "Se déconnecter",
+      "cancelButton": "Annuler"
+    },
+    "invitation": {
+      "title": "Vous avez été invité !",
+      "subtitle": "Rejoignez la plateforme Carte des Langues",
+      "welcomeMessage": "Vous avez été invité à rejoindre {appName} en tant que {role} pour {cityCount, plural, one {# ville} other {# villes}}.",
+      "acceptButton": "Accepter l'invitation",
+      "declineButton": "Refuser",
+      "expiredTitle": "Invitation expirée",
+      "expiredMessage": "Cette invitation a expiré. Veuillez contacter l'administrateur pour une nouvelle invitation.",
+      "revokedTitle": "Invitation révoquée",
+      "revokedMessage": "Cette invitation a été révoquée. Veuillez contacter l'administrateur.",
+      "acceptedTitle": "Invitation acceptée",
+      "acceptedMessage": "Bienvenue ! Vous avez maintenant accès aux villes demandées.",
+      "errorInvalidToken": "Jeton d'invitation invalide",
+      "errorGeneric": "Une erreur s'est produite lors du traitement de l'invitation."
+    },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Permissions insuffisantes",
+        "insufficientPermissionsMessage": "Vous n'avez pas la permission d'accéder à cette page. Veuillez contacter votre administrateur si vous pensez qu'il s'agit d'une erreur.",
+        "accountInactive": "Compte inactif",
+        "accountInactiveMessage": "Votre compte a été désactivé. Veuillez contacter votre administrateur.",
+        "loginRequired": "Veuillez vous connecter pour continuer"
+      },
+      "roles": {
+        "operator": "Opérateur",
+        "admin": "Administrateur",
+        "superuser": "Super-utilisateur"
+      },
+      "permissions": {
+        "createCity": "créer des villes",
+        "manageUsers": "gérer les utilisateurs",
+        "manageData": "gérer les données",
+        "viewAnalytics": "voir les analyses"
+      },
+      "navigation": {
+        "dashboard": "Tableau de bord",
+        "map": "Carte",
+        "languages": "Langues",
+        "users": "Utilisateurs",
+        "settings": "Paramètres",
+        "cities": "Villes"
+      },
+      "messages": {
+        "redirectingToLogin": "Redirection vers la connexion...",
+        "redirectingToDashboard": "Redirection vers le tableau de bord...",
+        "accessDenied": "Accès Refusé",
+        "youNeedRole": "Vous avez besoin des privilèges {role} pour accéder à cette page.",
+        "currentRole": "Votre rôle actuel : {role}"
+      }
+    },
+    "admin": {
+      "invitations": {
+        "title": "Invitations Utilisateur",
+        "subtitle": "Gérer les invitations utilisateur et l'accès aux villes",
+        "form": {
+          "title": "Inviter un Nouvel Utilisateur",
+          "description": "Envoyer une invitation à un nouvel utilisateur et lui accorder l'accès aux villes sélectionnées",
+          "emailLabel": "Adresse e-mail",
+          "emailPlaceholder": "utilisateur@exemple.com",
+          "fullNameLabel": "Nom complet",
+          "fullNamePlaceholder": "Entrez le nom complet",
+          "roleLabel": "Rôle",
+          "rolePlaceholder": "Sélectionnez un rôle",
+          "roleAdmin": "Administrateur",
+          "roleOperator": "Opérateur",
+          "roleHelpText": "Les administrateurs peuvent gérer les utilisateurs et les paramètres des villes. Les opérateurs peuvent gérer les données.",
+          "cityAccessLabel": "Accès aux Villes",
+          "selectAll": "Tout Sélectionner",
+          "deselectAll": "Tout Désélectionner",
+          "selectedCities": "{count, plural, one {# ville sélectionnée} other {# villes sélectionnées}}",
+          "cancel": "Annuler",
+          "submitButton": "Envoyer l'Invitation",
+          "submitting": "Envoi...",
+          "successTitle": "Succès !",
+          "successMessage": "Invitation envoyée avec succès. L'utilisateur recevra un e-mail avec des instructions.",
+          "errorTitle": "Erreur",
+          "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+        },
+        "list": {
+          "title": "Invitations en Attente",
+          "subtitle": "Voir et gérer les invitations en attente",
+          "invitedBy": "Invité par",
+          "role": "Rôle",
+          "cities": "Villes",
+          "expiresAt": "Expire",
+          "actions": "Actions",
+          "revoke": "Révoquer",
+          "revoking": "Révocation...",
+          "copied": "Copié !",
+          "copyToken": "Copier le Jeton",
+          "emptyState": "Aucune invitation en attente",
+          "emptyStateDescription": "Les invitations apparaîtront ici une fois créées."
+        }
+      }
+    }
   }
 }

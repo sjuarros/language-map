@@ -78,6 +78,7 @@ PostGIS                      // Geospatial extension
 Shadcn/ui                    // Copy-paste component library (NOT Material-UI!)
 Tailwind CSS                 // Utility-first CSS
 Radix UI                     // Accessible primitives
+Lucide Icons                 // ⚠️ ICON LIBRARY (NOT @radix-ui/react-icons!)
 
 // Internationalization
 next-intl                    // Next.js i18n routing + translations
@@ -694,7 +695,7 @@ export type Database = {
 
 ### Important: Development Server
 
-⚠️ **CRITICAL**: The dev server is always running on port 3000
+⚠️ **CRITICAL**: The dev server is always running on port 3001
 - **DO NOT** run `npm run dev` manually
 - If restart needed, ask to restart it manually
 - Server runs continuously in the background
@@ -863,6 +864,21 @@ endangerment_status: 'endangered'  // Hardcoded enum
 ❌ **Wrong**: Assume RLS works without testing
 
 ✅ **Correct**: Write tests for cross-city data access attempts
+
+### 7. Using Wrong Icon Library
+
+❌ **Wrong**:
+```typescript
+import { CheckIcon } from "@radix-ui/react-icons"
+import { ChevronDown } from "@radix-ui/react-icons"
+```
+
+✅ **Correct**:
+```typescript
+import { Check, ChevronDown } from "lucide-react"
+```
+
+⚠️ **Always use Lucide Icons** - See Technology Stack section. Do NOT use `@radix-ui/react-icons`!
 
 ---
 

@@ -1,5 +1,11 @@
+---
+title: Technical Architecture
+description: Technical architecture, database schema, security, and performance considerations for the Multi-City Language Mapping Platform
+category: architecture
+tags: [architecture, database, security, performance, technical-specs]
+---
+
 # Technical Architecture
-# Multi-City Language Mapping Platform
 
 **Version:** 3.1
 **Date:** October 29, 2025

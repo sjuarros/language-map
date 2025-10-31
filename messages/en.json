@@ -20,6 +20,142 @@
     "home": "Home",
     "map": "Map",
     "about": "About",
-    "languages": "Languages"
+    "languages": "Languages",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Log Out"
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "subtitle": "Sign in to your account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "submitButton": "Send magic link",
+      "submitting": "Sending...",
+      "successTitle": "Check your email!",
+      "successMessage": "We've sent you a magic link to sign in. Click the link in the email to continue.",
+      "backToHome": "Back to home",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "errorInvalidEmail": "Please enter a valid email address",
+      "errorGeneric": "An error occurred. Please try again."
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create your account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "submitButton": "Send magic link",
+      "submitting": "Sending...",
+      "successTitle": "Check your email!",
+      "successMessage": "We've sent you a magic link to complete your registration. Click the link in the email to continue.",
+      "backToHome": "Back to home",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "errorInvalidEmail": "Please enter a valid email address",
+      "errorGeneric": "An error occurred. Please try again."
+    },
+    "logout": {
+      "confirmTitle": "Log out?",
+      "confirmMessage": "Are you sure you want to log out?",
+      "confirmButton": "Log out",
+      "cancelButton": "Cancel"
+    },
+    "invitation": {
+      "title": "You've been invited!",
+      "subtitle": "Join the Language Map platform",
+      "welcomeMessage": "You've been invited to join {appName} as a {role} for {cityCount, plural, one {# city} other {# cities}}.",
+      "acceptButton": "Accept invitation",
+      "declineButton": "Decline",
+      "expiredTitle": "Invitation expired",
+      "expiredMessage": "This invitation has expired. Please contact the administrator for a new invitation.",
+      "revokedTitle": "Invitation revoked",
+      "revokedMessage": "This invitation has been revoked. Please contact the administrator.",
+      "acceptedTitle": "Invitation accepted",
+      "acceptedMessage": "Welcome! You now have access to the requested cities.",
+      "errorInvalidToken": "Invalid invitation token",
+      "errorGeneric": "An error occurred while processing the invitation."
+    },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Insufficient permissions",
+        "insufficientPermissionsMessage": "You don't have permission to access this page. Please contact your administrator if you believe this is an error.",
+        "accountInactive": "Account inactive",
+        "accountInactiveMessage": "Your account has been deactivated. Please contact your administrator.",
+        "loginRequired": "Please log in to continue"
+      },
+      "roles": {
+        "operator": "Operator",
+        "admin": "Administrator",
+        "superuser": "Superuser"
+      },
+      "permissions": {
+        "createCity": "create cities",
+        "manageUsers": "manage users",
+        "manageData": "manage data",
+        "viewAnalytics": "view analytics"
+      },
+      "navigation": {
+        "dashboard": "Dashboard",
+        "map": "Map",
+        "languages": "Languages",
+        "users": "Users",
+        "settings": "Settings",
+        "cities": "Cities"
+      },
+      "messages": {
+        "redirectingToLogin": "Redirecting to login...",
+        "redirectingToDashboard": "Redirecting to dashboard...",
+        "accessDenied": "Access Denied",
+        "youNeedRole": "You need {role} privileges to access this page.",
+        "currentRole": "Your current role: {role}"
+      }
+    },
+    "admin": {
+      "invitations": {
+        "title": "User Invitations",
+        "subtitle": "Manage user invitations and city access",
+        "form": {
+          "title": "Invite New User",
+          "description": "Send an invitation to a new user and grant them access to selected cities",
+          "emailLabel": "Email address",
+          "emailPlaceholder": "user@example.com",
+          "fullNameLabel": "Full name",
+          "fullNamePlaceholder": "Enter full name",
+          "roleLabel": "Role",
+          "rolePlaceholder": "Select a role",
+          "roleAdmin": "Administrator",
+          "roleOperator": "Operator",
+          "roleHelpText": "Admins can manage users and city settings. Operators can manage data.",
+          "cityAccessLabel": "City Access",
+          "selectAll": "Select All",
+          "deselectAll": "Deselect All",
+          "selectedCities": "{count, plural, one {# city selected} other {# cities selected}}",
+          "cancel": "Cancel",
+          "submitButton": "Send Invitation",
+          "submitting": "Sending...",
+          "successTitle": "Success!",
+          "successMessage": "Invitation sent successfully. The user will receive an email with instructions.",
+          "errorTitle": "Error",
+          "errorGeneric": "An error occurred. Please try again."
+        },
+        "list": {
+          "title": "Pending Invitations",
+          "subtitle": "View and manage outstanding invitations",
+          "invitedBy": "Invited by",
+          "role": "Role",
+          "cities": "Cities",
+          "expiresAt": "Expires",
+          "actions": "Actions",
+          "revoke": "Revoke",
+          "revoking": "Revoking...",
+          "copied": "Copied!",
+          "copyToken": "Copy Token",
+          "emptyState": "No pending invitations",
+          "emptyStateDescription": "Invitations will appear here once you create them."
+        }
+      }
+    }
   }
 }

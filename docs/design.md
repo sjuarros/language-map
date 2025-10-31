@@ -1,5 +1,11 @@
+---
+title: Design Specifications
+description: UI/UX specifications, component design, internationalization, and AI features for the Multi-City Language Mapping Platform
+category: product
+tags: [design, ui-ux, components, specifications]
+---
+
 # Design Specifications
-# Multi-City Language Mapping Platform
 
 **Version:** 3.1
 **Date:** October 29, 2025
