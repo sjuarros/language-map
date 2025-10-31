@@ -254,12 +254,28 @@ tags: [implementation, roadmap, planning, development, timeline]
 
 #### **Week 3 - Layouts & City Management**
 
-- [ ] **Day 12**: Create i18n-aware layouts (locale routing)
-  - Create app/[locale]/layout.tsx
-  - Implement locale switching
-  - Create translation message files (en.json, nl.json, fr.json)
-  - Test locale routing
-  - **Unit tests for locale routing and switching**
+- [x] **Day 12**: Create i18n-aware layouts (locale routing) ✅
+  - Create app/[locale]/layout.tsx ✅
+  - Implement locale switching ✅
+  - Create translation message files (en.json, nl.json, fr.json) ✅
+  - Test locale routing ✅
+  - **Unit tests for locale routing and switching** ✅
+  - **Completed:** October 31, 2025
+  - **Files:**
+    - `app/[locale]/layout.tsx` (locale-aware layout with NextIntlClientProvider)
+    - `lib/i18n/config.ts` (locales configuration: en, nl, fr)
+    - `lib/i18n/navigation.ts` (i18n navigation with next-intl)
+    - `middleware.ts` (i18n routing middleware)
+    - `messages/en.json` (English translations)
+    - `messages/nl.json` (Dutch translations)
+    - `messages/fr.json` (French translations)
+  - **Features:**
+    - Locale validation in layout with `notFound()` redirect
+    - Next-intl client provider setup for all pages
+    - Locale-aware navigation (Link, redirect, useRouter)
+    - Translation message files for 3 locales
+    - Middleware for automatic locale detection and routing
+    - **Unit tests:** 12 tests passing in `lib/i18n/config.test.ts` and `lib/i18n/navigation.test.ts`
 
 - [ ] **Day 13**: Superuser panel - city creation with translations
   - Create superuser dashboard
