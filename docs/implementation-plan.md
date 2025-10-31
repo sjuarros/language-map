@@ -230,12 +230,27 @@ tags: [implementation, roadmap, planning, development, timeline]
     - RLS policies for security
     - Type checking and linting passed
 
-- [ ] **Day 11**: Middleware for route protection + multi-city checks
+- [x] **Day 11**: Middleware for route protection + multi-city checks ✅
   - Create middleware.ts
   - Protect /operator, /admin, /superuser routes
   - Implement role-based access control
   - Test authorization flows
   - **Unit tests for middleware and authorization**
+  - **Completed:** October 31, 2025
+  - **Files:**
+    - `middleware.ts` (i18n + authorization middleware)
+    - `lib/auth/authorization.ts` (role checking utilities)
+    - `lib/auth/authorization.test.ts` (comprehensive unit tests)
+    - `middleware.test.ts` (integration tests)
+  - **Features:**
+    - Combined i18n and authorization middleware
+    - Three-tier role hierarchy (operator < admin < superuser)
+    - Role-based route protection with redirect logic
+    - Authorization utilities for app-wide use
+    - Full i18n support (EN/NL/FR)
+    - 100% test coverage of authorization functions
+    - TypeScript type safety verified
+    - ESLint compliance passed
 
 #### **Week 3 - Layouts & City Management**
 

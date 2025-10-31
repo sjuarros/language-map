@@ -6,7 +6,7 @@
  * @module app/actions/invitations.test
  */
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
   createInvitation,
   acceptInvitation,
@@ -21,6 +21,10 @@ vi.mock('@supabase/ssr', () => ({
 
 vi.mock('next/headers', () => ({
   cookies: vi.fn(),
+}))
+
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
 }))
 
 vi.mock('@supabase/supabase-js', () => ({
@@ -54,7 +58,7 @@ const mockInvitation = {
 
 describe('createInvitation', () => {
   it('should create an invitation successfully', async () => {
-    // Mock successful auth
+    // Mock successful auth and all required queries
     const mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -62,24 +66,63 @@ describe('createInvitation', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { role: 'superuser' },
-              error: null,
-            }),
-          }),
-        }),
-        insert: vi.fn().mockReturnValue({
+      from: vi.fn()
+        // First call: check user role
+        .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockInvitation,
-              error: null,
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'superuser' },
+                error: null,
+              }),
             }),
           }),
+        })
+        // Second call: check existing user (return null - no existing user)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { code: 'PGRST116' },
+              }),
+            }),
+          }),
+        })
+        // Third call: check pending invitation (return null - no pending invitation)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              is: vi.fn().mockReturnValue({
+                is: vi.fn().mockReturnValue({
+                  gt: vi.fn().mockReturnValue({
+                    single: vi.fn().mockResolvedValue({
+                      data: null,
+                      error: { code: 'PGRST116' },
+                    }),
+                  }),
+                }),
+              }),
+            }),
+          }),
+        })
+        // Fourth call: create invitation
+        .mockReturnValueOnce({
+          insert: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: mockInvitation,
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Fifth call: create city grants
+        .mockReturnValueOnce({
+          insert: vi.fn().mockResolvedValue({
+            error: null,
+          }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')
@@ -89,7 +132,7 @@ describe('createInvitation', () => {
       email: 'invited@example.com',
       fullName: 'Invited User',
       role: 'admin',
-      cityIds: ['city-123'],
+      cityIds: ['123e4567-e89b-12d3-a456-426614174000'],
     })
 
     expect(result.success).toBe(true)
@@ -109,7 +152,7 @@ describe('createInvitation', () => {
         email: 'invalid-email',
         fullName: 'Test User',
         role: 'admin',
-        cityIds: ['city-123'],
+        cityIds: ['123e4567-e89b-12d3-a456-426614174000'],
       })
     ).rejects.toThrow('Invalid email address')
   })
@@ -153,7 +196,7 @@ describe('createInvitation', () => {
         email: 'invited@example.com',
         fullName: 'Invited User',
         role: 'admin',
-        cityIds: ['city-123'],
+        cityIds: ['123e4567-e89b-12d3-a456-426614174000'],
       })
     ).rejects.toThrow('Insufficient permissions')
   })
@@ -166,16 +209,40 @@ describe('createInvitation', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { id: 'existing-user' },
-              error: null,
+      from: vi.fn()
+        // First call: check user role (admin)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'admin' },
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Second call: check admin cities
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                data: [{ city_id: '123e4567-e89b-12d3-a456-426614174000' }],
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Third call: check existing user (return existing user)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { id: 'existing-user' },
+                error: null,
+              }),
             }),
           }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')
@@ -186,7 +253,7 @@ describe('createInvitation', () => {
         email: 'existing@example.com',
         fullName: 'Existing User',
         role: 'admin',
-        cityIds: ['city-123'],
+        cityIds: ['123e4567-e89b-12d3-a456-426614174000'],
       })
     ).rejects.toThrow('A user with this email already exists')
   })
@@ -200,8 +267,30 @@ describe('createInvitation', () => {
         }),
       },
       from: vi.fn()
+        // First call: check user role (admin)
         .mockReturnValueOnce({
-          // User check returns no user
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'admin' },
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Second call: check admin cities
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                data: [{ city_id: '123e4567-e89b-12d3-a456-426614174000' }],
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Third call: check existing user (return null - no existing user)
+        .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               single: vi.fn().mockResolvedValue({
@@ -211,8 +300,8 @@ describe('createInvitation', () => {
             }),
           }),
         })
+        // Fourth call: check pending invitation (return existing invitation)
         .mockReturnValueOnce({
-          // Existing invitation check
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               is: vi.fn().mockReturnValue({
@@ -237,8 +326,8 @@ describe('createInvitation', () => {
       createInvitation({
         email: 'pending@example.com',
         fullName: 'Pending User',
-        role: 'operator',
-        cityIds: ['city-123'],
+        role: 'admin',
+        cityIds: ['123e4567-e89b-12d3-a456-426614174000'],
       })
     ).rejects.toThrow('A pending invitation already exists for this email')
   })
@@ -252,6 +341,7 @@ describe('createInvitation', () => {
         }),
       },
       from: vi.fn()
+        // First call: check user role
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
@@ -262,11 +352,14 @@ describe('createInvitation', () => {
             }),
           }),
         })
+        // Second call: check admin cities (return empty array - admin has no city access)
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
-              data: [], // Admin has no city access
-              error: null,
+              eq: vi.fn().mockReturnValue({
+                data: [], // Admin has no city access
+                error: null,
+              }),
             }),
           }),
         }),
@@ -280,7 +373,7 @@ describe('createInvitation', () => {
         email: 'test@example.com',
         fullName: 'Test User',
         role: 'admin',
-        cityIds: ['city-no-access'],
+        cityIds: ['123e4567-e89b-12d3-a456-426614174001'],
       })
     ).rejects.toThrow('You must have admin access to at least one of the selected cities')
   })
@@ -539,6 +632,10 @@ describe('revokeInvitation', () => {
 })
 
 describe('getInvitations', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('should fetch invitations for superuser', async () => {
     const mockInvitations = [
       {
@@ -560,14 +657,27 @@ describe('getInvitations', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            data: mockInvitations,
-            error: null,
+      from: vi.fn()
+        // First call: user_profiles
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'superuser' },
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Second call: invitations (superuser sees all)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              data: mockInvitations,
+              error: null,
+            }),
           }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')
@@ -587,6 +697,7 @@ describe('getInvitations', () => {
       },
     ]
 
+    // First call is to user_profiles, second to invitations
     const mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -595,6 +706,7 @@ describe('getInvitations', () => {
         }),
       },
       from: vi.fn()
+        // First call: user_profiles to get role
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
@@ -605,10 +717,11 @@ describe('getInvitations', () => {
             }),
           }),
         })
+        // Second call: invitations (non-superuser gets filtered query)
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              order: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
                 data: mockInvitations,
                 error: null,
               }),
@@ -635,14 +748,29 @@ describe('getInvitations', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            data: [],
-            error: null,
+      from: vi.fn()
+        // First call: user_profiles
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'admin' },
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Second call: invitations (returns empty)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                data: [],
+                error: null,
+              }),
+            }),
           }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')
@@ -677,16 +805,18 @@ describe('getInvitations', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: null,
-              error: { code: 'PGRST116' },
+      from: vi.fn()
+        // First call: user_profiles (returns error)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { code: 'PGRST116' },
+              }),
             }),
           }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')
@@ -703,14 +833,29 @@ describe('getInvitations', () => {
           error: null,
         }),
       },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          order: vi.fn().mockReturnValue({
-            data: null,
-            error: { message: 'Database error' },
+      from: vi.fn()
+        // First call: user_profiles
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { role: 'admin' },
+                error: null,
+              }),
+            }),
+          }),
+        })
+        // Second call: invitations (returns error)
+        .mockReturnValueOnce({
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                data: null,
+                error: { message: 'Database error' },
+              }),
+            }),
           }),
         }),
-      }),
     }
 
     const { createServerClient } = await import('@supabase/ssr')

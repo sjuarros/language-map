@@ -77,6 +77,41 @@
       "errorInvalidToken": "Jeton d'invitation invalide",
       "errorGeneric": "Une erreur s'est produite lors du traitement de l'invitation."
     },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Permissions insuffisantes",
+        "insufficientPermissionsMessage": "Vous n'avez pas la permission d'accéder à cette page. Veuillez contacter votre administrateur si vous pensez qu'il s'agit d'une erreur.",
+        "accountInactive": "Compte inactif",
+        "accountInactiveMessage": "Votre compte a été désactivé. Veuillez contacter votre administrateur.",
+        "loginRequired": "Veuillez vous connecter pour continuer"
+      },
+      "roles": {
+        "operator": "Opérateur",
+        "admin": "Administrateur",
+        "superuser": "Super-utilisateur"
+      },
+      "permissions": {
+        "createCity": "créer des villes",
+        "manageUsers": "gérer les utilisateurs",
+        "manageData": "gérer les données",
+        "viewAnalytics": "voir les analyses"
+      },
+      "navigation": {
+        "dashboard": "Tableau de bord",
+        "map": "Carte",
+        "languages": "Langues",
+        "users": "Utilisateurs",
+        "settings": "Paramètres",
+        "cities": "Villes"
+      },
+      "messages": {
+        "redirectingToLogin": "Redirection vers la connexion...",
+        "redirectingToDashboard": "Redirection vers le tableau de bord...",
+        "accessDenied": "Accès Refusé",
+        "youNeedRole": "Vous avez besoin des privilèges {role} pour accéder à cette page.",
+        "currentRole": "Votre rôle actuel : {role}"
+      }
+    },
     "admin": {
       "invitations": {
         "title": "Invitations Utilisateur",

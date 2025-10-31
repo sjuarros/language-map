@@ -77,6 +77,41 @@
       "errorInvalidToken": "Ongeldig uitnodigingstoken",
       "errorGeneric": "Er is een fout opgetreden bij het verwerken van de uitnodiging."
     },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Onvoldoende rechten",
+        "insufficientPermissionsMessage": "U heeft geen toegang tot deze pagina. Neem contact op met uw beheerder als u denkt dat dit een fout is.",
+        "accountInactive": "Account inactief",
+        "accountInactiveMessage": "Uw account is gedeactiveerd. Neem contact op met uw beheerder.",
+        "loginRequired": "Log in om door te gaan"
+      },
+      "roles": {
+        "operator": "Operator",
+        "admin": "Beheerder",
+        "superuser": "Superuser"
+      },
+      "permissions": {
+        "createCity": "steden aanmaken",
+        "manageUsers": "gebruikers beheren",
+        "manageData": "gegevens beheren",
+        "viewAnalytics": "analyses bekijken"
+      },
+      "navigation": {
+        "dashboard": "Dashboard",
+        "map": "Kaart",
+        "languages": "Talen",
+        "users": "Gebruikers",
+        "settings": "Instellingen",
+        "cities": "Steden"
+      },
+      "messages": {
+        "redirectingToLogin": "Doorverwijzen naar inlogpagina...",
+        "redirectingToDashboard": "Doorverwijzen naar dashboard...",
+        "accessDenied": "Toegang Geweigerd",
+        "youNeedRole": "U heeft {role} rechten nodig om toegang te krijgen tot deze pagina.",
+        "currentRole": "Uw huidige rol: {role}"
+      }
+    },
     "admin": {
       "invitations": {
         "title": "Gebruikersuitnodigingen",

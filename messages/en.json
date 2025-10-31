@@ -77,6 +77,41 @@
       "errorInvalidToken": "Invalid invitation token",
       "errorGeneric": "An error occurred while processing the invitation."
     },
+    "authorization": {
+      "error": {
+        "insufficientPermissions": "Insufficient permissions",
+        "insufficientPermissionsMessage": "You don't have permission to access this page. Please contact your administrator if you believe this is an error.",
+        "accountInactive": "Account inactive",
+        "accountInactiveMessage": "Your account has been deactivated. Please contact your administrator.",
+        "loginRequired": "Please log in to continue"
+      },
+      "roles": {
+        "operator": "Operator",
+        "admin": "Administrator",
+        "superuser": "Superuser"
+      },
+      "permissions": {
+        "createCity": "create cities",
+        "manageUsers": "manage users",
+        "manageData": "manage data",
+        "viewAnalytics": "view analytics"
+      },
+      "navigation": {
+        "dashboard": "Dashboard",
+        "map": "Map",
+        "languages": "Languages",
+        "users": "Users",
+        "settings": "Settings",
+        "cities": "Cities"
+      },
+      "messages": {
+        "redirectingToLogin": "Redirecting to login...",
+        "redirectingToDashboard": "Redirecting to dashboard...",
+        "accessDenied": "Access Denied",
+        "youNeedRole": "You need {role} privileges to access this page.",
+        "currentRole": "Your current role: {role}"
+      }
+    },
     "admin": {
       "invitations": {
         "title": "User Invitations",
