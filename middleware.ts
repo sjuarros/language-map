@@ -81,20 +81,37 @@ function hasRequiredRole(userRole: string | null, requiredRole: string): boolean
 }
 
 /**
+ * Extract locale from pathname
+ */
+function getLocaleFromPathname(pathname: string): (typeof locales)[number] | null {
+  const segments = pathname.split('/')
+  const locale = segments[1]
+
+  if (locales.includes(locale as typeof locales[number])) {
+    return locale as typeof locales[number]
+  }
+
+  return null
+}
+
+/**
  * Get redirect path based on user role
  */
-function getDashboardPath(userRole: string | null): string {
-  if (!userRole) return '/login'
+function getDashboardPath(
+  userRole: string | null,
+  locale: (typeof locales)[number] = 'en'
+): string {
+  if (!userRole) return `/${locale}/login`
 
   switch (userRole) {
     case 'superuser':
-      return '/superuser'
+      return `/${locale}/superuser`
     case 'admin':
-      return '/admin'
+      return `/${locale}/admin`
     case 'operator':
-      return '/operator'
+      return `/${locale}/operator`
     default:
-      return '/'
+      return `/${locale}`
   }
 }
 
@@ -153,7 +170,8 @@ async function handleAuthorization(request: NextRequest): Promise<NextResponse |
 
   // If user is not authenticated, redirect to login
   if (!user || error) {
-    const loginUrl = new URL('/login', request.url)
+    const locale = getLocaleFromPathname(pathname) || 'en'
+    const loginUrl = new URL(`/${locale as 'en' | 'nl' | 'fr'}/login`, request.url)
     loginUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(loginUrl)
   }
@@ -167,7 +185,8 @@ async function handleAuthorization(request: NextRequest): Promise<NextResponse |
 
   // If no profile found or user is inactive, redirect to login
   if (!profile || !profile.is_active) {
-    const loginUrl = new URL('/login', request.url)
+    const locale = getLocaleFromPathname(pathname) || 'en'
+    const loginUrl = new URL(`/${locale as 'en' | 'nl' | 'fr'}/login`, request.url)
     loginUrl.searchParams.set('error', 'account_inactive')
     return NextResponse.redirect(loginUrl)
   }
@@ -175,7 +194,11 @@ async function handleAuthorization(request: NextRequest): Promise<NextResponse |
   // Check if user has required role
   if (!hasRequiredRole(profile.role, requiredRole)) {
     // User doesn't have permission, redirect to appropriate dashboard
-    const dashboardUrl = new URL(getDashboardPath(profile.role), request.url)
+    const locale = getLocaleFromPathname(pathname) || 'en'
+    const dashboardUrl = new URL(
+      getDashboardPath(profile.role, locale as 'en' | 'nl' | 'fr'),
+      request.url
+    )
     dashboardUrl.searchParams.set('error', 'insufficient_permissions')
     return NextResponse.redirect(dashboardUrl)
   }
@@ -188,11 +211,14 @@ async function handleAuthorization(request: NextRequest): Promise<NextResponse |
 const i18nMiddleware = createMiddleware({
   locales,
   defaultLocale,
-  localePrefix: 'always',
+  localePrefix: 'as-needed',
 })
 
 export default async function middleware(request: NextRequest) {
-  // First, handle i18n routing
+  // All routes now go through i18n middleware first
+  // The middleware will handle locale-prefixed routes properly
+
+  // Handle i18n routing
   const i18nResponse = i18nMiddleware(request)
 
   // If i18n middleware redirected, use that response

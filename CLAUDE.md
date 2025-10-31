@@ -695,7 +695,7 @@ export type Database = {
 
 ### Important: Development Server
 
-⚠️ **CRITICAL**: The dev server is always running on port 3000
+⚠️ **CRITICAL**: The dev server is always running on port 3001
 - **DO NOT** run `npm run dev` manually
 - If restart needed, ask to restart it manually
 - Server runs continuously in the background

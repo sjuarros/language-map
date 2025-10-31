@@ -9,6 +9,8 @@
  * - superuser (3) → Can access superuser routes, create cities, manage all users
  */
 
+import { locales } from '@/lib/i18n/config'
+
 /**
  * User roles in the system
  */
@@ -121,15 +123,15 @@ export function canPerformAction(
 /**
  * Get dashboard redirect path based on user role
  */
-export function getDashboardPath(role: UserRole | null | undefined): string {
+export function getDashboardPath(role: UserRole | null | undefined, locale: string = 'en'): string {
   if (!isValidRole(role)) {
-    return '/'
+    return `/${locale}`
   }
 
   const dashboardPaths: Record<UserRole, string> = {
-    operator: '/operator',
-    admin: '/admin',
-    superuser: '/superuser'
+    operator: `/${locale}/operator`,
+    admin: `/${locale}/admin`,
+    superuser: `/${locale}/superuser`
   }
 
   return dashboardPaths[role]
@@ -138,9 +140,9 @@ export function getDashboardPath(role: UserRole | null | undefined): string {
 /**
  * Get navigation items based on user role
  */
-export function getNavigationItems(role: UserRole | null | undefined) {
+export function getNavigationItems(role: UserRole | null | undefined, locale: string = 'en') {
   const baseItems = [
-    { name: 'Map', href: '/', icon: 'Map' }
+    { name: 'Map', href: `/${locale}`, icon: 'Map' }
   ]
 
   if (!isValidRole(role)) {
@@ -149,18 +151,18 @@ export function getNavigationItems(role: UserRole | null | undefined) {
 
   const roleItems: Record<UserRole, Array<{ name: string; href: string; icon: string }>> = {
     operator: [
-      { name: 'Dashboard', href: '/operator', icon: 'LayoutDashboard' },
-      { name: 'Languages', href: '/operator/languages', icon: 'Languages' }
+      { name: 'Dashboard', href: `/${locale}/operator`, icon: 'LayoutDashboard' },
+      { name: 'Languages', href: `/${locale}/operator/languages`, icon: 'Languages' }
     ],
     admin: [
-      { name: 'Dashboard', href: '/admin', icon: 'LayoutDashboard' },
-      { name: 'Users', href: '/admin/users', icon: 'Users' },
-      { name: 'Settings', href: '/admin/settings', icon: 'Settings' }
+      { name: 'Dashboard', href: `/${locale}/admin`, icon: 'LayoutDashboard' },
+      { name: 'Users', href: `/${locale}/admin/users`, icon: 'Users' },
+      { name: 'Settings', href: `/${locale}/admin/settings`, icon: 'Settings' }
     ],
     superuser: [
-      { name: 'Dashboard', href: '/superuser', icon: 'LayoutDashboard' },
-      { name: 'Cities', href: '/superuser/cities', icon: 'Building' },
-      { name: 'Users', href: '/superuser/users', icon: 'Users' }
+      { name: 'Dashboard', href: `/${locale}/superuser`, icon: 'LayoutDashboard' },
+      { name: 'Cities', href: `/${locale}/superuser/cities`, icon: 'Building' },
+      { name: 'Users', href: `/${locale}/superuser/users`, icon: 'Users' }
     ]
   }
 
@@ -171,38 +173,54 @@ export function getNavigationItems(role: UserRole | null | undefined) {
  * Check if user can access a specific route
  */
 export function canAccessRoute(role: string | null | undefined, pathname: string): boolean {
-  // Public routes (no auth required)
-  if (
-    pathname === '/' ||
-    pathname.startsWith('/en') ||
-    pathname.startsWith('/nl') ||
-    pathname.startsWith('/fr')
-  ) {
+  // Check if it's a public route (no auth required)
+  const segments = pathname.split('/')
+
+  // Root path or direct locale path
+  if (pathname === '/' || pathname === '/en' || pathname === '/nl' || pathname === '/fr') {
     return true
   }
 
-  // If role is not valid, deny access to protected routes
+  // Auth pages
+  if (pathname.startsWith('/login') || pathname.startsWith('/signup')) {
+    return true
+  }
+
+  // City routes like /en/amsterdam
+  if (segments.length >= 3 && segments[1]) {
+    const locale = segments[1]
+    if (locales.includes(locale as typeof locales[number])) {
+      const routeType = segments[2]
+      // If it's a protected route, check permissions
+      if (routeType === 'admin' || routeType === 'operator' || routeType === 'superuser') {
+        // Protected route - check role
+        if (!isValidRole(role)) {
+          return false
+        }
+
+        if (routeType === 'operator') {
+          return isOperator(role)
+        }
+        if (routeType === 'admin') {
+          return isAdmin(role)
+        }
+        if (routeType === 'superuser') {
+          return isSuperuser(role)
+        }
+      } else {
+        // City route without admin/operator/superuser - it's public
+        return true
+      }
+    }
+  }
+
+  // If role is not valid, deny access
   if (!isValidRole(role)) {
     return false
   }
 
-  // Operator routes
-  if (pathname.startsWith('/operator')) {
-    return isOperator(role)
-  }
-
-  // Admin routes
-  if (pathname.startsWith('/admin')) {
-    return isAdmin(role)
-  }
-
-  // Superuser routes
-  if (pathname.startsWith('/superuser')) {
-    return isSuperuser(role)
-  }
-
-  // Default: allow
-  return true
+  // Default: deny
+  return false
 }
 
 /**

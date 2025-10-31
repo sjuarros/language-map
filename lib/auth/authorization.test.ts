@@ -144,16 +144,21 @@ describe('Authorization Utils', () => {
 
   describe('getDashboardPath', () => {
     it('should return correct dashboard path for each role', () => {
-      expect(getDashboardPath('operator')).toBe('/operator')
-      expect(getDashboardPath('admin')).toBe('/admin')
-      expect(getDashboardPath('superuser')).toBe('/superuser')
+      expect(getDashboardPath('operator')).toBe('/en/operator')
+      expect(getDashboardPath('admin')).toBe('/en/admin')
+      expect(getDashboardPath('superuser')).toBe('/en/superuser')
     })
 
-    it('should return root path for invalid roles', () => {
-      expect(getDashboardPath(null)).toBe('/')
-      expect(getDashboardPath(undefined)).toBe('/')
+    it('should return locale-prefixed root path for invalid roles', () => {
+      expect(getDashboardPath(null)).toBe('/en')
+      expect(getDashboardPath(undefined)).toBe('/en')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect(getDashboardPath('guest' as any)).toBe('/')
+      expect(getDashboardPath('guest' as any)).toBe('/en')
+    })
+
+    it('should respect custom locale parameter', () => {
+      expect(getDashboardPath('operator', 'nl')).toBe('/nl/operator')
+      expect(getDashboardPath('admin', 'fr')).toBe('/fr/admin')
     })
   })
 
@@ -193,23 +198,23 @@ describe('Authorization Utils', () => {
 
   describe('canAccessRoute', () => {
     it('should allow superuser to access all routes', () => {
-      expect(canAccessRoute('superuser', '/operator')).toBe(true)
-      expect(canAccessRoute('superuser', '/admin')).toBe(true)
-      expect(canAccessRoute('superuser', '/superuser')).toBe(true)
-      expect(canAccessRoute('superuser', '/')).toBe(true)
+      expect(canAccessRoute('superuser', '/en/operator')).toBe(true)
+      expect(canAccessRoute('superuser', '/en/admin')).toBe(true)
+      expect(canAccessRoute('superuser', '/en/superuser')).toBe(true)
+      expect(canAccessRoute('superuser', '/en')).toBe(true)
       expect(canAccessRoute('superuser', '/en/amsterdam')).toBe(true)
     })
 
     it('should allow admin to access admin and operator routes', () => {
-      expect(canAccessRoute('admin', '/operator')).toBe(true)
-      expect(canAccessRoute('admin', '/admin')).toBe(true)
-      expect(canAccessRoute('admin', '/superuser')).toBe(false)
+      expect(canAccessRoute('admin', '/en/operator')).toBe(true)
+      expect(canAccessRoute('admin', '/en/admin')).toBe(true)
+      expect(canAccessRoute('admin', '/en/superuser')).toBe(false)
     })
 
     it('should allow operator to access operator routes only', () => {
-      expect(canAccessRoute('operator', '/operator')).toBe(true)
-      expect(canAccessRoute('operator', '/admin')).toBe(false)
-      expect(canAccessRoute('operator', '/superuser')).toBe(false)
+      expect(canAccessRoute('operator', '/en/operator')).toBe(true)
+      expect(canAccessRoute('operator', '/en/admin')).toBe(false)
+      expect(canAccessRoute('operator', '/en/superuser')).toBe(false)
     })
 
     it('should allow access to public routes for all users', () => {
