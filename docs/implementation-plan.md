@@ -103,31 +103,80 @@ tags: [implementation, roadmap, planning, development, timeline]
     - Review workflow: reviewed_by, reviewed_at
     - Indexes for performance
 
-- [ ] **Day 5**: Create geographic hierarchy
+- [x] **Day 5**: Create geographic hierarchy ✅
   - Create districts table and district_translations
   - Create neighborhoods table and neighborhood_translations
   - Add foreign key relationships
+  - **Completed:** October 30, 2025
+  - **Files:**
+    - `supabase/migrations/20251030000001_create_geographic_hierarchy.sql`
+    - All tables include AI tracking and translation support
+    - RLS policies enabled
 
-- [ ] **Day 6**: Seed reference data
+- [x] **Day 6**: Seed reference data ✅
   - Seed world regions (Europe, Asia, Africa, etc.) in EN/NL/FR
-  - Seed countries with ISO codes in EN/NL/FR
-  - Create Amsterdam city record with translations
+  - Seed countries with ISO codes in EN/NL/FR (France, Germany, US added)
+  - Create Amsterdam city record with translations (completed)
   - Create Amsterdam districts and neighborhoods
+  - **Completed:** October 30, 2025
+  - **Files:**
+    - `supabase/seed-geographic.sql`
+    - **Amsterdam Districts:** 7 districts (Centrum, West, Nieuw-West, Zuid, Oost, Noord, Zuidoost)
+    - **Amsterdam Neighborhoods:** 5 neighborhoods (Jordaan, De Pijp, Vondelpark, Oostelijk Havengebied, Amsterdam-Noord)
+    - **Translations:** All districts and neighborhoods in EN/NL/FR
 
 #### **Week 2 - Auth & Multi-City Permissions**
 
-- [ ] **Day 7**: Implement RLS policies for multi-city access
+- [x] **Day 7**: Implement RLS policies for multi-city access ✅
   - Enable RLS on all tables
   - Create policies for cities table
   - Create policies for user_profiles table
   - Create policies for city_users table (multi-city access)
+  - **Completed:** October 30, 2025
+  - **Files:**
+    - `supabase/migrations/20251030000002_create_user_management.sql`
+    - `supabase/seed-users.sql`
+  - **Features:**
+    - User profiles with role-based access (superuser/admin/operator)
+    - City_users junction table for multi-city access
+    - Helper functions: is_superuser(), has_city_access(), is_city_admin()
+    - Comprehensive RLS policies for all tables
+    - Automatic user profile creation on signup
+    - **Test Users:** 4 test users created with different access levels
 
-- [ ] **Day 8**: Test RLS security with multiple scenarios
+- [x] **Day 7.5**: Initialize and Start Supabase Database ⭐ **CRITICAL STEP**
+  - Start Supabase local instance on custom ports (54331-54336)
+  - Apply all database migrations (20251030000000, 20251030000001, 20251030000002)
+  - Load seed data (seed.sql, seed-geographic.sql, seed-users.sql)
+  - Update `.env.local` with Supabase credentials
+  - Verify database is running and accessible
+  - **Completed:** October 30, 2025
+  - **Commands:**
+    - `npx supabase start`
+    - `npx supabase db push`
+    - `npx supabase db seed`
+    - `npx supabase status`
+
+- [x] **Day 8**: Test RLS security with multiple scenarios ✅
   - Test superuser access
   - Test admin access to single city
   - Test admin access to multiple cities
   - Test operator access
   - Test cross-city data isolation
+  - **Completed:** October 30, 2025
+  - **Files:**
+    - `__tests__/security/rls.test.ts` (28 comprehensive tests)
+    - `.env.local` (test environment configuration)
+    - `vitest.config.ts` (updated with dotenv)
+  - **Features:**
+    - Helper function tests (is_superuser, has_city_access, is_city_admin)
+    - User profile and role verification
+    - City access grants validation
+    - Geographic hierarchy structure verification
+    - Public access pattern testing
+    - AI translation tracking verification
+    - Database constraint validation
+    - **Test Coverage:** All RLS policies and user roles
 
 - [ ] **Day 9**: Set up Supabase Auth, create auth pages
   - Configure Supabase Auth (magic link)

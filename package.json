@@ -29,6 +29,7 @@
     "@vitest/coverage-v8": "^4.0.5",
     "@vitest/ui": "^4.0.5",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^17.2.3",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.25",
     "jsdom": "^27.0.1",

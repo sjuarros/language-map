@@ -35,81 +35,11 @@ site_url = "http://localhost:3001"
 additional_redirect_urls = ["https://localhost:3001"]
 jwt_expiry = 3600
 enable_signup = true
-enable_email_confirmations = false
-enable_sms_confirmations = false
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
-
-# Email testing tool
-[auth.email.external.email]
-enable_signup = true
-double_confirm_changes = true
-enable_confirmations = false
-
-# Use a custom SMTP server
-[auth.email.smtp]
-admin_email = "admin@example.com"
-host = "localhost"
-port = 54335
-user = ""
-pass = ""
-
-# Use SMTP test credentials for dev auth
-[auth.email.test_otp]
-enable_signup = true
-double_confirm_changes = true
-
-[auth.external.apple]
-enabled = false
-
-[auth.external.azure]
-enabled = false
-
-[auth.external.bitbucket]
-enabled = false
-
-[auth.external.discord]
-enabled = false
-
-[auth.external.facebook]
-enabled = false
-
-[auth.external.figma]
-enabled = false
-
-[auth.external.github]
-enabled = false
-
-[auth.external.gitlab]
-enabled = false
-
-[auth.external.google]
-enabled = false
-
-[auth.external.keycloak]
-enabled = false
-
-[auth.external.linkedin]
-enabled = false
-
-[auth.external.notion]
-enabled = false
-
-[auth.external.twitch]
-enabled = false
-
-[auth.external.twitter]
-enabled = false
-
-[auth.external.workos]
-enabled = false
-
-[edge_functions]
-enabled = true
-port = 54337
 
 [analytics]
 enabled = false
