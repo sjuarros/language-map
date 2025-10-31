@@ -20,6 +20,47 @@
     "home": "Home",
     "map": "Kaart",
     "about": "Over",
-    "languages": "Talen"
+    "languages": "Talen",
+    "login": "Inloggen",
+    "signup": "Registreren",
+    "logout": "Uitloggen"
+  },
+  "auth": {
+    "login": {
+      "title": "Inloggen",
+      "subtitle": "Log in op uw account",
+      "emailLabel": "E-mailadres",
+      "emailPlaceholder": "Voer uw e-mailadres in",
+      "submitButton": "Verstuur magic link",
+      "submitting": "Versturen...",
+      "successTitle": "Controleer uw e-mail!",
+      "successMessage": "We hebben u een magic link gestuurd om in te loggen. Klik op de link in de e-mail om door te gaan.",
+      "backToHome": "Terug naar home",
+      "noAccount": "Nog geen account?",
+      "signupLink": "Registreren",
+      "errorInvalidEmail": "Voer een geldig e-mailadres in",
+      "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+    },
+    "signup": {
+      "title": "Registreren",
+      "subtitle": "Maak uw account aan",
+      "emailLabel": "E-mailadres",
+      "emailPlaceholder": "Voer uw e-mailadres in",
+      "submitButton": "Verstuur magic link",
+      "submitting": "Versturen...",
+      "successTitle": "Controleer uw e-mail!",
+      "successMessage": "We hebben u een magic link gestuurd om uw registratie te voltooien. Klik op de link in de e-mail om door te gaan.",
+      "backToHome": "Terug naar home",
+      "haveAccount": "Al een account?",
+      "loginLink": "Inloggen",
+      "errorInvalidEmail": "Voer een geldig e-mailadres in",
+      "errorGeneric": "Er is een fout opgetreden. Probeer het opnieuw."
+    },
+    "logout": {
+      "confirmTitle": "Uitloggen?",
+      "confirmMessage": "Weet u zeker dat u wilt uitloggen?",
+      "confirmButton": "Uitloggen",
+      "cancelButton": "Annuleren"
+    }
   }
 }

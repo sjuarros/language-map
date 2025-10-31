@@ -20,6 +20,47 @@
     "home": "Accueil",
     "map": "Carte",
     "about": "À propos",
-    "languages": "Langues"
+    "languages": "Langues",
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "logout": "Se déconnecter"
+  },
+  "auth": {
+    "login": {
+      "title": "Se connecter",
+      "subtitle": "Connectez-vous à votre compte",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "submitButton": "Envoyer le lien magique",
+      "submitting": "Envoi...",
+      "successTitle": "Vérifiez votre e-mail !",
+      "successMessage": "Nous vous avons envoyé un lien magique pour vous connecter. Cliquez sur le lien dans l'e-mail pour continuer.",
+      "backToHome": "Retour à l'accueil",
+      "noAccount": "Vous n'avez pas de compte ?",
+      "signupLink": "S'inscrire",
+      "errorInvalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "signup": {
+      "title": "S'inscrire",
+      "subtitle": "Créez votre compte",
+      "emailLabel": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "submitButton": "Envoyer le lien magique",
+      "submitting": "Envoi...",
+      "successTitle": "Vérifiez votre e-mail !",
+      "successMessage": "Nous vous avons envoyé un lien magique pour compléter votre inscription. Cliquez sur le lien dans l'e-mail pour continuer.",
+      "backToHome": "Retour à l'accueil",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter",
+      "errorInvalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "logout": {
+      "confirmTitle": "Se déconnecter ?",
+      "confirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "confirmButton": "Se déconnecter",
+      "cancelButton": "Annuler"
+    }
   }
 }

@@ -20,6 +20,47 @@
     "home": "Home",
     "map": "Map",
     "about": "About",
-    "languages": "Languages"
+    "languages": "Languages",
+    "login": "Log In",
+    "signup": "Sign Up",
+    "logout": "Log Out"
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "subtitle": "Sign in to your account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "submitButton": "Send magic link",
+      "submitting": "Sending...",
+      "successTitle": "Check your email!",
+      "successMessage": "We've sent you a magic link to sign in. Click the link in the email to continue.",
+      "backToHome": "Back to home",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up",
+      "errorInvalidEmail": "Please enter a valid email address",
+      "errorGeneric": "An error occurred. Please try again."
+    },
+    "signup": {
+      "title": "Sign Up",
+      "subtitle": "Create your account",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "Enter your email",
+      "submitButton": "Send magic link",
+      "submitting": "Sending...",
+      "successTitle": "Check your email!",
+      "successMessage": "We've sent you a magic link to complete your registration. Click the link in the email to continue.",
+      "backToHome": "Back to home",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Log in",
+      "errorInvalidEmail": "Please enter a valid email address",
+      "errorGeneric": "An error occurred. Please try again."
+    },
+    "logout": {
+      "confirmTitle": "Log out?",
+      "confirmMessage": "Are you sure you want to log out?",
+      "confirmButton": "Log out",
+      "cancelButton": "Cancel"
+    }
   }
 }

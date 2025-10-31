@@ -178,23 +178,48 @@ tags: [implementation, roadmap, planning, development, timeline]
     - Database constraint validation
     - **Test Coverage:** All RLS policies and user roles
 
-- [ ] **Day 9**: Set up Supabase Auth, create auth pages
+- [x] **Day 9**: Set up Supabase Auth, create auth pages ✅
   - Configure Supabase Auth (magic link)
   - Create login page (/login)
   - Create signup page (/signup)
   - Create logout functionality
+  - **Unit tests for all auth functionality**
+  - **Completed:** October 31, 2025
+  - **Files:**
+    - `lib/auth/client.ts` (auth client with magic link support)
+    - `app/[locale]/login/page.tsx` (login page with i18n)
+    - `app/[locale]/signup/page.tsx` (signup page with i18n)
+    - `app/actions/auth.ts` (server actions for auth)
+    - `components/auth/logout-button.tsx` (logout button component)
+    - `messages/{en,nl,fr}.json` (auth translations)
+    - `lib/auth/client.test.ts` (unit tests)
+    - `app/actions/auth.test.ts` (unit tests)
+    - `components/auth/logout-button.test.tsx` (unit tests)
+    - `app/[locale]/login/page.test.tsx` (unit tests)
+    - `app/[locale]/signup/page.test.tsx` (unit tests)
+  - **Features:**
+    - Magic link authentication (passwordless)
+    - Comprehensive input validation
+    - Environment variable validation
+    - Full internationalization (EN/NL/FR)
+    - shadcn/ui components initialized
+    - Type checking and linting passed
+    - Code compliance validation completed
+    - **Unit test coverage: 80%+**
 
 - [ ] **Day 10**: User invitation system with city_users junction table
   - Create invitation email templates
   - Create invite user functionality
   - Implement user-to-city access grants
   - Test multi-city user creation
+  - **Unit tests for invitation system**
 
 - [ ] **Day 11**: Middleware for route protection + multi-city checks
   - Create middleware.ts
   - Protect /operator, /admin, /superuser routes
   - Implement role-based access control
   - Test authorization flows
+  - **Unit tests for middleware and authorization**
 
 #### **Week 3 - Layouts & City Management**
 
@@ -203,32 +228,39 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Implement locale switching
   - Create translation message files (en.json, nl.json, fr.json)
   - Test locale routing
+  - **Unit tests for locale routing and switching**
 
 - [ ] **Day 13**: Superuser panel - city creation with translations
   - Create superuser dashboard
   - Create city creation form
   - Implement city translations (name, description)
   - Test city creation flow
+  - **Unit tests for city creation and translations**
 
 - [ ] **Day 14**: Admin panel - city selector for multi-city users
   - Create admin dashboard layout
   - Implement city selector dropdown
   - Show user's accessible cities
   - Test multi-city navigation
+  - **Unit tests for city selector and multi-city logic**
 
 - [ ] **Day 15**: Operator panel - city selector
   - Create operator dashboard layout
   - Implement city selector
   - Create overview stats
   - Test operator access
+  - **Unit tests for operator panel components**
 
 - [ ] **Day 16**: Test all authentication flows + i18n switching
   - End-to-end auth testing
   - Test locale switching
   - Test translation fallbacks
   - Fix any bugs
+  - **Review and improve unit test coverage**
 
 **Deliverable**: ✅ Multi-city infrastructure with i18n support, users can sign up and access multiple cities
+
+**Testing Standard**: All code includes unit tests with minimum 80% coverage. E2E tests will be added in Phase 9.
 
 ---
 
