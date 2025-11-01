@@ -8,7 +8,7 @@
  * @param props.params - Route parameters
  * @param props.params.locale - Current locale code
  * @param props.params.citySlug - City identifier
- * @param props.params.id - Taxonomy type UUID
+ * @param props.params.taxonomyTypeId - Taxonomy type UUID
  * @returns Page component JSX
  */
 
@@ -26,16 +26,16 @@ interface Props {
   params: {
     locale: string
     citySlug: string
-    id: string
+    taxonomyTypeId: string
   }
 }
 
 export default async function EditTaxonomyTypePage({ params }: Props) {
-  const { locale, citySlug, id } = params
+  const { locale, citySlug, taxonomyTypeId } = params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
-    redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types/${id}`)
+    redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}`)
   }
 
   const supabase = getDatabaseClient(citySlug)
@@ -81,7 +81,7 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
   }
 
   // Get taxonomy type
-  const taxonomyType = await getTaxonomyType(citySlug, id)
+  const taxonomyType = await getTaxonomyType(citySlug, taxonomyTypeId)
 
   if (!taxonomyType) {
     return (
@@ -97,7 +97,7 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
   const handleSubmit = async (data: Record<string, unknown>) => {
     'use server'
 
-    await updateTaxonomyType(citySlug, id, {
+    await updateTaxonomyType(citySlug, taxonomyTypeId, {
       cityId: city.id,
       slug: String(data.slug),
       isRequired: Boolean(data.isRequired),
@@ -117,7 +117,7 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
   const handleDelete = async () => {
     'use server'
 
-    await deleteTaxonomyType(citySlug, id)
+    await deleteTaxonomyType(citySlug, taxonomyTypeId)
     redirect(`/${locale}/operator/${citySlug}/taxonomy-types`)
   }
 
