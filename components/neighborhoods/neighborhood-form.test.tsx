@@ -3,14 +3,167 @@
  * @description Tests form validation, submission, district selection, and error handling
  */
 
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import NeighborhoodForm from './neighborhood-form'
 import * as reactHookForm from 'react-hook-form'
 
+// Types for Select components
+type SelectOption = {
+  value: string
+  children: React.ReactNode
+}
+
+type SelectContextType = {
+  value: string
+  setValue: (value: string) => void
+  onValueChange: (value: string) => void
+}
+
+type AnyReactComponent = React.FC<React.PropsWithChildren<unknown>>
+
+// Type for React element with props
+type ReactElementWithProps = React.ReactElement & {
+  type?: {
+    displayName?: string
+  }
+  props?: Record<string, unknown>
+}
+
+// Mock Select components to be compatible with testing-library user.selectOptions
+vi.mock('@/components/ui/select', () => {
+  const SelectContext = React.createContext<SelectContextType | null>(null)
+
+  // Helper to recursively find SelectItem components
+  const findSelectItems = (children: React.ReactNode): SelectOption[] => {
+    const options: SelectOption[] = []
+    React.Children.forEach(children, (child) => {
+      if (!child || typeof child !== 'object') return
+
+      const childObj = child as ReactElementWithProps
+      if (childObj?.type?.displayName === 'SelectItem') {
+        options.push({
+          value: String(childObj.props?.value),
+          children: childObj.props?.children as React.ReactNode,
+        })
+      } else if (childObj?.props?.children) {
+        // Recursively search nested children (like SelectContent)
+        options.push(...findSelectItems(childObj.props.children as React.ReactNode))
+      }
+    })
+    return options
+  }
+
+  const Select: AnyReactComponent = ({ children, ...props }) => {
+    const [value, setValue] = React.useState('')
+    const onValueChange = (props as { onValueChange?: (value: string) => void })?.onValueChange || vi.fn()
+
+    // Use useMemo to compute options during render
+    const options = React.useMemo(() => {
+      return findSelectItems(children)
+    }, [children])
+
+    const contextValue: SelectContextType = { value, setValue, onValueChange }
+
+    return (
+      <SelectContext.Provider value={contextValue}>
+        <div data-testid="select">
+          {React.Children.map(children, (child) => {
+            if (!child || typeof child !== 'object') return child
+            const childObj = child as ReactElementWithProps
+            if (childObj?.type?.displayName === 'SelectTrigger') {
+              return React.cloneElement(childObj, { options } as React.PropsWithChildren<{ options?: SelectOption[] }>)
+            }
+            return child
+          })}
+        </div>
+      </SelectContext.Provider>
+    )
+  }
+
+  const SelectContent: AnyReactComponent = () => {
+    // Don't render children in test to avoid duplicates
+    return <div data-testid="select-content"></div>
+  }
+  SelectContent.displayName = 'SelectContent'
+
+  const SelectItem: React.FC<{ children: React.ReactNode; value: string }> = ({ children, value }) => {
+    // Render as option element (used by select trigger)
+    return (
+      <option data-testid="select-item" value={value}>
+        {children}
+      </option>
+    )
+  }
+  SelectItem.displayName = 'SelectItem'
+
+  const SelectTrigger: React.FC<{
+    id?: string
+    className?: string
+    options?: SelectOption[]
+    children?: React.ReactNode
+  }> = ({ id, className, options, children }) => {
+    const context = React.useContext(SelectContext)
+    return (
+      <>
+        <select
+          id={id}
+          className={className}
+          value={context?.value}
+          onChange={(e) => {
+            context?.setValue(e.target.value)
+            context?.onValueChange(e.target.value)
+          }}
+          data-testid="select-trigger"
+        >
+          {options?.map((option, idx) => (
+            <option key={idx} value={option.value}>
+              {option.children}
+            </option>
+          ))}
+        </select>
+        {children}
+      </>
+    )
+  }
+  SelectTrigger.displayName = 'SelectTrigger'
+
+  const SelectValue: React.FC<{ placeholder?: string }> = ({ placeholder }) => {
+    const context = React.useContext(SelectContext)
+    return (
+      <span data-testid="select-value">
+        {context?.value || placeholder}
+      </span>
+    )
+  }
+  SelectValue.displayName = 'SelectValue'
+
+  return {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  }
+})
+
 // Type for form submission handler
 type FormSubmitHandler = (data: Record<string, unknown>) => void
+
+// Type for field registration
+type FieldProps = {
+  name: string
+  onChange: (...args: unknown[]) => unknown
+  onBlur: (...args: unknown[]) => unknown
+  ref: (...args: unknown[]) => unknown
+  value?: string | boolean | undefined
+  type?: string
+  checked?: boolean
+  defaultChecked?: boolean
+  defaultValue?: string
+}
 
 // Mock react-hook-form
 const defaultFieldValue = {
@@ -25,8 +178,8 @@ const defaultFieldValue = {
   description_fr: '',
 }
 
-const mockRegister = vi.fn((field: string) => {
-  const base = {
+const mockRegister = vi.fn((field: string): FieldProps => {
+  const base: Omit<FieldProps, 'value' | 'type' | 'checked' | 'defaultChecked' | 'defaultValue'> = {
     name: field,
     onChange: vi.fn(),
     onBlur: vi.fn(),
@@ -56,42 +209,60 @@ const mockRegister = vi.fn((field: string) => {
   }
 })
 
-vi.mock('react-hook-form', () => ({
-  useForm: vi.fn(() => ({
-    register: mockRegister,
-    handleSubmit: vi.fn((fn: FormSubmitHandler) => (e: React.FormEvent) => {
-      e.preventDefault()
+vi.mock('react-hook-form', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
 
-      // Collect form data
-      const form = e.currentTarget as HTMLFormElement
-      const formData = new FormData(form)
-      const data: Record<string, unknown> = {}
+  // Mock Controller component
+  const MockController = vi.fn().mockImplementation(({ render, name }) => {
+    // Call the render prop with field, fieldState, and formState
+    const field = mockRegister(name)
+    const fieldState = {}
+    const formState = {}
 
-      for (const [key, value] of formData.entries()) {
-        data[key] = value
-      }
+    // Call render and return its result (the actual UI)
+    return render({ field, fieldState, formState })
+  }) as unknown as { displayName: string }
+  MockController.displayName = 'Controller'
 
-      // Set default values if fields are empty
-      data.districtId = data.districtId || 'district-1'
-      data.slug = data.slug || 'test-neighborhood'
-      data.isActive = data.isActive === 'on' || data.isActive === true
-      data.name_en = data.name_en || 'Test Neighborhood'
-      data.description_en = data.description_en || 'Test description'
-      data.name_nl = data.name_nl || 'Test Buurt'
-      data.description_nl = data.description_nl || 'Test beschrijving'
-      data.name_fr = data.name_fr || 'Test Quartier'
-      data.description_fr = data.description_fr || 'Test description FR'
+  return {
+    ...actual,
+    Controller: MockController,
+    useForm: vi.fn(() => ({
+      register: mockRegister,
+      handleSubmit: vi.fn((fn: FormSubmitHandler) => (e: React.FormEvent) => {
+        e.preventDefault()
 
-      // Actually call the handler - this will trigger the component's handleFormSubmit
-      fn(data)
-    }),
-    formState: {
-      errors: {},
-    },
-    watch: vi.fn(() => ''),
-  })),
-  zodResolver: vi.fn(),
-}))
+        // Collect form data
+        const form = e.currentTarget as HTMLFormElement
+        const formData = new FormData(form)
+        const data: Record<string, unknown> = {}
+
+        for (const [key, value] of formData.entries()) {
+          data[key] = value
+        }
+
+        // Set default values if fields are empty
+        data.districtId = data.districtId || 'district-1'
+        data.slug = data.slug || 'test-neighborhood'
+        data.isActive = data.isActive === 'on' || data.isActive === true
+        data.name_en = data.name_en || 'Test Neighborhood'
+        data.description_en = data.description_en || 'Test description'
+        data.name_nl = data.name_nl || 'Test Buurt'
+        data.description_nl = data.description_nl || 'Test beschrijving'
+        data.name_fr = data.name_fr || 'Test Quartier'
+        data.description_fr = data.description_fr || 'Test description FR'
+
+        // Actually call the handler - this will trigger the component's handleFormSubmit
+        fn(data)
+      }),
+      formState: {
+        errors: {},
+      },
+      watch: vi.fn(() => ''),
+    })),
+    zodResolver: vi.fn(),
+  }
+})
 
 const mockDistricts = [
   {

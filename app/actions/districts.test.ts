@@ -12,27 +12,40 @@ import {
   deleteDistrict,
 } from './districts'
 
-// Mock types
-type MockFunction<T = unknown> = ReturnType<typeof vi.fn> & {
-  mockReturnThis: () => T
+// Mock types with improved type safety
+type MockFunction<T extends (...args: unknown[]) => unknown = (...args: unknown[]) => unknown> = ReturnType<typeof vi.fn<T>>
+
+interface QueryChain extends Record<string, MockFunction> {
+  select: MockFunction
+  eq: MockFunction
+  single: MockFunction
+  order: MockFunction
+  insert: MockFunction
+  update: MockFunction
+  delete: MockFunction
 }
 
+interface AuthQuery {
+  getUser: MockFunction
+}
+
+// Query type for district queries (only select, eq, and single are used)
 interface DistrictQuery {
   select: MockFunction
   eq: MockFunction
   single: MockFunction
 }
 
+// Query type for city_users queries (only select, eq, and single are used)
 interface CityUsersQuery {
   select: MockFunction
   eq: MockFunction
   single: MockFunction
 }
 
-// Mock Supabase client with proper chaining
+// Mock Supabase client with proper chaining and type safety
 const createMockSupabase = () => {
-
-  const chain = {
+  const chain: QueryChain = {
     select: vi.fn().mockReturnThis(),
     eq: vi.fn().mockReturnThis(),
     single: vi.fn(),
@@ -42,27 +55,23 @@ const createMockSupabase = () => {
     delete: vi.fn().mockReturnThis(),
   }
 
-  interface MockClient {
-    auth: {
-      getUser: ReturnType<typeof vi.fn>
-    }
-    from: ReturnType<typeof vi.fn>
-  }
-
-  const client = {
+  const client: {
+    auth: AuthQuery
+    from: MockFunction
+  } = {
     auth: {
       getUser: vi.fn(),
     },
     from: vi.fn(() => {
       // Reset and return chain
       Object.keys(chain).forEach((key) => {
-        if (vi.isMockFunction(chain[key as keyof typeof chain])) {
-          chain[key as keyof typeof chain].mockClear()
+        if (vi.isMockFunction(chain[key])) {
+          chain[key].mockClear()
         }
       })
       return { ...chain }
     }),
-  } as MockClient
+  }
 
   return client
 }
@@ -70,8 +79,8 @@ const createMockSupabase = () => {
 let mockSupabase: ReturnType<typeof createMockSupabase>
 
 // Mock the module dependencies
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(() => mockSupabase),
+vi.mock('@/lib/database/client', () => ({
+  getDatabaseClient: vi.fn(() => mockSupabase),
 }))
 
 vi.mock('next/cache', () => ({

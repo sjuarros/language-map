@@ -12,6 +12,17 @@ import * as reactHookForm from 'react-hook-form'
 // Type for form submission handler
 type FormSubmitHandler = (data: Record<string, unknown>) => void
 
+// Type for field registration
+type FieldProps = {
+  name: string
+  onChange: (...args: unknown[]) => unknown
+  onBlur: (...args: unknown[]) => unknown
+  ref: (...args: unknown[]) => unknown
+  value?: string | boolean | undefined
+  type?: string
+  checked?: boolean
+}
+
 // Mock react-hook-form
 const defaultFieldValue = {
   slug: '',
@@ -24,8 +35,8 @@ const defaultFieldValue = {
   description_fr: '',
 }
 
-const mockRegister = vi.fn((field: string) => {
-  const base = {
+const mockRegister = vi.fn((field: string): FieldProps => {
+  const base: Omit<FieldProps, 'value' | 'type' | 'checked'> = {
     name: field,
     onChange: vi.fn(),
     onBlur: vi.fn(),

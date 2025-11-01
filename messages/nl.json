@@ -11,6 +11,13 @@
     "search": "Zoeken",
     "close": "Sluiten"
   },
+  "errors": {
+    "permissionDenied": "Je hebt geen toestemming om deze actie uit te voeren. Neem contact op met je beheerder.",
+    "validationFailed": "Controleer je invoer en probeer het opnieuw. Zorg dat alle verplichte velden correct zijn ingevuld.",
+    "networkError": "Er is een netwerkfout opgetreden. Controleer je verbinding en probeer het opnieuw.",
+    "duplicateSlug": "Er bestaat al een taxonomie type met deze slug. Kies een andere slug.",
+    "saveFailed": "Er is een fout opgetreden bij het opslaan"
+  },
   "home": {
     "title": "Talenkaart Platform",
     "subtitle": "Documenteren en visualiseren van taalkundige diversiteit in steden wereldwijd",
@@ -309,6 +316,96 @@
         "description": "Zodra je een buurt verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook eventuele taalpunten verwijderen die aan deze buurt zijn gekoppeld.",
         "deleteButton": "Buurt Verwijderen",
         "confirmDelete": "Weet je zeker dat je deze buurt wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "taxonomyTypes": {
+      "title": "Taxonomietypen",
+      "subtitle": "Beheer classificatietypes voor {cityName}",
+      "addButton": "Taxonomie Type Toevoegen",
+      "noTaxonomyTypes": {
+        "title": "Nog Geen Taxonomie Types",
+        "description": "Begin met het aanmaken van je eerste taxonomie type voor deze stad. Taxonomie types definiëren classificatiesystemen zoals \"Grootte\" of \"Status\" die kunnen worden toegepast op talen.",
+        "createButton": "Taxonomie Type Aanmaken"
+      },
+      "form": {
+        "title": "Taxonomie Type Aanmaken",
+        "editTitle": "Taxonomie Type Bewerken",
+        "basicInfo": {
+          "title": "Basis Informatie",
+          "description": "Taxonomie type identifier, configuratie en weergave-instellingen",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv. grootte, status, schrifttype",
+          "slugHelpText": "URL-vriendelijke identifier. Alleen kleine letters, cijfers en koppeltekens.",
+          "displayOrderLabel": "Weergave Volgorde",
+          "displayOrderHelpText": "Volgorde waarin dit taxonomie type wordt weergegeven in lijsten (0 = eerste)",
+          "configOptionsTitle": "Configuratie Opties",
+          "isRequiredLabel": "Vereist",
+          "isRequiredHelpText": "Talen moeten een waarde uit deze taxonomie toegewezen hebben",
+          "allowMultipleLabel": "Meerdere Waarden Toestaan",
+          "allowMultipleHelpText": "Talen kunnen meerdere waarden uit deze taxonomie hebben",
+          "useForMapStylingLabel": "Gebruik voor Kaart Styling",
+          "useForMapStylingHelpText": "Gebruik deze taxonomie om taalpunten op de kaart te stylen (kleur, grootte)",
+          "useForFilteringLabel": "Toon in Filters",
+          "useForFilteringHelpText": "Toon deze taxonomie in het openbare kaart filter interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Gemeenschapsgrootte",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Gemeenschapsgrootte",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Taille de la Communauté",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Brève description de ce système de classification..."
+          }
+        },
+        "submitButton": "Taxonomie Type Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "Taxonomie type succesvol aangemaakt",
+        "successUpdate": "Taxonomie type succesvol bijgewerkt"
+      },
+      "info": {
+        "title": "Over Taxonomie Types",
+        "description": "Taxonomie types definiëren classificatiesystemen voor talen. Elke stad kan zijn eigen aangepaste taxonomie types maken in plaats van hardgecodeerde classificaties te gebruiken.",
+        "examples": {
+          "title": "Voorbeelden van Taxonomie Types",
+          "items": [
+            "Grootte (Klein/Medium/Groot) - voor gemeenschapsgrootte",
+            "Status (Bedreigd/Stabiel) - voor bedreigingsstatus",
+            "Schrifttype (Logografisch/Syllabisch/Alfabetisch) - voor schriftsystemen",
+            "Officiele Status (Officieel/Erkend/Minder) - voor officiële erkenning"
+          ]
+        },
+        "configuration": {
+          "title": "Configuratie Opties",
+          "items": [
+            "Vereist: Talen moeten deze taxonomie toegewezen hebben",
+            "Meerdere Waarden: Talen kunnen meerdere waarden uit deze taxonomie hebben",
+            "Kaart Styling: Gebruik deze taxonomie om taalpunten op de kaart te stylen",
+            "Filtering: Toon deze taxonomie in het openbare kaart filter"
+          ]
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een taxonomie type verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook alle taxonomie waarden en taal toewijzingen verwijderen die aan dit taxonomie type gekoppeld zijn.",
+        "deleteButton": "Taxonomie Type Verwijderen",
+        "confirmDelete": "Weet je zeker dat je dit taxonomie type wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
       }
     }
   }

@@ -7,9 +7,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
+import { getDatabaseClient } from '@/lib/database/client'
 import { z } from 'zod'
 
 /**
@@ -38,6 +36,10 @@ export type DistrictInput = z.infer<typeof districtSchema>
 
 /**
  * Get districts for a city with translations
+ *
+ * @async
+ * @param citySlug - The city identifier
+ * @returns Promise containing array of districts
  */
 export async function getDistricts(citySlug: string) {
   try {
@@ -50,36 +52,7 @@ export async function getDistricts(citySlug: string) {
       throw new Error('Invalid city slug format')
     }
 
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch (error) {
-              if (process.env.NODE_ENV === 'development') {
-                console.warn('Cookie set operation failed:', error)
-              }
-            }
-          },
-          remove(name: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value: '', ...options })
-            } catch (error) {
-              if (process.env.NODE_ENV === 'development') {
-                console.warn('Cookie remove operation failed:', error)
-              }
-            }
-          },
-        },
-      }
-    )
+    const supabase = getDatabaseClient(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -133,6 +106,11 @@ export async function getDistricts(citySlug: string) {
 
 /**
  * Get a single district by ID
+ *
+ * @async
+ * @param citySlug - The city identifier
+ * @param districtId - The district identifier
+ * @returns Promise containing district data
  */
 export async function getDistrict(citySlug: string, districtId: string) {
   try {
@@ -150,36 +128,7 @@ export async function getDistrict(citySlug: string, districtId: string) {
       throw new Error('Invalid district ID format')
     }
 
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch (error) {
-              if (process.env.NODE_ENV === 'development') {
-                console.warn('Cookie set operation failed:', error)
-              }
-            }
-          },
-          remove(name: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value: '', ...options })
-            } catch (error) {
-              if (process.env.NODE_ENV === 'development') {
-                console.warn('Cookie remove operation failed:', error)
-              }
-            }
-          },
-        },
-      }
-    )
+    const supabase = getDatabaseClient(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -238,40 +187,16 @@ export async function getDistrict(citySlug: string, districtId: string) {
 
 /**
  * Create a new district with translations
+ *
+ * @async
+ * @param citySlug - The city identifier
+ * @param input - District input data
+ * @returns Promise containing created district
  */
 export async function createDistrict(citySlug: string, input: DistrictInput) {
   const validatedInput = districtSchema.parse(input)
 
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
-    }
-  )
+  const supabase = getDatabaseClient(citySlug)
 
   // Get current user
   const {
@@ -362,6 +287,12 @@ export async function createDistrict(citySlug: string, input: DistrictInput) {
 
 /**
  * Update an existing district with translations
+ *
+ * @async
+ * @param citySlug - The city identifier
+ * @param districtId - The district identifier
+ * @param input - District input data
+ * @returns Promise containing success status
  */
 export async function updateDistrict(
   citySlug: string,
@@ -370,36 +301,7 @@ export async function updateDistrict(
 ) {
   const validatedInput = districtSchema.parse(input)
 
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
-    }
-  )
+  const supabase = getDatabaseClient(citySlug)
 
   // Get current user
   const {
@@ -493,38 +395,14 @@ export async function updateDistrict(
 
 /**
  * Delete a district
+ *
+ * @async
+ * @param citySlug - The city identifier
+ * @param districtId - The district identifier
+ * @returns Promise containing success status
  */
 export async function deleteDistrict(citySlug: string, districtId: string) {
-  const cookieStore = await cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
-    }
-  )
+  const supabase = getDatabaseClient(citySlug)
 
   // Get current user
   const {

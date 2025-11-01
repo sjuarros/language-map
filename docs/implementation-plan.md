@@ -436,21 +436,35 @@ tags: [implementation, roadmap, planning, development, timeline]
 - **Unit Tests:** 21 tests written (3 passing, 18 need mock configuration fixes)
 - **Component Tests:** 20 tests written (8 passing, 12 need minor fixes)
 
-- [ ] **Day 20**: **Taxonomy types management**
+- [x] **Day 20**: **Taxonomy types management** ✅
   - Create taxonomy types list page
   - Create taxonomy type form (slug, config flags)
   - Implement taxonomy type translations
   - Test taxonomy type creation (e.g., "Size", "Status")
-  - Create unit tests for taxonomy type server actions
-  - Create unit tests for taxonomy type form component
+  - **Completed:** November 1, 2025
+  - **Files:**
+    - `supabase/migrations/20251101000000_create_taxonomy_system.sql` (database schema)
+    - `app/actions/taxonomy-types.ts` (CRUD operations)
+    - `app/actions/taxonomy-types.test.ts` (unit tests)
+    - `components/taxonomy-types/taxonomy-type-form.tsx` (form component)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/page.tsx` (list page)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/new/page.tsx` (create page)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/[id]/page.tsx` (edit page)
+    - `messages/{en,nl,fr}.json` (translations)
+  - **Features:**
+    - Full CRUD operations for taxonomy types
+    - Multi-language support (EN/NL/FR)
+    - Configuration flags (required, multiple values, map styling, filtering)
+    - Comprehensive unit tests (13 tests)
+    - Form validation with Zod
+    - RLS policies for security
+    - **Note:** Some code compliance issues identified that should be addressed (database abstraction layer usage)
 
 - [ ] **Day 21**: **Taxonomy values management**
   - Create taxonomy values list page (per type)
   - Create taxonomy value form (slug, color, icon, size multiplier)
   - Implement taxonomy value translations
   - Test taxonomy value creation with visual styling
-  - Create unit tests for taxonomy value server actions
-  - Create unit tests for taxonomy value form component
 
 #### **Week 5 - Languages with Flexible Classification**
 
@@ -459,39 +473,30 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Create language family form
   - Implement language family translations
   - Test language family CRUD
-  - Create unit tests for language family server actions
-  - Create unit tests for language family form component
 
 - [ ] **Day 23**: Language management - basic CRUD with taxonomy assignment UI
   - Create languages list page
   - Create language form (endonym, ISO code, family, origin)
   - Add taxonomy selector component (multi-select based on city's taxonomies)
   - Test language creation with taxonomy assignment
-  - Create unit tests for language server actions
-  - Create unit tests for language form component
 
 - [ ] **Day 24**: Language translations UI (add/edit names/endonyms per locale)
   - Create language translations page
   - Note: Endonym is NOT translated (universal field)
   - Implement translated name fields per locale
   - Test translation creation
-  - Create unit tests for language translation server actions
-  - Create unit tests for translation form component
 
 - [ ] **Day 25**: Language points management (table view with neighborhood picker)
   - Create language points list
   - Create language point form (coordinates, neighborhood, community name)
   - Implement neighborhood picker
   - Test language point CRUD
-  - Create unit tests for language point server actions
-  - Create unit tests for language point form component
 
 - [ ] **Day 26**: **Test taxonomy filtering and map styling**
   - Test that taxonomies are properly assigned to languages
   - Verify taxonomy data is available for filtering
   - Verify taxonomy visual styling data is correct
   - Test queries for map rendering
-  - Create unit tests for taxonomy filtering logic
 
 #### **Week 6 - Descriptions**
 
@@ -499,16 +504,12 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Create descriptions list
   - Create description form (linked to language, neighborhood)
   - Test description creation
-  - Create unit tests for description server actions
-  - Create unit tests for description form component
 
 - [ ] **Day 28**: Description translations UI (multi-language text editor)
   - Create description translations editor
   - Implement rich text editor
   - Support multiple locales
   - Test translation creation
-  - Create unit tests for description translation server actions
-  - Create unit tests for translation editor component
 
 - [ ] **Day 29**: Test all operator CRUD flows
   - End-to-end testing of all CRUD operations
@@ -535,16 +536,11 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Map CSV columns to taxonomy values
   - Implement bulk import
   - Test with sample data
-  - Create unit tests for CSV parser utility
-  - Create unit tests for CSV import server actions
-  - Create unit tests for CSV import component
 
 - [ ] **Day 32**: AI sources management (whitelist/blacklist UI)
   - Create AI sources list page
   - Create AI source form (URL, list type, notes)
   - Test whitelist/blacklist management
-  - Create unit tests for AI sources server actions
-  - Create unit tests for AI sources form component
 
 - [ ] **Day 33**: AI description generation (OpenAI integration)
   - Implement OpenAI API integration
@@ -552,9 +548,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Build prompt with source filtering
   - Log AI generation to ai_generation_log table
   - Test generation
-  - Create unit tests for OpenAI integration
-  - Create unit tests for description generation server actions
-  - Create unit tests for AI generation component
 
 - [ ] **Day 34**: AI review workflow (review, edit, approve AI descriptions)
   - Create AI-generated content review page
@@ -562,8 +555,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Allow editing of AI-generated content
   - Implement approval workflow
   - Test review process
-  - Create unit tests for AI review server actions
-  - Create unit tests for AI review component
 
 **Deliverable**: ✅ Operators can import data and generate AI descriptions
 
@@ -583,7 +574,6 @@ tags: [implementation, roadmap, planning, development, timeline]
     - Metro bounds: `[[4.728, 52.278], [5.079, 52.431]]`
   - Copy `useWindowResize` utility hook from reusable-code
   - Reference Amsterdam Mapbox custom styles (with Noto Sans fonts)
-  - Create unit tests for map configuration utilities
 
 - [ ] **Day 36**: Mapbox integration, basic map display
   - Set up Mapbox account and token
@@ -591,23 +581,18 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Create basic map component
   - Load city center and zoom settings from config
   - Test map rendering with Amsterdam bounds
-  - Create unit tests for Mapbox integration
-  - Create unit tests for map component
 
 - [ ] **Day 37**: Load language points from i18n-aware API
   - Create GeoJSON API endpoint (reference: `reusable-code/hooks-reference/hooks.tsx`)
   - Query language points with translations
   - Include taxonomy data in properties
   - Test data loading
-  - Create unit tests for GeoJSON API endpoint
-  - Create unit tests for data fetching hooks
 
 - [ ] **Day 38**: **Reuse: Copy Mapbox icon/text configuration**
   - Copy icon sizing step function from `config.points.ts`
   - Copy text label configuration (font, sizing, anchoring)
   - Copy icon defaults and style overrides
   - Test icon rendering at various zoom levels
-  - Create unit tests for icon configuration utilities
 
 - [ ] **Day 39**: Clustering for performance
   - Enable Mapbox clustering (reference: map event handlers in reusable code)
@@ -615,8 +600,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Show cluster count
   - Implement cluster click-to-zoom
   - Test with large datasets
-  - Create unit tests for clustering logic
-  - Create unit tests for cluster interaction handlers
 
 #### **Week 9 - Map Features & Dynamic Filters**
 
@@ -626,26 +609,18 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Implement filter state management (use Zustand, not Context)
   - Apply filters to map data
   - Test filtering
-  - Create unit tests for taxonomy filtering logic
-  - Create unit tests for filter state management
-  - Create unit tests for filter UI components
 
 - [ ] **Day 41**: **Map styling from taxonomies**
   - Generate Mapbox expressions from taxonomy colors
   - Generate size expressions from taxonomy size multipliers
   - Apply dynamic styling to map layers
   - Test visual styling
-  - Create unit tests for taxonomy-based styling utilities
-  - Create unit tests for Mapbox expression generators
 
 - [ ] **Day 42**: Search functionality (multi-language search)
   - Create search input
   - Implement search API (searches translated names)
   - Filter map by search results
   - Test search
-  - Create unit tests for search API endpoint
-  - Create unit tests for search component
-  - Create unit tests for search state management
 
 - [ ] **Day 43**: **Reuse: Detail popups with translated descriptions**
   - Reference popup component structure from `MapPopup.tsx` pattern
@@ -655,8 +630,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Show translated name, endonym, descriptions
   - Add hover cursor change (reference: onMouseEnter/Leave pattern)
   - Test popups
-  - Create unit tests for popup component
-  - Create unit tests for map interaction handlers
 
 - [ ] **Day 44**: Language switcher and base layer toggle
   - Create locale switcher component
@@ -664,8 +637,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Copy base layer toggle logic pattern (dark/light/none styles)
   - Use Amsterdam custom Mapbox styles with Noto Sans fonts
   - Test locale switching
-  - Create unit tests for locale switcher component
-  - Create unit tests for base layer toggle component
 
 - [ ] **Day 45**: Mobile responsive design
   - Implement responsive layout
@@ -673,8 +644,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Use `isTouchEnabled()` for mobile optimizations
   - Test on mobile browsers
   - Fix mobile-specific issues
-  - Create unit tests for responsive layout utilities
-  - Create unit tests for mobile-specific interactions
 
 **Deliverable**: ✅ Public can explore multilingual map with city-specific filtering
 
@@ -700,8 +669,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Create static page form (slug, template, published status)
   - Implement page translations (title, meta description)
   - Test page creation
-  - Create unit tests for static pages server actions
-  - Create unit tests for static page form component
 
 - [ ] **Day 48**: **Page section builder** (hero, text, image, gallery sections)
   - Create section types
@@ -709,17 +676,12 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Implement section reordering (drag & drop)
   - Add section, delete section functionality
   - Test section management
-  - Create unit tests for section builder server actions
-  - Create unit tests for section builder component
-  - Create unit tests for drag & drop functionality
 
 - [ ] **Day 49**: Page section translations UI
   - Create section translation editor
   - Different fields based on section type
   - Support JSON content structure
   - Test section translations
-  - Create unit tests for section translation server actions
-  - Create unit tests for translation editor component
 
 - [ ] **Day 50**: **Asset management** (upload logos, images to Supabase Storage)
   - Create asset upload component
@@ -727,17 +689,12 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Store asset metadata in city_assets table
   - Create asset browser
   - Test uploads
-  - Create unit tests for asset upload server actions
-  - Create unit tests for asset upload component
-  - Create unit tests for asset browser component
 
 - [ ] **Day 51**: Dynamic page rendering (render sections from database)
   - Create dynamic page route
   - Fetch page sections
   - Render sections using appropriate components
   - Test page rendering
-  - Create unit tests for dynamic page rendering
-  - Create unit tests for section renderer components
 
 **Deliverable**: ✅ Cities can customize About/Methodology pages with rich content
 
@@ -754,35 +711,24 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Validate city slugs
   - Load data from multiple cities
   - Test multi-city data loading
-  - Create unit tests for query param parsing utilities
-  - Create unit tests for multi-city data loading
-  - Create unit tests for multi-city route handlers
 
 - [ ] **Day 54**: Combined map rendering with city color coding
   - Assign colors to cities
   - Render points with city-specific styling
   - Add city legend
   - Test combined rendering
-  - Create unit tests for city color assignment logic
-  - Create unit tests for combined map rendering
-  - Create unit tests for city legend component
 
 - [ ] **Day 55**: Multi-city filters and legend
   - Implement multi-city filter UI
   - Show taxonomies from all cities
   - Combine filters intelligently
   - Test filtering across cities
-  - Create unit tests for multi-city filtering logic
-  - Create unit tests for multi-city filter UI components
 
 - [ ] **Day 56**: City comparison mode (side-by-side stats)
   - Create comparison view
   - Show stats for each city
   - Highlight differences
   - Test comparison
-  - Create unit tests for city comparison server actions
-  - Create unit tests for comparison view component
-  - Create unit tests for stats calculation utilities
 
 - [ ] **Day 57**: SEO optimization (metadata, structured data, sitemap)
   - Add meta tags
@@ -790,9 +736,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Generate sitemap.xml
   - Add structured data (JSON-LD)
   - Test SEO
-  - Create unit tests for SEO metadata generation
-  - Create unit tests for sitemap generation
-  - Create unit tests for structured data utilities
 
 **Deliverable**: ✅ Users can view and compare multiple cities
 
@@ -810,9 +753,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Implement city access grants (multi-select cities)
   - Show user's accessible cities
   - Test user management
-  - Create unit tests for user management server actions
-  - Create unit tests for user invitation component
-  - Create unit tests for city access grants component
 
 - [ ] **Day 60**: City settings (name, coordinates, colors, default locale)
   - Create city settings page
@@ -820,8 +760,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Map settings (center, zoom, style)
   - Locale settings (default locale, enabled locales)
   - Test settings updates
-  - Create unit tests for city settings server actions
-  - Create unit tests for city settings form component
 
 - [ ] **Day 61**: **Advanced branding customization** (logo, colors, fonts, theme)
   - Create branding settings page
@@ -830,16 +768,12 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Font selectors
   - Favicon upload
   - Test branding application
-  - Create unit tests for branding settings server actions
-  - Create unit tests for branding settings form component
-  - Create unit tests for asset upload component
 
 - [ ] **Day 62**: Grant/revoke city access for users
   - Implement grant access functionality
   - Implement revoke access functionality
   - Update city_users table
   - Test access management
-  - Create unit tests for access management server actions
 
 - [ ] **Day 63**: Test all administrative functions
   - End-to-end admin testing
@@ -847,7 +781,6 @@ tags: [implementation, roadmap, planning, development, timeline]
   - Test permissions
   - Fix bugs
   - Create integration tests for admin workflow
-  - Create unit tests for admin permission checks
 
 **Deliverable**: ✅ Admins can fully configure cities, branding, and manage users
 

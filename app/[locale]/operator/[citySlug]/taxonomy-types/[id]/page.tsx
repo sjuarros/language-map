@@ -1,18 +1,26 @@
 /**
- * Edit Neighborhood Page
- * ======================
- * Page for editing an existing neighborhood with multilingual support.
+ * Edit Taxonomy Type Page
+ * =======================
+ * Page for editing an existing taxonomy type with multilingual support.
+ *
+ * @async
+ * @param props - Component props
+ * @param props.params - Route parameters
+ * @param props.params.locale - Current locale code
+ * @param props.params.citySlug - City identifier
+ * @param props.params.id - Taxonomy type UUID
+ * @returns Page component JSX
  */
 
-import { getDatabaseClient } from '@/lib/database/client'
 import { getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { getNeighborhood, getDistrictsForNeighborhood, updateNeighborhood, deleteNeighborhood } from '@/app/actions/neighborhoods'
-import NeighborhoodForm from '@/components/neighborhoods/neighborhood-form'
+import { getTaxonomyType, updateTaxonomyType, deleteTaxonomyType } from '@/app/actions/taxonomy-types'
+import TaxonomyTypeForm from '@/components/taxonomy-types/taxonomy-type-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Trash2 } from 'lucide-react'
+import { getDatabaseClient } from '@/lib/database/client'
 
 interface Props {
   params: {
@@ -22,12 +30,12 @@ interface Props {
   }
 }
 
-export default async function EditNeighborhoodPage({ params }: Props) {
+export default async function EditTaxonomyTypePage({ params }: Props) {
   const { locale, citySlug, id } = params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
-    redirect(`/${currentLocale}/operator/${citySlug}/neighborhoods/${id}`)
+    redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types/${id}`)
   }
 
   const supabase = getDatabaseClient(citySlug)
@@ -53,7 +61,7 @@ export default async function EditNeighborhoodPage({ params }: Props) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Edit Neighborhood</h1>
+          <h1 className="text-3xl font-bold">Edit Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">City not found</p>
         </div>
       </div>
@@ -72,74 +80,73 @@ export default async function EditNeighborhoodPage({ params }: Props) {
     redirect(`/${locale}/operator`)
   }
 
-  // Get neighborhood
-  const neighborhood = await getNeighborhood(citySlug, id)
+  // Get taxonomy type
+  const taxonomyType = await getTaxonomyType(citySlug, id)
 
-  if (!neighborhood) {
+  if (!taxonomyType) {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Edit Neighborhood</h1>
-          <p className="mt-2 text-sm text-gray-600">Neighborhood not found</p>
+          <h1 className="text-3xl font-bold">Edit Taxonomy Type</h1>
+          <p className="mt-2 text-sm text-gray-600">Taxonomy type not found</p>
         </div>
       </div>
     )
   }
 
-  // Get districts for dropdown
-  const districts = await getDistrictsForNeighborhood(citySlug)
-
   const handleSubmit = async (data: Record<string, unknown>) => {
     'use server'
 
-    await updateNeighborhood(citySlug, id, {
+    await updateTaxonomyType(citySlug, id, {
       cityId: city.id,
-      districtId: data.districtId as string,
-      slug: data.slug as string,
-      isActive: data.isActive as boolean,
-      name_en: data.name_en as string,
-      description_en: data.description_en as string | undefined,
-      name_nl: data.name_nl as string | undefined,
-      description_nl: data.description_nl as string | undefined,
-      name_fr: data.name_fr as string | undefined,
-      description_fr: data.description_fr as string | undefined,
+      slug: String(data.slug),
+      isRequired: Boolean(data.isRequired),
+      allowMultiple: Boolean(data.allowMultiple),
+      useForMapStyling: Boolean(data.useForMapStyling),
+      useForFiltering: Boolean(data.useForFiltering),
+      displayOrder: Number(data.displayOrder) || 0,
+      name_en: String(data.name_en),
+      description_en: data.description_en ? String(data.description_en) : undefined,
+      name_nl: data.name_nl ? String(data.name_nl) : undefined,
+      description_nl: data.description_nl ? String(data.description_nl) : undefined,
+      name_fr: data.name_fr ? String(data.name_fr) : undefined,
+      description_fr: data.description_fr ? String(data.description_fr) : undefined,
     })
   }
 
   const handleDelete = async () => {
     'use server'
 
-    await deleteNeighborhood(citySlug, id)
-    redirect(`/${locale}/operator/${citySlug}/neighborhoods`)
+    await deleteTaxonomyType(citySlug, id)
+    redirect(`/${locale}/operator/${citySlug}/taxonomy-types`)
   }
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div className="flex items-center gap-4">
-        <Link href={`/${locale}/operator/${citySlug}/neighborhoods`}>
+        <Link href={`/${locale}/operator/${citySlug}/taxonomy-types`}>
           <Button variant="ghost" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Neighborhoods
+            Back to Taxonomy Types
           </Button>
         </Link>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">Edit Neighborhood</h1>
+          <h1 className="text-3xl font-bold">Edit Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Update neighborhood information for {city.translations[0]?.name || city.name}
+            Update taxonomy type for {city.translations[0]?.name || city.name}
           </p>
         </div>
       </div>
 
       {/* Form */}
-      <NeighborhoodForm
+      <TaxonomyTypeForm
         cityId={city.id}
         citySlug={citySlug}
         locale={locale}
-        districts={districts}
-        initialData={neighborhood}
+        initialData={taxonomyType}
         onSubmit={handleSubmit}
-        submitLabel="Update Neighborhood"
+        submitLabel="Update Taxonomy Type"
       />
 
       {/* Delete Section */}
@@ -147,8 +154,8 @@ export default async function EditNeighborhoodPage({ params }: Props) {
         <CardHeader>
           <CardTitle className="text-red-600">Danger Zone</CardTitle>
           <CardDescription>
-            Once you delete a neighborhood, there is no way to undo this action. This will also
-            delete any language points linked to this neighborhood.
+            Once you delete a taxonomy type, there is no way to undo this action. This will also
+            delete all taxonomy values and language assignments associated with this taxonomy type.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -157,13 +164,13 @@ export default async function EditNeighborhoodPage({ params }: Props) {
               type="submit"
               variant="destructive"
               onClick={(e) => {
-                if (!confirm('Are you sure you want to delete this neighborhood? This action cannot be undone.')) {
+                if (!confirm('Are you sure you want to delete this taxonomy type? This action cannot be undone.')) {
                   e.preventDefault()
                 }
               }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Delete Neighborhood
+              Delete Taxonomy Type
             </Button>
           </form>
         </CardContent>

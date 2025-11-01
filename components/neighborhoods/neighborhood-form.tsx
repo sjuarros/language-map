@@ -8,7 +8,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,13 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Loader2, Save } from 'lucide-react'
 
 const neighborhoodFormSchema = z.object({
@@ -80,6 +87,7 @@ export default function NeighborhoodForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     watch,
   } = useForm<NeighborhoodFormValues>({
@@ -174,21 +182,27 @@ export default function NeighborhoodForm({
             <Label htmlFor="districtId">
               District <span className="text-red-500">*</span>
             </Label>
-            <select
-              id="districtId"
-              {...register('districtId')}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="">Select a district</option>
-              {districts.map((district) => {
-                const translation = district.translations.find((t) => t.locale === 'en') || district.translations[0]
-                return (
-                  <option key={district.id} value={district.id}>
-                    {translation?.name || district.slug}
-                  </option>
-                )
-              })}
-            </select>
+            <Controller
+              name="districtId"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <SelectTrigger id="districtId">
+                    <SelectValue placeholder="Select a district" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {districts.map((district) => {
+                      const translation = district.translations.find((t) => t.locale === 'en') || district.translations[0]
+                      return (
+                        <SelectItem key={district.id} value={district.id}>
+                          {translation?.name || district.slug}
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              )}
+            />
             {errors.districtId && (
               <p className="text-sm text-red-500">{errors.districtId.message}</p>
             )}

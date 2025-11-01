@@ -11,6 +11,13 @@
     "search": "Rechercher",
     "close": "Fermer"
   },
+  "errors": {
+    "permissionDenied": "Vous n'avez pas la permission d'effectuer cette action. Veuillez contacter votre administrateur.",
+    "validationFailed": "Veuillez vérifier votre saisie et réessayer. Assurez-vous que tous les champs obligatoires sont correctement remplis.",
+    "networkError": "Une erreur réseau s'est produite. Veuillez vérifier votre connexion et réessayer.",
+    "duplicateSlug": "Un type de taxonomie avec ce slug existe déjà. Veuillez choisir un slug différent.",
+    "saveFailed": "Une erreur s'est produite lors de l'enregistrement"
+  },
   "home": {
     "title": "Plateforme Carte des Langues",
     "subtitle": "Documenter et visualiser la diversité linguistique dans les villes du monde entier",
@@ -309,6 +316,96 @@
         "description": "Une fois que vous supprimez un secteur, il n'y a aucun moyen d'annuler cette action. Cela supprimera également tous les points linguistiques liés à ce secteur.",
         "deleteButton": "Supprimer le Secteur",
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce secteur ? Cette action ne peut pas être annulée."
+      }
+    },
+    "taxonomyTypes": {
+      "title": "Types de Taxonomie",
+      "subtitle": "Gérer les types de classification pour {cityName}",
+      "addButton": "Ajouter un Type de Taxonomie",
+      "noTaxonomyTypes": {
+        "title": "Aucun Type de Taxonomie pour le Moment",
+        "description": "Commencez par créer votre premier type de taxonomie pour cette ville. Les types de taxonomie définissent des systèmes de classification comme \"Taille\" ou \"Statut\" qui peuvent être appliqués aux langues.",
+        "createButton": "Créer un Type de Taxonomie"
+      },
+      "form": {
+        "title": "Créer un Type de Taxonomie",
+        "editTitle": "Modifier le Type de Taxonomie",
+        "basicInfo": {
+          "title": "Informations de Base",
+          "description": "Identifiant du type de taxonomie, configuration et paramètres d'affichage",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "ex., taille, statut, type-ecriture",
+          "slugHelpText": "Identifiant adapté aux URL. Seulement des lettres minuscules, chiffres et traits d'union.",
+          "displayOrderLabel": "Ordre d'Affichage",
+          "displayOrderHelpText": "Ordre dans lequel ce type de taxonomie apparaît dans les listes (0 = premier)",
+          "configOptionsTitle": "Options de Configuration",
+          "isRequiredLabel": "Obligatoire",
+          "isRequiredHelpText": "Les langues doivent avoir une valeur de cette taxonomie assignée",
+          "allowMultipleLabel": "Autoriser les Valeurs Multiples",
+          "allowMultipleHelpText": "Les langues peuvent avoir plusieurs valeurs de cette taxonomie",
+          "useForMapStylingLabel": "Utiliser pour le Styling de Carte",
+          "useForMapStylingHelpText": "Utiliser cette taxonomie pour styler les points linguistiques sur la carte (couleur, taille)",
+          "useForFilteringLabel": "Afficher dans les Filtres",
+          "useForFilteringHelpText": "Afficher cette taxonomie dans l'interface de filtre de carte publique"
+        },
+        "translations": {
+          "english": {
+            "title": "Traduction Anglaise",
+            "description": "Traduction obligatoire - Langue principale",
+            "nameLabel": "Nom du Type de Taxonomie",
+            "namePlaceholder": "ex., Taille de la Communauté",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description de ce système de classification..."
+          },
+          "dutch": {
+            "title": "Traduction Néerlandaise (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs néerlandophones",
+            "nameLabel": "Nom du Type de Taxonomie",
+            "namePlaceholder": "ex., Gemeenschapsgrootte",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "french": {
+            "title": "Traduction Française (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs francophones",
+            "nameLabel": "Nom du Type de Taxonomie",
+            "namePlaceholder": "ex., Taille de la Communauté",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description de ce système de classification..."
+          }
+        },
+        "submitButton": "Sauvegarder le Type de Taxonomie",
+        "submitting": "Sauvegarde...",
+        "successCreate": "Type de taxonomie créé avec succès",
+        "successUpdate": "Type de taxonomie mis à jour avec succès"
+      },
+      "info": {
+        "title": "À Propos des Types de Taxonomie",
+        "description": "Les types de taxonomie définissent des systèmes de classification pour les langues. Chaque ville peut créer ses propres types de taxonomie personnalisés au lieu d'utiliser des classifications codées en dur.",
+        "examples": {
+          "title": "Exemples de Types de Taxonomie",
+          "items": [
+            "Taille (Petit/Moyen/Grand) - pour la taille de la communauté",
+            "Statut (En Danger/Stable) - pour le statut de menace",
+            "Type d'Écriture (Logographique/Syllabique/Alphabétique) - pour les systèmes d'écriture",
+            "Statut Officiel (Officiel/Reconnu/Mineur) - pour la reconnaissance officielle"
+          ]
+        },
+        "configuration": {
+          "title": "Options de Configuration",
+          "items": [
+            "Obligatoire: Les langues doivent avoir cette taxonomie assignée",
+            "Valeurs Multiples: Les langues peuvent avoir plusieurs valeurs de cette taxonomie",
+            "Styling de Carte: Utiliser cette taxonomie pour styler les points linguistiques sur la carte",
+            "Filtrage: Afficher cette taxonomie dans le filtre de carte publique"
+          ]
+        }
+      },
+      "dangerZone": {
+        "title": "Zone de Danger",
+        "description": "Une fois que vous supprimez un type de taxonomie, il n'y a aucun moyen d'annuler cette action. Cela supprimera également toutes les valeurs de taxonomie et les assignations linguistiques associées à ce type de taxonomie.",
+        "deleteButton": "Supprimer le Type de Taxonomie",
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce type de taxonomie ? Cette action ne peut pas être annulée."
       }
     }
   }
