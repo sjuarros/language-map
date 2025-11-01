@@ -27,9 +27,12 @@ export async function getServerSupabase(citySlug: string) {
 /**
  * Get Supabase client with custom cookie configuration
  *
+ * Creates a city-scoped client with cookie handling for server-side operations.
+ * Uses the Database Abstraction Layer pattern for future multi-city support.
+ *
  * @param citySlug - The city identifier
  * @param cookieOptions - Custom cookie options
- * @returns Configured Supabase client
+ * @returns Configured Supabase client with cookie handling
  */
 export async function getServerSupabaseWithCookies(
   citySlug: string,
@@ -41,6 +44,7 @@ export async function getServerSupabaseWithCookies(
 ) {
   const cookieStore = await cookies()
 
+  // Create a new client with cookie handling and city context from abstraction layer
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
@@ -77,6 +81,12 @@ export async function getServerSupabaseWithCookies(
               console.warn('Cookie remove operation failed:', error)
             }
           }
+        },
+      },
+      global: {
+        // Preserve city context from abstraction layer
+        headers: {
+          'x-city-slug': citySlug,
         },
       },
     }

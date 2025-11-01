@@ -34,6 +34,11 @@ vi.mock('@supabase/supabase-js', () => ({
   })),
 }))
 
+// Mock the database abstraction layer
+vi.mock('@/lib/database/client', () => ({
+  getDatabaseAdminClient: vi.fn(),
+}))
+
 // Test data
 const mockUser = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -96,8 +101,9 @@ describe('createCity', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await createCity({
       slug: 'amsterdam',
@@ -163,8 +169,9 @@ describe('createCity', () => {
       },
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createCity({
@@ -203,8 +210,9 @@ describe('createCity', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createCity({
@@ -256,8 +264,9 @@ describe('createCity', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createCity({

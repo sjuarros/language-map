@@ -19,7 +19,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import createMiddleware from 'next-intl/middleware'
-import { createServerClient } from '@supabase/ssr'
+import { getDatabaseAdminClient } from '@/lib/database/client'
 import { locales, defaultLocale } from './lib/i18n/config'
 
 // Define protected route patterns and required roles
@@ -149,18 +149,9 @@ async function handleAuthorization(request: NextRequest): Promise<NextResponse |
     return null
   }
 
-  // Create Supabase client for authentication check
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        }
-      }
-    }
-  )
+  // Create Supabase client for authentication check using abstraction layer
+  // Note: For middleware auth checks, we use admin client for elevated permissions
+  const supabase = getDatabaseAdminClient('system')
 
   // Check if user is authenticated
   const {

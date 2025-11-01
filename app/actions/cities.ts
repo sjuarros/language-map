@@ -17,47 +17,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
+import { getDatabaseAdminClient } from '@/lib/database/client'
 import { createCityFormSchema } from '@/lib/validations/city'
-
-/**
- * Create a server-side Supabase client
- */
-async function getSupabaseServerClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
-    }
-  )
-}
 
 /**
  * Create a new city with multilingual translations
@@ -91,7 +52,7 @@ export async function createCity(input: {
   const { slug, country, center_lat, center_lng, default_zoom } = data
 
   try {
-    const supabase = await getSupabaseServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     // Get current user
     const {
