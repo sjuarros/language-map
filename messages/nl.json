@@ -156,6 +156,160 @@
           "emptyStateDescription": "Uitnodigingen verschijnen hier zodra u ze aanmaakt."
         }
       }
+    },
+    "districts": {
+      "title": "Districten",
+      "subtitle": "Beheer districten voor {cityName}",
+      "addButton": "District Toevoegen",
+      "noDistricts": {
+        "title": "Nog Geen Districten",
+        "description": "Begin door je eerste district voor deze stad aan te maken",
+        "createButton": "District Aanmaken"
+      },
+      "form": {
+        "title": "District Aanmaken",
+        "editTitle": "District Bewerken",
+        "basicInfo": {
+          "title": "Basisinformatie",
+          "description": "District identificatie en status",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv. centrum, west, noord",
+          "slugHelpText": "URL-vriendelijke identifier. Alleen kleine letters, cijfers en koppeltekens.",
+          "activeLabel": "Actief",
+          "activeHelpText": "Inactieve districten zijn verborgen in de publieke interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Stadscentrum",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Centrum",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Centre-ville",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          }
+        },
+        "submitButton": "District Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "District succesvol aangemaakt",
+        "successUpdate": "District succesvol bijgewerkt"
+      },
+      "info": {
+        "title": "Over Districten",
+        "description": "Districten zijn de primaire geografische indelingen binnen een stad. Ze helpen bij het organiseren van buurten en bieden een hiërarchische structuur voor het organiseren van taalgegevens.",
+        "vsNeighborhoods": {
+          "title": "Districten vs Buurten",
+          "description": "Districten zijn grotere geografische gebieden, terwijl buurten kleinere indelingen binnen districten zijn. Dit creëert een duidelijke hiërarchie: Stad → District → Buurt."
+        },
+        "translations": {
+          "title": "Vertalingen",
+          "description": "Districtnamen en beschrijvingen moeten worden vertaald in alle ondersteunde talen (Engels, Nederlands, Frans) om toegankelijkheid voor alle gebruikers te garanderen."
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een district verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook alle gekoppelde buurten en eventuele taalpunten die aan die buurten zijn gekoppeld verwijderen.",
+        "deleteButton": "District Verwijderen",
+        "confirmDelete": "Weet je zeker dat je dit district wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "neighborhoods": {
+      "title": "Buurten",
+      "subtitle": "Beheer buurten voor {cityName}",
+      "addButton": "Buurt Toevoegen",
+      "noNeighborhoods": {
+        "title": "Nog Geen Buurten",
+        "description": "Begin met het aanmaken van je eerste buurt voor deze stad",
+        "createButton": "Buurt Aanmaken"
+      },
+      "form": {
+        "title": "Buurt Aanmaken",
+        "editTitle": "Buurt Bewerken",
+        "basicInfo": {
+          "title": "Basisinformatie",
+          "description": "Buurt identificatie en geografische hiërarchie",
+          "districtLabel": "District",
+          "districtPlaceholder": "Selecteer een district",
+          "districtHelpText": "Selecteer het district waartoe deze buurt behoort",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv., jordaan, de-pijp, vondelpark",
+          "slugHelpText": "URL-vriendelijke identificatie. Alleen kleine letters, cijfers en streepjes.",
+          "activeLabel": "Actief",
+          "activeHelpText": "Inactieve buurten worden verborgen in de openbare interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          }
+        },
+        "submitButton": "Buurt Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "Buurt succesvol aangemaakt",
+        "successUpdate": "Buurt succesvol bijgewerkt",
+        "noDistrictsWarning": {
+          "title": "Geen Districten Beschikbaar",
+          "description": "Je moet ten minste één district aanmaken voordat je buurten kunt aanmaken. Buurten moeten worden toegewezen aan een district als onderdeel van de geografische hiërarchie.",
+          "createButton": "Eerst District Aanmaken"
+        }
+      },
+      "info": {
+        "title": "Over Buurten",
+        "description": "Buurten zijn kleinere geografische indelingen binnen districten. Ze bieden een fijnmaziger niveau van geografische organisatie voor taalgegevens.",
+        "hierarchy": {
+          "title": "Geografische Hiërarchie",
+          "description": "De geografische hiërarchie volgt deze structuur: Stad → District → Buurt. Dit zorgt voor een precieze organisatie van taalpunten binnen specifieke gebieden."
+        },
+        "translations": {
+          "title": "Vertalingen",
+          "description": "Buurtnamen en beschrijvingen moeten worden vertaald in alle ondersteunde talen (Engels, Nederlands, Frans) om toegankelijkheid voor alle gebruikers te garanderen."
+        },
+        "districtAssignment": {
+          "title": "District Toewijzing",
+          "description": "Elke buurt moet worden toegewezen aan een district. Dit creëert de geografische hiërarchie en maakt een betere organisatie van gegevens mogelijk."
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een buurt verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook eventuele taalpunten verwijderen die aan deze buurt zijn gekoppeld.",
+        "deleteButton": "Buurt Verwijderen",
+        "confirmDelete": "Weet je zeker dat je deze buurt wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
     }
   }
 }

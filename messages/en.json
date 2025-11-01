@@ -156,6 +156,160 @@
           "emptyStateDescription": "Invitations will appear here once you create them."
         }
       }
+    },
+    "districts": {
+      "title": "Districts",
+      "subtitle": "Manage districts for {cityName}",
+      "addButton": "Add District",
+      "noDistricts": {
+        "title": "No Districts Yet",
+        "description": "Get started by creating your first district for this city",
+        "createButton": "Create District"
+      },
+      "form": {
+        "title": "Create District",
+        "editTitle": "Edit District",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "District identifier and status",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "e.g., centrum, west, north",
+          "slugHelpText": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens.",
+          "activeLabel": "Active",
+          "activeHelpText": "Inactive districts are hidden from the public interface"
+        },
+        "translations": {
+          "english": {
+            "title": "English Translation",
+            "description": "Required translation - Primary language",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., City Center",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brief description of the district..."
+          },
+          "dutch": {
+            "title": "Dutch Translation (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., Centrum",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "french": {
+            "title": "French Translation (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., Centre-ville",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          }
+        },
+        "submitButton": "Save District",
+        "submitting": "Saving...",
+        "successCreate": "District created successfully",
+        "successUpdate": "District updated successfully"
+      },
+      "info": {
+        "title": "About Districts",
+        "description": "Districts are the primary geographic divisions within a city. They help organize neighborhoods and provide a hierarchical structure for organizing language data.",
+        "vsNeighborhoods": {
+          "title": "Districts vs Neighborhoods",
+          "description": "Districts are larger geographic areas, while neighborhoods are smaller divisions within districts. This creates a clear hierarchy: City → District → Neighborhood."
+        },
+        "translations": {
+          "title": "Translations",
+          "description": "District names and descriptions should be translated into all supported languages (English, Dutch, French) to ensure accessibility for all users."
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Once you delete a district, there is no way to undo this action. This will also delete all associated neighborhoods and any language points linked to those neighborhoods.",
+        "deleteButton": "Delete District",
+        "confirmDelete": "Are you sure you want to delete this district? This action cannot be undone."
+      }
+    },
+    "neighborhoods": {
+      "title": "Neighborhoods",
+      "subtitle": "Manage neighborhoods for {cityName}",
+      "addButton": "Add Neighborhood",
+      "noNeighborhoods": {
+        "title": "No Neighborhoods Yet",
+        "description": "Get started by creating your first neighborhood for this city",
+        "createButton": "Create Neighborhood"
+      },
+      "form": {
+        "title": "Create Neighborhood",
+        "editTitle": "Edit Neighborhood",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "Neighborhood identifier and geographic hierarchy",
+          "districtLabel": "District",
+          "districtPlaceholder": "Select a district",
+          "districtHelpText": "Select the district this neighborhood belongs to",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "e.g., jordaan, de-pijp, vondelpark",
+          "slugHelpText": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens.",
+          "activeLabel": "Active",
+          "activeHelpText": "Inactive neighborhoods are hidden from the public interface"
+        },
+        "translations": {
+          "english": {
+            "title": "English Translation",
+            "description": "Required translation - Primary language",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brief description of the neighborhood..."
+          },
+          "dutch": {
+            "title": "Dutch Translation (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "french": {
+            "title": "French Translation (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          }
+        },
+        "submitButton": "Save Neighborhood",
+        "submitting": "Saving...",
+        "successCreate": "Neighborhood created successfully",
+        "successUpdate": "Neighborhood updated successfully",
+        "noDistrictsWarning": {
+          "title": "No Districts Available",
+          "description": "You need to create at least one district before creating neighborhoods. Neighborhoods must be assigned to a district as part of the geographic hierarchy.",
+          "createButton": "Create District First"
+        }
+      },
+      "info": {
+        "title": "About Neighborhoods",
+        "description": "Neighborhoods are smaller geographic divisions within districts. They provide a more granular level of geographic organization for language data.",
+        "hierarchy": {
+          "title": "Geographic Hierarchy",
+          "description": "The geographic hierarchy follows this structure: City → District → Neighborhood. This allows for precise organization of language points within specific areas."
+        },
+        "translations": {
+          "title": "Translations",
+          "description": "Neighborhood names and descriptions should be translated into all supported languages (English, Dutch, French) to ensure accessibility for all users."
+        },
+        "districtAssignment": {
+          "title": "District Assignment",
+          "description": "Each neighborhood must be assigned to a district. This creates the geographic hierarchy and allows for better organization of data."
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Once you delete a neighborhood, there is no way to undo this action. This will also delete any language points linked to this neighborhood.",
+        "deleteButton": "Delete Neighborhood",
+        "confirmDelete": "Are you sure you want to delete this neighborhood? This action cannot be undone."
+      }
     }
   }
 }

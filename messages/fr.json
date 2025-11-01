@@ -156,6 +156,160 @@
           "emptyStateDescription": "Les invitations apparaîtront ici une fois créées."
         }
       }
+    },
+    "districts": {
+      "title": "Quartiers",
+      "subtitle": "Gérer les quartiers de {cityName}",
+      "addButton": "Ajouter un Quartier",
+      "noDistricts": {
+        "title": "Aucun Quartier",
+        "description": "Commencez par créer votre premier quartier pour cette ville",
+        "createButton": "Créer un Quartier"
+      },
+      "form": {
+        "title": "Créer un Quartier",
+        "editTitle": "Modifier le Quartier",
+        "basicInfo": {
+          "title": "Informations de Base",
+          "description": "Identifiant et statut du quartier",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "ex. centre, ouest, nord",
+          "slugHelpText": "Identifiant URL-amical. Seul lettres minuscules, chiffres et tirets.",
+          "activeLabel": "Actif",
+          "activeHelpText": "Les quartiers inactifs sont cachés de l'interface publique"
+        },
+        "translations": {
+          "english": {
+            "title": "Traduction Anglaise",
+            "description": "Traduction requise - Langue primaire",
+            "nameLabel": "Nom du Quartier",
+            "namePlaceholder": "ex., Centre-ville",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          },
+          "dutch": {
+            "title": "Traduction Néerlandaise (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs néerlandophones",
+            "nameLabel": "Nom du Quartier",
+            "namePlaceholder": "ex., Centrum",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          },
+          "french": {
+            "title": "Traduction Française (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs francophones",
+            "nameLabel": "Nom du Quartier",
+            "namePlaceholder": "ex., Centre-ville",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          }
+        },
+        "submitButton": "Enregistrer le Quartier",
+        "submitting": "Enregistrement...",
+        "successCreate": "Quartier créé avec succès",
+        "successUpdate": "Quartier mis à jour avec succès"
+      },
+      "info": {
+        "title": "À Propos des Quartiers",
+        "description": "Les quartiers sont les divisions géographiques primaires dans une ville. Ils aident à organiser les secteurs et fournissent une structure hiérarchique pour organiser les données linguistiques.",
+        "vsNeighborhoods": {
+          "title": "Quartiers vs Secteurs",
+          "description": "Les quartiers sont des zones géographiques plus grandes, tandis que les secteurs sont des divisions plus petites au sein des quartiers. Cela crée une hiérarchie claire : Ville → Quartier → Secteur."
+        },
+        "translations": {
+          "title": "Traductions",
+          "description": "Les noms et descriptions de quartiers doivent être traduits dans toutes les langues supportées (Anglais, Néerlandais, Français) pour assurer l'accessibilité pour tous les utilisateurs."
+        }
+      },
+      "dangerZone": {
+        "title": "Zone de Danger",
+        "description": "Une fois que vous supprimez un quartier, il n'y a aucun moyen d'annuler cette action. Cela supprimera également tous les secteurs associés et tous les points linguistiques liés à ces secteurs.",
+        "deleteButton": "Supprimer le Quartier",
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce quartier ? Cette action ne peut pas être annulée."
+      }
+    },
+    "neighborhoods": {
+      "title": "Secteurs",
+      "subtitle": "Gérer les secteurs pour {cityName}",
+      "addButton": "Ajouter un Secteur",
+      "noNeighborhoods": {
+        "title": "Aucun Secteur Encore",
+        "description": "Commencez par créer votre premier secteur pour cette ville",
+        "createButton": "Créer un Secteur"
+      },
+      "form": {
+        "title": "Créer un Secteur",
+        "editTitle": "Modifier un Secteur",
+        "basicInfo": {
+          "title": "Informations de Base",
+          "description": "Identifiant du secteur et hiérarchie géographique",
+          "districtLabel": "Quartier",
+          "districtPlaceholder": "Sélectionner un quartier",
+          "districtHelpText": "Sélectionner le quartier auquel appartient ce secteur",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "ex., jordaan, de-pijp, vondelpark",
+          "slugHelpText": "Identifiant amigable pour l'URL. Seulement lettres minuscules, chiffres et traits d'union.",
+          "activeLabel": "Actif",
+          "activeHelpText": "Les secteurs inactifs sont masqués dans l'interface publique"
+        },
+        "translations": {
+          "english": {
+            "title": "Traduction Anglaise",
+            "description": "Traduction requise - Langue primaire",
+            "nameLabel": "Nom du Secteur",
+            "namePlaceholder": "ex., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du secteur..."
+          },
+          "dutch": {
+            "title": "Traduction Néerlandaise (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs néerlandophones",
+            "nameLabel": "Nom du Secteur",
+            "namePlaceholder": "ex., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du secteur..."
+          },
+          "french": {
+            "title": "Traduction Française (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs francophones",
+            "nameLabel": "Nom du Secteur",
+            "namePlaceholder": "ex., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du secteur..."
+          }
+        },
+        "submitButton": "Enregistrer le Secteur",
+        "submitting": "Enregistrement...",
+        "successCreate": "Secteur créé avec succès",
+        "successUpdate": "Secteur mis à jour avec succès",
+        "noDistrictsWarning": {
+          "title": "Aucun Quartier Disponible",
+          "description": "Vous devez créer au moins un quartier avant de pouvoir créer des secteurs. Les secteurs doivent être assignés à un quartier dans le cadre de la hiérarchie géographique.",
+          "createButton": "Créer un Quartier d'Abord"
+        }
+      },
+      "info": {
+        "title": "À Propos des Secteurs",
+        "description": "Les secteurs sont des divisions géographiques plus petites au sein des quartiers. Ils fournissent un niveau plus granulaire d'organisation géographique pour les données linguistiques.",
+        "hierarchy": {
+          "title": "Hiérarchie Géographique",
+          "description": "La hiérarchie géographique suit cette structure : Ville → Quartier → Secteur. Cela permet une organisation précise des points linguistiques dans des zones spécifiques."
+        },
+        "translations": {
+          "title": "Traductions",
+          "description": "Les noms et descriptions de secteurs doivent être traduits dans toutes les langues supportées (Anglais, Néerlandais, Français) pour assurer l'accessibilité pour tous les utilisateurs."
+        },
+        "districtAssignment": {
+          "title": "Affectation au Quartier",
+          "description": "Chaque secteur doit être assigné à un quartier. Cela crée la hiérarchie géographique et permet une meilleure organisation des données."
+        }
+      },
+      "dangerZone": {
+        "title": "Zone de Danger",
+        "description": "Une fois que vous supprimez un secteur, il n'y a aucun moyen d'annuler cette action. Cela supprimera également tous les points linguistiques liés à ce secteur.",
+        "deleteButton": "Supprimer le Secteur",
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce secteur ? Cette action ne peut pas être annulée."
+      }
     }
   }
 }
