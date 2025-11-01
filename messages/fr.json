@@ -407,6 +407,94 @@
         "deleteButton": "Supprimer le Type de Taxonomie",
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce type de taxonomie ? Cette action ne peut pas être annulée."
       }
+    },
+    "taxonomyValues": {
+      "title": "Valeurs de Taxonomie",
+      "subtitle": "Gérer les valeurs pour {typeName}",
+      "list": {
+        "title": "Valeurs {typeName}",
+        "description": "Définir des valeurs spécifiques pour ce type de taxonomie",
+        "empty": "Aucune valeur de taxonomie pour le moment",
+        "actions": {
+          "create": "Ajouter une Valeur",
+          "createFirst": "Créer la Première Valeur",
+          "edit": "Modifier"
+        },
+        "details": {
+          "icon": "Icône",
+          "order": "Ordre d'Affichage"
+        }
+      },
+      "badges": {
+        "aiGenerated": "Généré par IA"
+      },
+      "form": {
+        "title": "Créer une Valeur de Taxonomie",
+        "editTitle": "Modifier la Valeur de Taxonomie",
+        "basicInfo": {
+          "title": "Informations de Base",
+          "description": "Identifiant de valeur et paramètres d'affichage",
+          "slug": {
+            "label": "Slug",
+            "placeholder": "ex. petit, moyen, grand",
+            "help": "Identifiant amigable URL. Seulement lettres minuscules, chiffres et traits d'union."
+          },
+          "displayOrder": {
+            "label": "Ordre d'Affichage",
+            "help": "Ordre dans lequel cette valeur apparaît dans les listes (0 = premier)"
+          }
+        },
+        "visualStyling": {
+          "title": "Style Visuel",
+          "description": "Configurer l'apparence de cette valeur sur la carte",
+          "color": {
+            "label": "Couleur",
+            "help": "Code couleur hex pour le style de carte (ex. #FFA500)"
+          },
+          "icon": {
+            "label": "Nom d'Icône",
+            "placeholder": "ex. Circle, Square, Star",
+            "help": "Nom d'icône Lucide pour les marqueurs de carte (optionnel)"
+          },
+          "iconSize": {
+            "label": "Multiplicateur de Taille d'Icône",
+            "help": "Multiplicateur de taille pour les icônes (0.5x à 3.0x, 1.0 = par défaut)"
+          }
+        },
+        "translations": {
+          "title": "Traductions",
+          "description": "Fournir des traductions pour cette valeur de taxonomie",
+          "name": {
+            "label": "Nom de Valeur",
+            "placeholder": "ex. Petite Communauté"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Brève description de cette valeur..."
+          }
+        },
+        "actions": {
+          "cancel": "Annuler",
+          "create": "Créer une Valeur",
+          "update": "Mettre à Jour la Valeur",
+          "saving": "Enregistrement..."
+        }
+      },
+      "success": {
+        "created": "Valeur de taxonomie créée avec succès",
+        "updated": "Valeur de taxonomie mise à jour avec succès"
+      },
+      "error": {
+        "unknown": "Une erreur est survenue. Veuillez réessayer."
+      },
+      "validation": {
+        "translationRequired": "Traduction requise pour {locale}"
+      },
+      "locale": {
+        "en": "Anglais",
+        "nl": "Néerlandais",
+        "fr": "Français"
+      }
     }
   }
 }

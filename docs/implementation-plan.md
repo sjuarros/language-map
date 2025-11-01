@@ -460,11 +460,31 @@ tags: [implementation, roadmap, planning, development, timeline]
     - RLS policies for security
     - **Note:** Some code compliance issues identified that should be addressed (database abstraction layer usage)
 
-- [ ] **Day 21**: **Taxonomy values management**
+- [x] **Day 21**: **Taxonomy values management** ✅
   - Create taxonomy values list page (per type)
   - Create taxonomy value form (slug, color, icon, size multiplier)
   - Implement taxonomy value translations
   - Test taxonomy value creation with visual styling
+  - **Completed:** November 1, 2025
+  - **Files:**
+    - `app/actions/taxonomy-values.ts` (CRUD operations)
+    - `app/actions/taxonomy-values.test.ts` (unit tests)
+    - `components/taxonomy-values/taxonomy-value-form.tsx` (form component)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/[taxonomyTypeId]/values/page.tsx` (list page)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/[taxonomyTypeId]/values/new/page.tsx` (create page)
+    - `app/[locale]/operator/[citySlug]/taxonomy-types/[taxonomyTypeId]/values/[valueId]/edit/page.tsx` (edit page)
+    - `messages/{en,nl,fr}.json` (translations added)
+    - `components/ui/badge.tsx` (new UI component)
+  - **Features:**
+    - Full CRUD operations for taxonomy values
+    - Visual styling (color picker, icon selection, size multiplier)
+    - Multi-language support (EN/NL/FR)
+    - Preset colors and icons for easy selection
+    - Translation management for values
+    - Comprehensive unit tests (all scenarios covered)
+    - Form validation with Zod
+    - TypeScript compilation successful
+    - **Note:** Some code compliance issues identified (alignment with existing patterns pending)
 
 #### **Week 5 - Languages with Flexible Classification**
 

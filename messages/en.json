@@ -407,6 +407,94 @@
         "deleteButton": "Delete Taxonomy Type",
         "confirmDelete": "Are you sure you want to delete this taxonomy type? This action cannot be undone."
       }
+    },
+    "taxonomyValues": {
+      "title": "Taxonomy Values",
+      "subtitle": "Manage values for {typeName}",
+      "list": {
+        "title": "{typeName} Values",
+        "description": "Define specific values for this taxonomy type",
+        "empty": "No taxonomy values yet",
+        "actions": {
+          "create": "Add Value",
+          "createFirst": "Create First Value",
+          "edit": "Edit"
+        },
+        "details": {
+          "icon": "Icon",
+          "order": "Display Order"
+        }
+      },
+      "badges": {
+        "aiGenerated": "AI Generated"
+      },
+      "form": {
+        "title": "Create Taxonomy Value",
+        "editTitle": "Edit Taxonomy Value",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "Value identifier and display settings",
+          "slug": {
+            "label": "Slug",
+            "placeholder": "e.g., small, medium, large",
+            "help": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens."
+          },
+          "displayOrder": {
+            "label": "Display Order",
+            "help": "Order in which this value appears in lists (0 = first)"
+          }
+        },
+        "visualStyling": {
+          "title": "Visual Styling",
+          "description": "Configure how this value appears on the map",
+          "color": {
+            "label": "Color",
+            "help": "Hex color code for map styling (e.g., #FFA500)"
+          },
+          "icon": {
+            "label": "Icon Name",
+            "placeholder": "e.g., Circle, Square, Star",
+            "help": "Lucide icon name for map markers (optional)"
+          },
+          "iconSize": {
+            "label": "Icon Size Multiplier",
+            "help": "Size multiplier for icons (0.5x to 3.0x, 1.0 = default)"
+          }
+        },
+        "translations": {
+          "title": "Translations",
+          "description": "Provide translations for this taxonomy value",
+          "name": {
+            "label": "Value Name",
+            "placeholder": "e.g., Small Community"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Brief description of this value..."
+          }
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "create": "Create Value",
+          "update": "Update Value",
+          "saving": "Saving..."
+        }
+      },
+      "success": {
+        "created": "Taxonomy value created successfully",
+        "updated": "Taxonomy value updated successfully"
+      },
+      "error": {
+        "unknown": "An error occurred. Please try again."
+      },
+      "validation": {
+        "translationRequired": "Translation required for {locale}"
+      },
+      "locale": {
+        "en": "English",
+        "nl": "Dutch",
+        "fr": "French"
+      }
     }
   }
 }
