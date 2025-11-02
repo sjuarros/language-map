@@ -1,75 +1,74 @@
 /**
  * Superuser Layout
  *
- * This layout wraps all superuser dashboard pages.
- * It requires superuser role and provides navigation.
+ * Layout for superuser dashboard pages with authentication check only.
+ * Authorization (superuser role check) is handled by each individual page.
+ *
+ * NOTE: Uses Client Components because Server Components cannot access
+ * cookies set by external libraries (like Supabase's sb-auth-token).
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { LogoutButton } from '@/components/auth/logout-button'
-import { getLocale } from 'next-intl/server'
 
-export default async function SuperuserLayout({
+export default function SuperuserLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
+  const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+  // Extract locale from pathname (e.g., /en/superuser -> en)
+  const locale = pathname?.split('/')[1] || 'en'
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        // Check authentication only - authorization is handled by individual pages
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[Superuser Layout] Auth check:', { hasUser: !!user, email: user?.email })
+
+        if (authError || !user) {
+          console.log('[Superuser Layout] No user, redirecting to login')
+          router.push(`/${locale}/login?redirectTo=/superuser`)
+          return
+        }
+
+        // User is authenticated - let the page handle authorization
+        setAuthorized(true)
+        setLoading(false)
+      } catch (err) {
+        console.error('[Superuser Layout] Error:', err)
+        router.push(`/${locale}/login?redirectTo=/superuser`)
+      }
     }
-  )
 
-  const locale = await getLocale()
+    checkAuth()
+  }, [router, locale])
 
-  // Check if user is authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect(`/${locale}/login?redirectTo=/superuser`)
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-medium text-gray-900">Loading...</div>
+          <p className="mt-2 text-sm text-gray-600">Checking authentication</p>
+        </div>
+      </div>
+    )
   }
 
-  // Check if user is superuser
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'superuser') {
-    redirect(`/${locale}/`)
+  if (!authorized) {
+    return null
   }
 
   return (
