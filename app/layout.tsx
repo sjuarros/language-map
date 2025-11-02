@@ -2,7 +2,7 @@
  * Root Layout
  *
  * This is the root layout that wraps all pages.
- * It does not include locale-specific logic.
+ * Provides the HTML structure for all routes including auth callbacks.
  */
 
 export default function RootLayout({
@@ -10,5 +10,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
 }

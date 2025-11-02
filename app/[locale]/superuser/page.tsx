@@ -2,69 +2,103 @@
  * Superuser Dashboard
  *
  * Main dashboard page for superusers.
+ *
+ * NOTE: Uses Client Components because Server Components cannot access
+ * cookies set by external libraries (like Supabase's sb-auth-token).
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { getLocale } from 'next-intl/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus } from 'lucide-react'
 
-export default async function SuperuserDashboard() {
-  const cookieStore = await cookies()
+export default function SuperuserDashboard() {
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [cityCount, setCityCount] = useState(0)
+  const [userCount, setUserCount] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+  useEffect(() => {
+    async function checkAuthAndLoadData() {
+      try {
+        console.log('[Superuser] Starting auth check')
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[Superuser] Auth result:', { hasUser: !!user, email: user?.email, error: authError?.message })
+
+        if (authError || !user) {
+          console.log('[Superuser] No user, redirecting to login')
+          router.push('/en/login')
+          return
+        }
+
+        setUser(user)
+
+        // Get city count
+        const { count: cities } = await supabase
+          .from('cities')
+          .select('*', { count: 'exact', head: true })
+
+        setCityCount(cities || 0)
+
+        // Get user count
+        const { count: users } = await supabase
+          .from('user_profiles')
+          .select('*', { count: 'exact', head: true })
+
+        setUserCount(users || 0)
+
+        setLoading(false)
+      } catch (err) {
+        console.error('[Superuser] Error:', err)
+        setError('An unexpected error occurred')
+        setLoading(false)
+      }
     }
-  )
 
-  const locale = await getLocale()
+    checkAuthAndLoadData()
+  }, [router])
 
-  // Get city count
-  const { count: cityCount } = await supabase
-    .from('cities')
-    .select('*', { count: 'exact', head: true })
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard</h1>
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
-  // Get user count
-  const { count: userCount } = await supabase
-    .from('user_profiles')
-    .select('*', { count: 'exact', head: true })
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard</h1>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard ✅</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage cities, users, and platform settings
+        </p>
+        <p className="mt-2 text-xs text-gray-500">
+          User: {user?.email} • Time: {new Date().toLocaleString()}
         </p>
       </div>
 
@@ -80,7 +114,7 @@ export default async function SuperuserDashboard() {
             <p className="text-xs text-gray-600 mt-1">
               Active cities on the platform
             </p>
-            <Link href={`/${locale}/superuser/cities`}>
+            <Link href={`/en/superuser/cities`}>
               <Button variant="link" className="p-0 mt-2 h-auto text-sm">
                 View all cities →
               </Button>
@@ -98,7 +132,7 @@ export default async function SuperuserDashboard() {
             <p className="text-xs text-gray-600 mt-1">
               Registered users across all cities
             </p>
-            <Link href={`/${locale}/superuser/users`}>
+            <Link href={`/en/superuser/users`}>
               <Button variant="link" className="p-0 mt-2 h-auto text-sm">
                 Manage users →
               </Button>
@@ -112,7 +146,7 @@ export default async function SuperuserDashboard() {
             <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link href={`/${locale}/superuser/cities/new`}>
+            <Link href={`/en/superuser/cities/new`}>
               <Button className="w-full justify-start">
                 <Plus className="mr-2 h-4 w-4" />
                 Add New City

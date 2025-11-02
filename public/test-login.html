@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Quick Login for Districts Testing</h1>
+    <button onclick="login()">Login with districts.test@example.com</button>
+    <div id="msg"></div>
+
+    <script>
+        const { createClient } = supabase
+        const client = createClient(
+            'http://localhost:54331',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
+        )
+
+        async function login() {
+            try {
+                const { data, error } = await client.auth.signInWithPassword({
+                    email: 'districts.test@example.com',
+                    password: 'TestPassword123'
+                })
+
+                if (error) {
+                    document.getElementById('msg').innerHTML = '<p style="color:red">Error: ' + error.message + '</p>'
+                } else {
+                    document.getElementById('msg').innerHTML = '<p style="color:green">SUCCESS! Click below to go to Districts CRUD:</p><p><a href="http://localhost:3001/en/operator/amsterdam/districts" target="_blank">Test Districts CRUD</a></p>'
+                }
+            } catch (e) {
+                document.getElementById('msg').innerHTML = '<p style="color:red">Error: ' + e.message + '</p>'
+            }
+        }
+    </script>
+</body>
+</html>

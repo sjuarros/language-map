@@ -54,7 +54,8 @@ export async function getServerSupabaseWithCookies(
           if (cookieOptions?.get) {
             return cookieOptions.get(name)
           }
-          return cookieStore.get(name)?.value
+          // Always use our simple cookie name
+          return cookieStore.get('sb-auth-token')?.value
         },
         set(name: string, value: string, options: CookieOptions) {
           if (cookieOptions?.set) {

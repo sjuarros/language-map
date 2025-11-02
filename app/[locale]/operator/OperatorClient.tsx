@@ -1,29 +1,29 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { createAuthClient } from '@/lib/auth/client'
 
-export default function OperatorDashboard() {
+export default function OperatorClient() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
   useEffect(() => {
     async function checkAuth() {
-      console.log('[Operator] Starting auth check')
       try {
-        // Import dynamically to avoid SSR issues
-        const { createAuthClient } = await import('@/lib/auth/client')
-        console.log('[Operator] Imported createAuthClient')
-
         const supabase = createAuthClient()
-        console.log('[Operator] Created supabase client')
 
         const { data: { user }, error } = await supabase.auth.getUser()
-        console.log('[Operator] Auth result:', { hasUser: !!user, email: user?.email, error: error?.message })
+
+        console.log('[Operator Client] Auth check:', {
+          hasUser: !!user,
+          email: user?.email,
+          error: error?.message
+        })
 
         if (error || !user) {
-          console.log('[Operator] No user, redirecting to login')
+          console.log('[Operator Client] No user, redirecting to login')
           router.push('/en/login')
           return
         }
@@ -31,7 +31,7 @@ export default function OperatorDashboard() {
         setUser(user)
         setLoading(false)
       } catch (err) {
-        console.error('[Operator] Error:', err)
+        console.error('[Operator Client] Auth error:', err)
         router.push('/en/login')
       }
     }
@@ -42,8 +42,7 @@ export default function OperatorDashboard() {
   if (loading) {
     return (
       <div style={{ padding: '20px' }}>
-        <h1>Operator Dashboard</h1>
-        <p>Loading...</p>
+        <h1>Loading...</h1>
       </div>
     )
   }
@@ -52,9 +51,8 @@ export default function OperatorDashboard() {
     <div style={{ padding: '20px' }}>
       <h1>Operator Dashboard ✅</h1>
       <p>User: {user?.email}</p>
+      <p>Status: Authenticated</p>
       <p>User ID: {user?.id}</p>
-      <p>Status: Authenticated successfully!</p>
-      <p>Time: {new Date().toLocaleString()}</p>
     </div>
   )
 }

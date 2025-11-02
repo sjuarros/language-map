@@ -48,7 +48,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const result = await signInWithMagicLink(email, window.location.origin)
+      const result = await signInWithMagicLink(email, window.location.pathname + window.location.search)
 
       if (result.success) {
         setSuccess(true)

@@ -3,76 +3,142 @@
  *
  * Main dashboard for admin users with city selector and overview statistics.
  * Admins can access multiple cities based on their grants in the city_users table.
+ *
+ * NOTE: Uses Client Components because Server Components cannot access
+ * cookies set by external libraries (like Supabase's sb-auth-token).
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { getLocale } from 'next-intl/server'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Settings } from 'lucide-react'
 
-export default async function AdminDashboard() {
-  const cookieStore = await cookies()
-  const locale = await getLocale()
+interface City {
+  id: string
+  slug: string
+  name: string
+  country: string
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+interface UserCity {
+  role: 'admin' | 'operator'
+  city: City
+}
+
+export default function AdminDashboard() {
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [userCities, setUserCities] = useState<UserCity[]>([])
+  const [languageCount, setLanguageCount] = useState(0)
+  const [userCount, setUserCount] = useState(0)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    async function checkAuthAndLoadData() {
+      try {
+        console.log('[Admin] Starting auth check')
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[Admin] Auth result:', { hasUser: !!user, email: user?.email, error: authError?.message })
+
+        if (authError || !user) {
+          console.log('[Admin] No user, redirecting to login')
+          router.push('/en/login')
+          return
+        }
+
+        setUser(user)
+
+        // Get user's accessible cities
+        const { data: cities, error: citiesError } = await supabase
+          .from('city_users')
+          .select(`
+            role,
+            city:cities (
+              id,
+              slug,
+              name,
+              country
+            )
+          `)
+          .eq('user_id', user.id)
+
+        if (citiesError) {
+          console.error('[Admin] Error fetching cities:', citiesError)
+          setError('Failed to load cities')
+          setLoading(false)
+          return
+        }
+
+        setUserCities(cities || [])
+
+        // If user has no city access, stop here
+        if (!cities || cities.length === 0) {
+          setLoading(false)
+          return
+        }
+
+        // Get stats for first city
+        const firstCity = cities[0].city as City
+
+        // Get language count
+        const { count: languages } = await supabase
+          .from('languages')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', firstCity.id)
+
+        setLanguageCount(languages || 0)
+
+        // Get user count for this city
+        const { count: users } = await supabase
+          .from('city_users')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', firstCity.id)
+
+        setUserCount(users || 0)
+
+        setLoading(false)
+      } catch (err) {
+        console.error('[Admin] Error:', err)
+        setError('An unexpected error occurred')
+        setLoading(false)
+      }
     }
-  )
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    checkAuthAndLoadData()
+  }, [router])
 
-  if (!user) {
-    return null
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
-  // Get user's accessible cities via city_users junction table
-  const { data: userCities } = await supabase
-    .from('city_users')
-    .select(`
-      role,
-      city:cities (
-        id,
-        slug,
-        name,
-        country
-      )
-    `)
-    .eq('user_id', user.id)
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
-  // If user has no city access, show message
-  if (!userCities || userCities.length === 0) {
+  // If user has no city access
+  if (userCities.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -94,41 +160,18 @@ export default async function AdminDashboard() {
     )
   }
 
-  // Get stats for accessible cities (using first city as default)
-  const firstCity = userCities[0].city as unknown as {
-    id: string
-    slug: string
-    name: string
-    country: string
-  }
-  let languageCount = 0
-  let userCount = 0
-
-  if (firstCity) {
-    // Get language count
-    const { count: languages } = await supabase
-      .from('languages')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    languageCount = languages || 0
-
-    // Get user count for this city
-    const { count: users } = await supabase
-      .from('city_users')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    userCount = users || 0
-  }
+  const firstCity = userCities[0].city
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard ✅</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage users and settings for your assigned cities
+        </p>
+        <p className="mt-2 text-xs text-gray-500">
+          User: {user?.email} • Time: {new Date().toLocaleString()}
         </p>
       </div>
 
@@ -144,16 +187,11 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="grid gap-3">
               {userCities.map((userCity) => {
-                const city = userCity.city as unknown as {
-                  id: string
-                  slug: string
-                  name: string
-                  country: string
-                }
+                const city = userCity.city
                 return (
                   <Link
                     key={city.id}
-                    href={`/${locale}/admin/${city.slug}`}
+                    href={`/en/admin/${city.slug}`}
                     className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-center justify-between">
@@ -190,7 +228,7 @@ export default async function AdminDashboard() {
               <p className="text-xs text-gray-600 mt-1">
                 Total languages in {firstCity.name}
               </p>
-              <Link href={`/${locale}/admin/${firstCity.slug}/languages`}>
+              <Link href={`/en/admin/${firstCity.slug}/languages`}>
                 <Button variant="link" className="p-0 mt-2 h-auto text-sm">
                   View languages →
                 </Button>
@@ -208,7 +246,7 @@ export default async function AdminDashboard() {
               <p className="text-xs text-gray-600 mt-1">
                 Users with access to {firstCity.name}
               </p>
-              <Link href={`/${locale}/admin/${firstCity.slug}/users`}>
+              <Link href={`/en/admin/${firstCity.slug}/users`}>
                 <Button variant="link" className="p-0 mt-2 h-auto text-sm">
                   Manage users →
                 </Button>
@@ -222,13 +260,13 @@ export default async function AdminDashboard() {
               <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Link href={`/${locale}/admin/${firstCity.slug}/users/invite`}>
+              <Link href={`/en/admin/${firstCity.slug}/users/invite`}>
                 <Button className="w-full justify-start" variant="outline">
                   <Users className="mr-2 h-4 w-4" />
                   Invite Users
                 </Button>
               </Link>
-              <Link href={`/${locale}/admin/${firstCity.slug}/settings`}>
+              <Link href={`/en/admin/${firstCity.slug}/settings`}>
                 <Button className="w-full justify-start" variant="outline">
                   <Settings className="mr-2 h-4 w-4" />
                   City Settings
