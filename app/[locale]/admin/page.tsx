@@ -20,8 +20,7 @@ import { Users, Settings } from 'lucide-react'
 interface City {
   id: string
   slug: string
-  name: string
-  country: string
+  country_id: string
 }
 
 interface UserCity {
@@ -42,11 +41,12 @@ export default function AdminDashboard() {
     async function checkAuthAndLoadData() {
       try {
         console.log('[Admin] Starting auth check')
+        console.log('[Admin] Cookies:', document.cookie)
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
         const { data: { user }, error: authError } = await supabase.auth.getUser()
-        console.log('[Admin] Auth result:', { hasUser: !!user, email: user?.email, error: authError?.message })
+        console.log('[Admin] Auth result:', { hasUser: !!user, email: user?.email, userId: user?.id, error: authError?.message })
 
         if (authError || !user) {
           console.log('[Admin] No user, redirecting to login')
@@ -57,6 +57,7 @@ export default function AdminDashboard() {
         setUser(user)
 
         // Get user's accessible cities
+        console.log('[Admin] Querying city_users for user:', user.id)
         const { data: cities, error: citiesError } = await supabase
           .from('city_users')
           .select(`
@@ -64,11 +65,12 @@ export default function AdminDashboard() {
             city:cities (
               id,
               slug,
-              name,
-              country
+              country_id
             )
           `)
           .eq('user_id', user.id)
+
+        console.log('[Admin] City query result:', { cities, error: citiesError })
 
         if (citiesError) {
           console.error('[Admin] Error fetching cities:', citiesError)
@@ -196,11 +198,11 @@ export default function AdminDashboard() {
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium text-gray-900">
-                          {city.name}
+                        <h3 className="font-medium text-gray-900 capitalize">
+                          {city.slug}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {city.country} • Role: {userCity.role}
+                          Role: {userCity.role}
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
@@ -225,8 +227,8 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{languageCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Total languages in {firstCity.name}
+              <p className="text-xs text-gray-600 mt-1 capitalize">
+                Total languages in {firstCity.slug}
               </p>
               <Link href={`/en/admin/${firstCity.slug}/languages`}>
                 <Button variant="link" className="p-0 mt-2 h-auto text-sm">
@@ -243,8 +245,8 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{userCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Users with access to {firstCity.name}
+              <p className="text-xs text-gray-600 mt-1 capitalize">
+                Users with access to {firstCity.slug}
               </p>
               <Link href={`/en/admin/${firstCity.slug}/users`}>
                 <Button variant="link" className="p-0 mt-2 h-auto text-sm">
