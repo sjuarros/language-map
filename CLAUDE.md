@@ -702,11 +702,18 @@ export type Database = {
 
 ### Supabase Local Instance
 
-⚠️ **IMPORTANT**: This project uses **custom ports (54331-54336)** for Supabase to avoid conflicts with other projects.
+⚠️ **CRITICAL DATABASE INFORMATION**:
+
+**Container Name**: `supabase_db_language-map`
+**Ports**: 54331-54336 (NOT default ports)
+
+This project uses a **custom Supabase instance** with **non-standard ports** to avoid conflicts with other projects on this development machine.
 
 - **API**: http://localhost:54331
 - **Database**: localhost:54332
 - **Studio**: http://localhost:54333
+
+⚠️ **DO NOT USE** the default Supabase instance (`supabase_db_supabase` on ports 54321-54324) - this belongs to a different project!
 
 See **[docs/local-development.md](./docs/local-development.md)** for complete setup guide and port allocation.
 
@@ -724,18 +731,24 @@ npm install
 cp .env.example .env.local
 # Edit .env.local with your keys
 
-# 4. Start Supabase (custom ports: 54331-54336)
+# 4. Start Supabase (CRITICAL: Use supabase_db_language-map container)
+# This will start the instance on ports 54331-54336
 npx supabase start
 
 # 5. Run dev server
 npm run dev
 ```
 
+⚠️ **IMPORTANT**: When running `supabase start`, ensure you're working with the correct instance:
+- ✅ Correct: `supabase_db_language-map` (this project)
+- ❌ Wrong: `supabase_db_supabase` (other project)
+
 ### Environment Variables
 
 **Local Development (.env.local):**
 ```env
-# Supabase Local (CUSTOM PORTS: 54331-54336)
+# ⚠️ CRITICAL: Using supabase_db_language-map instance
+# Ports: 54331-54336 (NOT default ports 54321-54324)
 NEXT_PUBLIC_SUPABASE_URL=http://localhost:54331
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
@@ -748,6 +761,9 @@ NEXT_PUBLIC_MAPBOX_TOKEN=pk.xxx
 OPENAI_API_KEY=sk-xxx
 ANTHROPIC_API_KEY=sk-ant-xxx
 ```
+
+⚠️ **WARNING**: These URLs point to port 54331-54332 (supabase_db_language-map).
+**DO NOT** use URLs with port 54321-54324 (supabase_db_supabase - different project!)
 
 **Production (.env):**
 ```env
@@ -770,7 +786,8 @@ ANTHROPIC_API_KEY=sk-ant-xxx
 # 1. Install Supabase CLI
 npm install -g supabase
 
-# 2. Link to project
+# 2. Link to project (CRITICAL: Use correct instance)
+# Verify you're linking to supabase_db_language-map
 supabase link --project-ref xxx
 
 # 3. Create migration
@@ -782,6 +799,9 @@ supabase migration new add_new_feature
 # 5. Apply migration
 supabase db push
 ```
+
+⚠️ **WARNING**: Always verify you're connected to `supabase_db_language-map` before running migrations!
+Running migrations on the wrong instance can corrupt the other project's database.
 
 ### Testing Commands
 
@@ -879,6 +899,28 @@ import { Check, ChevronDown } from "lucide-react"
 ```
 
 ⚠️ **Always use Lucide Icons** - See Technology Stack section. Do NOT use `@radix-ui/react-icons`!
+
+### 8. Using Wrong Supabase Instance
+
+❌ **Wrong**:
+```bash
+# Connected to supabase_db_supabase (other project's database!)
+supabase start
+supabase db reset
+supabase link --project-ref xxx
+```
+
+✅ **Correct**:
+```bash
+# Connected to supabase_db_language-map (THIS project's database)
+# Verify with: docker ps | grep supabase_db_language-map
+supabase start
+supabase db reset
+supabase link --project-ref xxx
+```
+
+⚠️ **CRITICAL**: Always verify which Supabase instance you're using before running any commands!
+The wrong instance can corrupt data in the other project's database. See [Supabase Local Instance](#supabase-local-instance) for details.
 
 ---
 
