@@ -67,13 +67,59 @@ export async function GET(request: NextRequest) {
 
       if (error) {
         console.error('[Auth Callback] Error exchanging code for session:', error)
-        return NextResponse.redirect(new URL('/login?error=auth_callback_error', request.url))
+        return NextResponse.redirect(new URL('/en/login?error=auth_callback_error', request.url))
       }
 
-      // Debug logging - see what user ID we got
-      console.log('[Auth Callback] Session established for user:', data.user?.id, 'email:', data.user?.email)
+      if (!data.user) {
+        console.error('[Auth Callback] No user in session data')
+        return NextResponse.redirect(new URL('/en/login?error=no_user', request.url))
+      }
 
-      return response
+      // Debug logging
+      console.log('[Auth Callback] Session established for user:', data.user.id, 'email:', data.user.email)
+
+      // Get user's role from database to determine redirect
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profileError || !profile) {
+        console.error('[Auth Callback] Error fetching user profile:', profileError)
+        // Default to home page if we can't determine role
+        return NextResponse.redirect(new URL('/en', request.url))
+      }
+
+      // Determine redirect URL based on role
+      let redirectUrl: string
+      switch (profile.role) {
+        case 'superuser':
+          redirectUrl = '/en/superuser'
+          console.log('[Auth Callback] Redirecting superuser to:', redirectUrl)
+          break
+        case 'admin':
+          redirectUrl = '/en/admin'
+          console.log('[Auth Callback] Redirecting admin to:', redirectUrl)
+          break
+        case 'operator':
+          redirectUrl = '/operator'
+          console.log('[Auth Callback] Redirecting operator to:', redirectUrl)
+          break
+        default:
+          redirectUrl = '/en'
+          console.log('[Auth Callback] Unknown role, redirecting to home:', profile.role)
+      }
+
+      // Create new response with role-based redirect
+      const roleBasedResponse = NextResponse.redirect(new URL(redirectUrl, request.url))
+
+      // Copy all cookies from original response to new response
+      response.cookies.getAll().forEach(cookie => {
+        roleBasedResponse.cookies.set(cookie)
+      })
+
+      return roleBasedResponse
     }
 
     // No code provided, redirect to login
