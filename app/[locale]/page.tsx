@@ -9,9 +9,11 @@
 
 import { useTranslations } from 'next-intl'
 import { Link } from '@/lib/i18n/navigation'
+import { Button } from '@/components/ui/button'
 
 export default function Home() {
   const t = useTranslations('home')
+  const tNav = useTranslations('navigation')
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -24,7 +26,10 @@ export default function Home() {
           {t('description')}
         </p>
 
-        <div className="mt-8 flex gap-4 justify-center">
+        <div className="mt-8 flex gap-4 justify-center items-center">
+          <Button asChild>
+            <Link href="/login">{tNav('login')}</Link>
+          </Button>
           <LocaleSwitcher />
         </div>
       </div>
