@@ -1,183 +1,153 @@
 /**
  * Admin Layout Tests
  *
- * Tests for admin layout component with authentication and role checking.
+ * Tests for admin layout component with authentication check.
+ *
+ * NOTE: AdminLayout only checks authentication, not authorization.
+ * Authorization (admin/superuser role check) is handled by individual pages.
  *
  * @module app/admin/layout.test
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import AdminLayout from './layout'
-import { redirect } from 'next/navigation'
 
 // Mock Next.js modules
 vi.mock('next/navigation', () => ({
-  redirect: vi.fn(),
-  notFound: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+  })),
+  usePathname: vi.fn(() => '/en/admin'),
 }))
 
-vi.mock('next-intl/server', () => ({
-  getLocale: vi.fn().mockResolvedValue('en'),
+vi.mock('@/lib/auth/client', () => ({
+  createAuthClient: vi.fn(),
 }))
 
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(),
-}))
+// Helper function to create a mock Supabase client
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockSupabaseClient = (user: any) => ({
+  auth: {
+    getUser: vi.fn().mockResolvedValue({
+      data: { user },
+      error: null,
+    }),
+    getSession: vi.fn(),
+    signOut: vi.fn(),
+    onAuthStateChange: vi.fn(),
+    signInWithPassword: vi.fn(),
+    signUp: vi.fn(),
+    admin: {
+      getUserById: vi.fn(),
+      createUser: vi.fn(),
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any,
+  from: vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: null,
+          error: null,
+        }),
+      }),
+    }),
+  }),
+  supabaseUrl: 'http://localhost:54331',
+  supabaseKey: 'mock-key',
+  realtime: {
+    channel: vi.fn(),
+  },
+  storage: {
+    from: vi.fn(),
+  },
+  rpc: vi.fn(),
+  removeChannel: vi.fn(),
+  removeAllChannels: vi.fn(),
+  getChannels: vi.fn(),
+  channel: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} as any)
 
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
-}))
-
-vi.mock('@/lib/auth/authorization', () => ({
-  isAdmin: vi.fn(),
-}))
+// Test data
+const mockUser = {
+  id: '00000000-0000-0000-0000-000000000001',
+  email: 'admin@example.com',
+}
 
 describe('AdminLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
+  it('should render loading state initially', async () => {
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser))
+
+    render(<AdminLayout><div>Test Children</div></AdminLayout>)
+
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
+  })
+
   it('should redirect to login if user not authenticated', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: null,
-        }),
-      },
-    }
+    const mockPush = vi.fn()
+    const { useRouter } = await import('next/navigation')
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      replace: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    })
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(null))
 
-    try {
-      await AdminLayout({ children: <div>Test Content</div> })
-    } catch {
-      // Redirect throws in tests
-      expect(redirect).toHaveBeenCalled()
-    }
+    render(<AdminLayout><div>Test Children</div></AdminLayout>)
 
-    expect(redirect).toHaveBeenCalled()
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/en/login')
+    })
   })
 
-  it('should redirect to login if auth error', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: { message: 'Auth error' },
-        }),
-      },
-    }
+  it('should render children if user is authenticated', async () => {
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser))
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    render(<AdminLayout><div data-testid="test-children">Test Admin Content</div></AdminLayout>)
 
-    try {
-      await AdminLayout({ children: <div>Test Content</div> })
-    } catch {
-      // Redirect throws in tests
-      expect(redirect).toHaveBeenCalled()
-    }
-
-    expect(redirect).toHaveBeenCalled()
+    await waitFor(() => {
+      expect(screen.getByTestId('test-children')).toBeInTheDocument()
+    })
   })
 
-  it('should redirect to home if user is not admin', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'test-user-id' } },
-          error: null,
-        }),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { role: 'operator' },
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    }
+  it('should handle auth errors and redirect to login', async () => {
+    const mockPush = vi.fn()
+    const { useRouter } = await import('next/navigation')
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      replace: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    })
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    const mockSupabaseClient = createMockSupabaseClient(null)
+    mockSupabaseClient.auth.getUser = vi.fn().mockResolvedValue({
+      data: { user: null },
+      error: { message: 'Auth error' },
+    })
 
-    const { isAdmin } = await import('@/lib/auth/authorization')
-    vi.mocked(isAdmin).mockReturnValue(false)
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(mockSupabaseClient)
 
-    await AdminLayout({ children: <div>Test Content</div> })
+    render(<AdminLayout><div>Test Children</div></AdminLayout>)
 
-    expect(redirect).toHaveBeenCalledWith('/en/')
-  })
-
-  it('should render children if user is admin', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'test-user-id' } },
-          error: null,
-        }),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { role: 'admin' },
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    }
-
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
-
-    const { isAdmin } = await import('@/lib/auth/authorization')
-    vi.mocked(isAdmin).mockReturnValue(true)
-
-    const { getLocale } = await import('next-intl/server')
-    vi.mocked(getLocale).mockResolvedValue('en')
-
-    const TestContent = () => <div>Test Admin Content</div>
-    const result = await AdminLayout({ children: <TestContent /> })
-
-    expect(result).toBeDefined()
-  })
-
-  it('should render children if user is superuser', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: { id: 'test-user-id' } },
-          error: null,
-        }),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { role: 'superuser' },
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    }
-
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
-
-    const { isAdmin } = await import('@/lib/auth/authorization')
-    vi.mocked(isAdmin).mockReturnValue(true)
-
-    const TestContent = () => <div>Test Admin Content</div>
-    const result = await AdminLayout({ children: <TestContent /> })
-
-    expect(result).toBeDefined()
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/en/login')
+    })
   })
 })

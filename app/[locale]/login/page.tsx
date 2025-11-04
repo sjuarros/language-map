@@ -48,7 +48,11 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const result = await signInWithMagicLink(email, window.location.pathname + window.location.search)
+      // Get the current path for redirect after login
+      const path = typeof window !== 'undefined'
+        ? (window.location.pathname || '') + (window.location.search || '')
+        : ''
+      const result = await signInWithMagicLink(email, path)
 
       if (result.success) {
         setSuccess(true)

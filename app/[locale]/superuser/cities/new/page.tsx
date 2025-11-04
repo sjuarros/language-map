@@ -1,64 +1,129 @@
 /**
- * New City Creation Page
- *
- * Page for creating a new city with multilingual support.
+ * @file page.tsx
+ * @description Server component for creating a new city with multilingual support.
+ *              Fetches available countries from the database and renders the
+ *              CreateCityForm component for city creation.
+ *              Requires superuser authentication to access.
  */
 
-import { createCity } from '@/app/actions/cities'
-import { createCityFormSchema } from '@/lib/validations/city'
-import { redirect } from 'next/navigation'
 import { getLocale } from 'next-intl/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
+import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Loader2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { CreateCityForm } from './CreateCityForm'
 
+// TypeScript interfaces for type safety
+interface CountryTranslation {
+  name: string
+  locale_code: string
+}
+
+interface Country {
+  id: string
+  slug: string
+  translations: CountryTranslation[]
+}
+
+/**
+ * Server component that renders the new city creation page.
+ * This page allows superusers to create new cities in the platform with
+ * multilingual support. It fetches available countries from the database
+ * and displays a form for city creation.
+ *
+ * @async
+ * @returns The page component with countries list and creation form
+ * @throws {Error} If user is not authenticated, lacks superuser role,
+ *                 or if countries cannot be fetched from database
+ */
 export default async function NewCityPage() {
+  // Verify authentication
+  const supabase = await getServerSupabaseWithCookies('system')
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    redirect(`/${await getLocale()}/login`)
+  }
+
+  // Verify superuser role
+  const { data: userProfile, error: roleError } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (roleError || !userProfile || userProfile.role !== 'superuser') {
+    redirect(`/${await getLocale()}/unauthorized`)
+  }
+
+  // Get and validate locale
   const locale = await getLocale()
 
-  async function createCityAction(formData: FormData) {
-    'use server'
-
-    // Extract form data
-    const data = {
-      slug: formData.get('slug') as string,
-      country: formData.get('country') as string,
-      center_lat: parseFloat(formData.get('center_lat') as string),
-      center_lng: parseFloat(formData.get('center_lng') as string),
-      default_zoom: parseInt(formData.get('default_zoom') as string, 10),
-      // English translations
-      name_en: formData.get('name_en') as string,
-      description_en: formData.get('description_en') as string,
-      // Dutch translations
-      name_nl: formData.get('name_nl') as string,
-      description_nl: formData.get('description_nl') as string,
-      // French translations
-      name_fr: formData.get('name_fr') as string,
-      description_fr: formData.get('description_fr') as string,
-    }
-
-    // Validate
-    const validation = createCityFormSchema.safeParse(data)
-    if (!validation.success) {
-      throw new Error('Validation failed: ' + validation.error.message)
-    }
-
-    try {
-      await createCity(validation.data)
-      redirect(`/${locale}/superuser/cities`)
-    } catch (error) {
-      throw error
-    }
+  // Validate locale format
+  if (!locale || typeof locale !== 'string') {
+    throw new Error('Invalid locale parameter')
   }
+
+  if (!locale.match(/^[a-z]{2}(-[A-Z]{2})?$/)) {
+    throw new Error(`Invalid locale format: ${locale}`)
+  }
+
+  // Fetch available countries with error handling
+  let countries: Country[] = []
+  try {
+    const supabase = getDatabaseClient('system')
+    const { data, error } = await supabase
+      .from('countries')
+      .select(`
+        id,
+        slug,
+        translations:country_translations!inner(
+          name,
+          locale_code
+        )
+      `)
+      .eq('translations.locale_code', locale)
+      .order('slug')
+
+    if (error) {
+      throw new Error(`Database error while fetching countries: ${error.message}`)
+    }
+
+    // Validate response data
+    if (!data || !Array.isArray(data)) {
+      throw new Error('Invalid countries data received from database')
+    }
+
+    countries = data
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to load countries: ${error.message}`)
+    }
+    throw new Error('Failed to load countries: Unknown error')
+  }
+
+  // Sort countries by translated name with safe array access
+  const sortedCountries = countries.sort((a, b) => {
+    // Validate array structures
+    if (!a.translations || !Array.isArray(a.translations) || a.translations.length === 0) {
+      return a.slug.localeCompare(b.slug || '')
+    }
+    if (!b.translations || !Array.isArray(b.translations) || b.translations.length === 0) {
+      return (a.slug || '').localeCompare(b.slug)
+    }
+
+    const nameA = a.translations[0]?.name || a.slug || ''
+    const nameB = b.translations[0]?.name || b.slug || ''
+    return nameA.localeCompare(nameB)
+  })
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-4">
-        <Link href={`/${locale}/superuser/cities`}>
+        <Link href={`/${locale}/superuser`}>
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -72,186 +137,7 @@ export default async function NewCityPage() {
         </div>
       </div>
 
-      <form action={createCityAction}>
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Basic Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
-              <CardDescription>
-                Required information about the city
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="slug">City Slug *</Label>
-                <Input
-                  id="slug"
-                  name="slug"
-                  placeholder="amsterdam"
-                  required
-                  pattern="^[a-z0-9-]+$"
-                  title="Lowercase letters, numbers, and hyphens only"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  URL-friendly identifier (lowercase letters, numbers, and hyphens)
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="country">Country *</Label>
-                <Input
-                  id="country"
-                  name="country"
-                  placeholder="Netherlands"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="center_lat">Latitude *</Label>
-                <Input
-                  id="center_lat"
-                  name="center_lat"
-                  type="number"
-                  step="any"
-                  placeholder="52.3676"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="center_lng">Longitude *</Label>
-                <Input
-                  id="center_lng"
-                  name="center_lng"
-                  type="number"
-                  step="any"
-                  placeholder="4.9041"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="default_zoom">Default Map Zoom *</Label>
-                <Input
-                  id="default_zoom"
-                  name="default_zoom"
-                  type="number"
-                  min="1"
-                  max="20"
-                  placeholder="10"
-                  required
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* English Translations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>English Translations</CardTitle>
-              <CardDescription>
-                English name and description for the city
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name_en">City Name (English) *</Label>
-                <Input
-                  id="name_en"
-                  name="name_en"
-                  placeholder="Amsterdam"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description_en">Description (English) *</Label>
-                <Textarea
-                  id="description_en"
-                  name="description_en"
-                  placeholder="Amsterdam is the capital and most populous city of the Netherlands..."
-                  required
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Dutch Translations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Dutch Translations</CardTitle>
-              <CardDescription>
-                Dutch name and description for the city
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name_nl">City Name (Dutch) *</Label>
-                <Input
-                  id="name_nl"
-                  name="name_nl"
-                  placeholder="Amsterdam"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description_nl">Description (Dutch) *</Label>
-                <Textarea
-                  id="description_nl"
-                  name="description_nl"
-                  placeholder="Amsterdam is de hoofdstad en grootste stad van Nederland..."
-                  required
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* French Translations */}
-          <Card>
-            <CardHeader>
-              <CardTitle>French Translations</CardTitle>
-              <CardDescription>
-                French name and description for the city
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="name_fr">City Name (French) *</Label>
-                <Input
-                  id="name_fr"
-                  name="name_fr"
-                  placeholder="Amsterdam"
-                  required
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description_fr">Description (French) *</Label>
-                <Textarea
-                  id="description_fr"
-                  name="description_fr"
-                  placeholder="Amsterdam est la capitale et la ville la plus peuplée des Pays-Bas..."
-                  required
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Submit button */}
-        <div className="mt-6 flex justify-end">
-          <Button type="submit" size="lg">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Create City
-          </Button>
-        </div>
-      </form>
+      <CreateCityForm countries={sortedCountries || []} locale={locale} />
     </div>
   )
 }

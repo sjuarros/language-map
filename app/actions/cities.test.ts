@@ -39,6 +39,10 @@ vi.mock('@/lib/database/client', () => ({
   getDatabaseAdminClient: vi.fn(),
 }))
 
+vi.mock('@/lib/supabase/server-client', () => ({
+  getServerSupabaseWithCookies: vi.fn(),
+}))
+
 // Test data
 const mockUser = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -52,6 +56,15 @@ const mockCity = {
 
 describe('createCity', () => {
   it('should create a city successfully', async () => {
+    const mockAuthSupabase = {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: mockUser },
+          error: null,
+        }),
+      },
+    }
+
     const mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -102,12 +115,15 @@ describe('createCity', () => {
     }
 
     const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockAuthSupabase as any)
 
     const result = await createCity({
       slug: 'amsterdam',
-      country: 'Netherlands',
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
       center_lat: 52.3676,
       center_lng: 4.9041,
       default_zoom: 10,
@@ -119,48 +135,58 @@ describe('createCity', () => {
       description_fr: 'Capitale des Pays-Bas',
     })
 
-    expect(result.id).toBe(mockCity.id)
-    expect(result.slug).toBe('amsterdam')
+    if (result.success) {
+      expect(result.data.id).toBe(mockCity.id)
+      expect(result.data.slug).toBe('amsterdam')
+    } else {
+      throw new Error('Expected success but got error: ' + result.error)
+    }
   })
 
-  it('should throw error for invalid slug format', async () => {
-    await expect(
-      createCity({
-        slug: 'Invalid-City', // Invalid: uppercase letters
-        country: 'Netherlands',
-        center_lat: 52.3676,
-        center_lng: 4.9041,
-        default_zoom: 10,
-        name_en: 'Amsterdam',
-        description_en: 'Capital city',
-        name_nl: 'Amsterdam',
-        description_nl: 'Hoofdstad',
-        name_fr: 'Amsterdam',
-        description_fr: 'Capitale',
-      })
-    ).rejects.toThrow('Slug must contain only lowercase letters')
+  it('should return error for invalid slug format', async () => {
+    const result = await createCity({
+      slug: 'Invalid-City', // Invalid: uppercase letters
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
+      center_lat: 52.3676,
+      center_lng: 4.9041,
+      default_zoom: 10,
+      name_en: 'Amsterdam',
+      description_en: 'Capital city',
+      name_nl: 'Amsterdam',
+      description_nl: 'Hoofdstad',
+      name_fr: 'Amsterdam',
+      description_fr: 'Capitale',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error).toMatch(/Slug must contain only lowercase letters/)
+    }
   })
 
-  it('should throw error for invalid coordinates', async () => {
-    await expect(
-      createCity({
-        slug: 'test-city',
-        country: 'Test',
-        center_lat: 999, // Invalid: out of range
-        center_lng: 4.9041,
-        default_zoom: 10,
-        name_en: 'Test',
-        description_en: 'Test',
-        name_nl: 'Test',
-        description_nl: 'Test',
-        name_fr: 'Test',
-        description_fr: 'Test',
-      })
-    ).rejects.toThrow('Latitude must be between -90 and 90')
+  it('should return error for invalid coordinates', async () => {
+    const result = await createCity({
+      slug: 'test-city',
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
+      center_lat: 999, // Invalid: out of range
+      center_lng: 4.9041,
+      default_zoom: 10,
+      name_en: 'Test',
+      description_en: 'Test',
+      name_nl: 'Test',
+      description_nl: 'Test',
+      name_fr: 'Test',
+      description_fr: 'Test',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error).toMatch(/Latitude must be between -90 and 90/)
+    }
   })
 
-  it('should throw error if user not authenticated', async () => {
-    const mockSupabase = {
+  it('should return error if user not authenticated', async () => {
+    const mockAuthSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
           data: { user: null },
@@ -170,27 +196,42 @@ describe('createCity', () => {
     }
 
     const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
+    vi.mocked(getDatabaseAdminClient).mockReturnValue({} as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockAuthSupabase as any)
 
-    await expect(
-      createCity({
-        slug: 'test-city',
-        country: 'Test',
-        center_lat: 52.3676,
-        center_lng: 4.9041,
-        default_zoom: 10,
-        name_en: 'Test',
-        description_en: 'Test',
-        name_nl: 'Test',
-        description_nl: 'Test',
-        name_fr: 'Test',
-        description_fr: 'Test',
-      })
-    ).rejects.toThrow('Authentication required')
+    const result = await createCity({
+      slug: 'test-city',
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
+      center_lat: 52.3676,
+      center_lng: 4.9041,
+      default_zoom: 10,
+      name_en: 'Test',
+      description_en: 'Test',
+      name_nl: 'Test',
+      description_nl: 'Test',
+      name_fr: 'Test',
+      description_fr: 'Test',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error).toBe('Authentication required')
+    }
   })
 
-  it('should throw error if user is not superuser', async () => {
+  it('should return error if user is not superuser', async () => {
+    const mockAuthSupabase = {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: mockUser },
+          error: null,
+        }),
+      },
+    }
+
     const mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -211,27 +252,42 @@ describe('createCity', () => {
     }
 
     const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockAuthSupabase as any)
 
-    await expect(
-      createCity({
-        slug: 'test-city',
-        country: 'Test',
-        center_lat: 52.3676,
-        center_lng: 4.9041,
-        default_zoom: 10,
-        name_en: 'Test',
-        description_en: 'Test',
-        name_nl: 'Test',
-        description_nl: 'Test',
-        name_fr: 'Test',
-        description_fr: 'Test',
-      })
-    ).rejects.toThrow('Insufficient permissions to create cities')
+    const result = await createCity({
+      slug: 'test-city',
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
+      center_lat: 52.3676,
+      center_lng: 4.9041,
+      default_zoom: 10,
+      name_en: 'Test',
+      description_en: 'Test',
+      name_nl: 'Test',
+      description_nl: 'Test',
+      name_fr: 'Test',
+      description_fr: 'Test',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error).toBe('Insufficient permissions to create cities')
+    }
   })
 
-  it('should throw error if city slug already exists', async () => {
+  it('should return error if city slug already exists', async () => {
+    const mockAuthSupabase = {
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: mockUser },
+          error: null,
+        }),
+      },
+    }
+
     const mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({
@@ -265,23 +321,29 @@ describe('createCity', () => {
     }
 
     const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockAuthSupabase as any)
 
-    await expect(
-      createCity({
-        slug: 'existing-city',
-        country: 'Test',
-        center_lat: 52.3676,
-        center_lng: 4.9041,
-        default_zoom: 10,
-        name_en: 'Test',
-        description_en: 'Test',
-        name_nl: 'Test',
-        description_nl: 'Test',
-        name_fr: 'Test',
-        description_fr: 'Test',
-      })
-    ).rejects.toThrow('A city with this slug already exists')
+    const result = await createCity({
+      slug: 'existing-city',
+      country_id: '550e8400-e29b-41d4-a716-446655440000',
+      center_lat: 52.3676,
+      center_lng: 4.9041,
+      default_zoom: 10,
+      name_en: 'Test',
+      description_en: 'Test',
+      name_nl: 'Test',
+      description_nl: 'Test',
+      name_fr: 'Test',
+      description_fr: 'Test',
+    })
+
+    expect(result.success).toBe(false)
+    if (!result.success) {
+      expect(result.error).toBe('A city with this slug already exists')
+    }
   })
 })

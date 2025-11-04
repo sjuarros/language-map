@@ -15,10 +15,11 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus } from 'lucide-react'
+import type { User } from '@supabase/supabase-js'
 
 export default function SuperuserDashboard() {
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [cityCount, setCityCount] = useState(0)
   const [userCount, setUserCount] = useState(0)
   const [error, setError] = useState<string | null>(null)

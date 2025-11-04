@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Settings } from 'lucide-react'
+import type { User } from '@supabase/supabase-js'
 
 interface City {
   id: string
@@ -30,7 +31,7 @@ interface UserCity {
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [userCities, setUserCities] = useState<UserCity[]>([])
   const [languageCount, setLanguageCount] = useState(0)
   const [userCount, setUserCount] = useState(0)
@@ -79,7 +80,9 @@ export default function AdminDashboard() {
           return
         }
 
-        setUserCities(cities || [])
+        // Transform query result to UserCity array
+        const transformedCities: UserCity[] = (cities as unknown as UserCity[]) || []
+        setUserCities(transformedCities)
 
         // If user has no city access, stop here
         if (!cities || cities.length === 0) {
@@ -88,7 +91,7 @@ export default function AdminDashboard() {
         }
 
         // Get stats for first city
-        const firstCity = cities[0].city as City
+        const firstCity = transformedCities[0].city
 
         // Get language count
         const { count: languages } = await supabase
