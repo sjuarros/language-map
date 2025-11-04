@@ -85,9 +85,6 @@ export default function SuperuserDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Auth check component - runs before render */}
-      <AuthCheck onAuthenticated={handleAuthenticated} />
-
       {/* Page header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard ✅</h1>

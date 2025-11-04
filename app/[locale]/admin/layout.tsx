@@ -37,7 +37,7 @@ export default function AdminLayout({
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
-        // Check authentication only - authorization is handled by individual pages
+        // Check authentication
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         console.log('[Admin Layout] Auth check:', { hasUser: !!user, email: user?.email, error: authError?.message })
 
@@ -47,7 +47,33 @@ export default function AdminLayout({
           return
         }
 
-        // User is authenticated - let the page handle authorization
+        // Check if user is admin or superuser
+        const { data: userData, error: roleError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        console.log('[Admin Layout] Role check:', { role: userData?.role, error: roleError?.message })
+
+        if (roleError || !userData) {
+          console.error('[Admin Layout] Error fetching user role:', roleError)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Verify user has admin or superuser permissions
+        const userRole = userData.role
+        const isAdmin = userRole === 'admin' || userRole === 'superuser'
+
+        if (!isAdmin) {
+          console.log('[Admin Layout] User does not have admin permissions:', userRole)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // User is authorized
+        console.log('[Admin Layout] User authorized:', { email: user.email, role: userRole })
         setAuthorized(true)
         setLoading(false)
       } catch (err) {

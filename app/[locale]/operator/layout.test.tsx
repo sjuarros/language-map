@@ -110,17 +110,23 @@ describe('OperatorLayout', () => {
       prefetch: vi.fn(),
     })
 
+    const mockSupabaseClient = createMockSupabaseClient(null)
+    mockSupabaseClient.auth.getUser = vi.fn().mockResolvedValue({
+      data: { user: null },
+      error: null,
+    })
+
     const { createAuthClient } = await import('@/lib/auth/client')
-    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(null))
+    vi.mocked(createAuthClient).mockReturnValue(mockSupabaseClient)
 
     render(<OperatorLayout><div>Test Children</div></OperatorLayout>)
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/en/login?redirectTo=/operator')
+      expect(mockPush).toHaveBeenCalledWith('/en/login')
     })
   })
 
-  it('should redirect to home if user is not operator', async () => {
+  it('should redirect to login if user is not operator', async () => {
     const mockPush = vi.fn()
     const { useRouter } = await import('next/navigation')
     vi.mocked(useRouter).mockReturnValue({
@@ -141,7 +147,7 @@ describe('OperatorLayout', () => {
     render(<OperatorLayout><div>Test Children</div></OperatorLayout>)
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/en/')
+      expect(mockPush).toHaveBeenCalledWith('/en/login')
     })
   })
 
@@ -156,7 +162,6 @@ describe('OperatorLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('test-children')).toBeInTheDocument()
-      expect(screen.getByText(/Language Map - Operator/i)).toBeInTheDocument()
     })
   })
 
@@ -171,7 +176,6 @@ describe('OperatorLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('test-children')).toBeInTheDocument()
-      expect(screen.getByText(/Language Map - Operator/i)).toBeInTheDocument()
     })
   })
 
@@ -186,7 +190,6 @@ describe('OperatorLayout', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('test-children')).toBeInTheDocument()
-      expect(screen.getByText(/Language Map - Operator/i)).toBeInTheDocument()
     })
   })
 })

@@ -34,7 +34,7 @@ export default function SuperuserLayout({
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
-        // Check authentication only - authorization is handled by individual pages
+        // Check authentication
         const { data: { user }, error: authError } = await supabase.auth.getUser()
         console.log('[Superuser Layout] Auth check:', { hasUser: !!user, email: user?.email })
 
@@ -44,7 +44,33 @@ export default function SuperuserLayout({
           return
         }
 
-        // User is authenticated - let the page handle authorization
+        // Check if user is superuser
+        const { data: userData, error: roleError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        console.log('[Superuser Layout] Role check:', { role: userData?.role, error: roleError?.message })
+
+        if (roleError || !userData) {
+          console.error('[Superuser Layout] Error fetching user role:', roleError)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Verify user has superuser permissions
+        const userRole = userData.role
+        const isSuperuser = userRole === 'superuser'
+
+        if (!isSuperuser) {
+          console.log('[Superuser Layout] User does not have superuser permissions:', userRole)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // User is authorized
+        console.log('[Superuser Layout] User authorized:', { email: user.email, role: userRole })
         setAuthorized(true)
         setLoading(false)
       } catch (err) {
