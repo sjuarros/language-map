@@ -10,7 +10,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter, usePathname, useParams } from 'next/navigation'
 
 export default function AdminLayout({
   children,
@@ -21,10 +21,21 @@ export default function AdminLayout({
   const [authorized, setAuthorized] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
+  const params = useParams()
+  const citySlug = params?.citySlug as string | undefined
 
   useEffect(() => {
     async function checkAuth() {
       try {
+        // If this is a city-specific admin route, skip auth here
+        // The city-specific layout will handle authentication
+        if (citySlug) {
+          console.log('[Admin Layout] City-specific route detected, skipping auth in parent layout')
+          setAuthorized(true)
+          setLoading(false)
+          return
+        }
+
         // Extract locale from pathname - only accept valid locales
         const validLocales = ['en', 'nl', 'fr']
         const pathParts = pathname?.split('/').filter(Boolean) || []

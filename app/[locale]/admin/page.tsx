@@ -11,7 +11,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -37,6 +37,8 @@ export default function AdminDashboard() {
   const [userCount, setUserCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) || 'en'
 
   useEffect(() => {
     async function checkAuthAndLoadData() {
@@ -194,10 +196,10 @@ export default function AdminDashboard() {
               {userCities.map((userCity) => {
                 const city = userCity.city
                 return (
-                  <Link
+                  <div
                     key={city.id}
-                    href={`/en/admin/${city.slug}`}
-                    className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/${locale}/admin/${city.slug}`)}
                   >
                     <div className="flex items-center justify-between">
                       <div>
@@ -212,7 +214,7 @@ export default function AdminDashboard() {
                         Manage
                       </Button>
                     </div>
-                  </Link>
+                  </div>
                 )
               })}
             </div>
@@ -233,11 +235,13 @@ export default function AdminDashboard() {
               <p className="text-xs text-gray-600 mt-1 capitalize">
                 Total languages in {firstCity.slug}
               </p>
-              <Link href={`/en/admin/${firstCity.slug}/languages`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  View languages →
-                </Button>
-              </Link>
+              <Button
+                variant="link"
+                className="p-0 mt-2 h-auto text-sm"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                View city dashboard →
+              </Button>
             </CardContent>
           </Card>
 
@@ -251,11 +255,13 @@ export default function AdminDashboard() {
               <p className="text-xs text-gray-600 mt-1 capitalize">
                 Users with access to {firstCity.slug}
               </p>
-              <Link href={`/en/admin/${firstCity.slug}/users`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  Manage users →
-                </Button>
-              </Link>
+              <Button
+                variant="link"
+                className="p-0 mt-2 h-auto text-sm"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                View city dashboard →
+              </Button>
             </CardContent>
           </Card>
 
@@ -265,18 +271,22 @@ export default function AdminDashboard() {
               <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Link href={`/en/admin/${firstCity.slug}/users/invite`}>
-                <Button className="w-full justify-start" variant="outline">
-                  <Users className="mr-2 h-4 w-4" />
-                  Invite Users
-                </Button>
-              </Link>
-              <Link href={`/en/admin/${firstCity.slug}/settings`}>
-                <Button className="w-full justify-start" variant="outline">
-                  <Settings className="mr-2 h-4 w-4" />
-                  City Settings
-                </Button>
-              </Link>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                View City Dashboard
+              </Button>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                City Settings
+              </Button>
             </CardContent>
           </Card>
         </div>

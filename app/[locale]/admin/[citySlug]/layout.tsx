@@ -3,111 +3,153 @@
  *
  * Layout for admin pages specific to a particular city.
  * Validates that the user has access to this city via the city_users table.
+ *
+ * NOTE: Uses Client Components to ensure consistent authentication
+ * with the main admin dashboard.
  */
 
-import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { isAdmin } from '@/lib/auth/authorization'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Building, Users, Settings } from 'lucide-react'
 
-export default async function CityAdminLayout({
+export default function CityAdminLayout({
   children,
-  params,
 }: {
   children: React.ReactNode
-  params: Promise<{ citySlug: string }>
 }) {
-  const cookieStore = await cookies()
-  const locale = await getLocale()
-  const { citySlug } = await params
+  const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
+  const [city, setCity] = useState<{ id: string; slug: string; name: string } | null>(null)
+  const router = useRouter()
+  const params = useParams()
+  const citySlug = params?.citySlug as string
+  const locale = (params?.locale as string) || 'en'
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+  useEffect(() => {
+    async function checkAuthAndCityAccess() {
+      try {
+        console.log('[City Admin Layout] Starting auth check for city:', citySlug)
+
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const { isAdmin } = await import('@/lib/auth/authorization')
+        const supabase = createAuthClient()
+
+        // Check authentication
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[City Admin Layout] Auth check:', { hasUser: !!user, email: user?.email, error: authError?.message })
+
+        if (authError || !user) {
+          console.log('[City Admin Layout] No user, redirecting to login')
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Get user profile with role
+        const { data: userProfile, error: profileError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        console.log('[City Admin Layout] User profile:', { role: userProfile?.role, error: profileError?.message })
+
+        if (profileError || !userProfile) {
+          console.error('[City Admin Layout] Error fetching user profile:', profileError)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Check if user is admin or superuser
+        if (!isAdmin(userProfile.role)) {
+          console.log('[City Admin Layout] User does not have admin permissions:', userProfile.role)
+          router.push(`/${locale}/`)
+          return
+        }
+
+        // Get city and verify access
+        console.log('[City Admin Layout] Fetching city:', citySlug)
+        const { data: cityData, error: cityError } = await supabase
+          .from('cities')
+          .select(`
+            id,
+            slug,
+            translations:city_translations!inner(
+              name
+            )
+          `)
+          .eq('slug', citySlug)
+          .eq('translations.locale_code', locale)
+          .single()
+
+        console.log('[City Admin Layout] City query result:', { city: cityData, error: cityError?.message })
+
+        if (cityError || !cityData) {
+          console.error('[City Admin Layout] City not found or error:', cityError)
+          router.push(`/${locale}/admin`)
+          return
+        }
+
+        // Extract city name from translations
+        const cityWithName = {
+          id: cityData.id,
+          slug: cityData.slug,
+          name: cityData.translations?.name || cityData.slug
+        }
+
+        setCity(cityWithName)
+
+        // Check if user has access to this city
+        console.log('[City Admin Layout] Checking city access for user:', user.id, 'city:', cityWithName.id)
+        const { data: cityAccess, error: accessError } = await supabase
+          .from('city_users')
+          .select('role')
+          .eq('city_id', cityWithName.id)
+          .eq('user_id', user.id)
+          .single()
+
+        console.log('[City Admin Layout] City access result:', { access: cityAccess, error: accessError?.message })
+
+        // Superusers bypass city access check
+        const isSuperuser = userProfile.role === 'superuser'
+
+        if (!cityAccess && !isSuperuser) {
+          console.log('[City Admin Layout] User does not have access to this city')
+          router.push(`/${locale}/admin`)
+          return
+        }
+
+        // User is authorized
+        console.log('[City Admin Layout] User authorized for city:', citySlug)
+        setAuthorized(true)
+        setLoading(false)
+      } catch (err) {
+        console.error('[City Admin Layout] Unexpected error:', err)
+        router.push(`/${locale}/login`)
+      }
     }
-  )
 
-  // Check authentication
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
+    if (citySlug) {
+      checkAuthAndCityAccess()
+    }
+  }, [router, citySlug, locale])
 
-  if (authError || !user) {
-    redirect(`/${locale}/login`)
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-medium text-gray-900">Loading...</div>
+          <p className="mt-2 text-sm text-gray-600">Checking authentication and city access</p>
+        </div>
+      </div>
+    )
   }
 
-  // Get user profile with role
-  const { data: userProfile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  // Check if user is admin or superuser
-  if (!isAdmin(userProfile?.role)) {
-    redirect(`/${locale}/`)
-  }
-
-  // Get city and verify access
-  const { data: city } = await supabase
-    .from('cities')
-    .select('id, slug, name')
-    .eq('slug', citySlug)
-    .single()
-
-  if (!city) {
-    redirect(`/${locale}/admin`)
-  }
-
-  // Check if user has access to this city
-  const { data: cityAccess } = await supabase
-    .from('city_users')
-    .select('role')
-    .eq('city_id', city.id)
-    .eq('user_id', user.id)
-    .single()
-
-  // Superusers bypass city access check
-  const { data: userProfileForSuperuserCheck } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  const isSuperuser = userProfileForSuperuserCheck?.role === 'superuser'
-
-  if (!cityAccess && !isSuperuser) {
-    redirect(`/${locale}/admin`)
+  if (!authorized || !city) {
+    return null
   }
 
   return (

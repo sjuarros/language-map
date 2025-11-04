@@ -10,7 +10,7 @@ const defaultLocale = 'en'
 export default createMiddleware({
   locales,
   defaultLocale,
-  localePrefix: 'as-needed',
+  localePrefix: 'always', // Always include locale in URL
 })
 
 export const config = {
