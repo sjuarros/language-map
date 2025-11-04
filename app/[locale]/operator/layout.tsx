@@ -1,18 +1,16 @@
 /**
- * @file layout.tsx
- * @description Operator dashboard layout with authentication and role checking.
+ * Operator Layout
+ *
+ * Client-side layout with authentication and role checking.
  * Only operators, admins, and superusers can access this layout.
  *
- * NOTE: Uses Client Components because Server Components cannot access
- * cookies set by external libraries (like Supabase's sb-auth-token).
+ * @module app/operator/layout
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
-import { LogoutButton } from '@/components/auth/logout-button'
 import { isOperator } from '@/lib/auth/authorization'
 
 export default function OperatorLayout({
@@ -25,8 +23,11 @@ export default function OperatorLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Extract locale from pathname (e.g., /en/operator -> en)
-  const locale = pathname?.split('/')[1] || 'en'
+  // Extract locale from pathname - only accept valid locales
+  const validLocales = ['en', 'nl', 'fr']
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  // For routes like /fr/admin, pathParts would be ['fr', 'admin']
+  const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
 
   useEffect(() => {
     async function checkAuth() {
@@ -40,7 +41,7 @@ export default function OperatorLayout({
 
         if (authError || !user) {
           console.log('[Operator Layout] No user, redirecting to login')
-          router.push(`/${locale}/login?redirectTo=/operator`)
+          router.push(`/${locale}/login`)
           return
         }
 
@@ -55,7 +56,7 @@ export default function OperatorLayout({
 
         if (roleError || !userData) {
           console.error('[Operator Layout] Error fetching user role:', roleError)
-          router.push(`/${locale}/`)
+          router.push(`/${locale}/login`)
           return
         }
 
@@ -65,7 +66,7 @@ export default function OperatorLayout({
 
         if (!hasAccess) {
           console.log('[Operator Layout] User does not have operator permissions:', userRole)
-          router.push(`/${locale}/`)
+          router.push(`/${locale}/login`)
           return
         }
 
@@ -75,7 +76,7 @@ export default function OperatorLayout({
         setLoading(false)
       } catch (err) {
         console.error('[Operator Layout] Error:', err)
-        router.push(`/${locale}/login?redirectTo=/operator`)
+        router.push(`/${locale}/login`)
       }
     }
 
@@ -97,47 +98,6 @@ export default function OperatorLayout({
     return null
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href={`/${locale}/operator`} className="text-xl font-bold text-gray-900">
-                Language Map - Operator
-              </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                href={`/${locale}/operator`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href={`/${locale}/operator/amsterdam`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Amsterdam
-              </Link>
-            </nav>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
-  )
+  return <>{children}</>
 }
+

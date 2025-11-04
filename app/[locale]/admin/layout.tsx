@@ -1,17 +1,16 @@
 /**
  * Admin Layout
  *
- * Layout for admin dashboard pages with authentication check only.
+ * Client-side layout with authentication check only.
  * Authorization (admin/superuser role check) is handled by each individual page.
  *
- * NOTE: Uses Client Components because Server Components cannot access
- * cookies set by external libraries (like Supabase's sb-auth-token).
+ * @module app/admin/layout
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function AdminLayout({
   children,
@@ -21,20 +20,30 @@ export default function AdminLayout({
   const [loading, setLoading] = useState(true)
   const [authorized, setAuthorized] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     async function checkAuth() {
       try {
+        // Extract locale from pathname - only accept valid locales
+        const validLocales = ['en', 'nl', 'fr']
+        const pathParts = pathname?.split('/').filter(Boolean) || []
+        console.log('[Admin Layout] Pathname:', pathname, 'Path parts:', pathParts)
+
+        // For routes like /fr/admin, pathParts would be ['fr', 'admin']
+        const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
+        console.log('[Admin Layout] Using locale:', locale)
+
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
         // Check authentication only - authorization is handled by individual pages
         const { data: { user }, error: authError } = await supabase.auth.getUser()
-        console.log('[Admin Layout] Auth check:', { hasUser: !!user, email: user?.email })
+        console.log('[Admin Layout] Auth check:', { hasUser: !!user, email: user?.email, error: authError?.message })
 
         if (authError || !user) {
           console.log('[Admin Layout] No user, redirecting to login')
-          router.push('/en/login')
+          router.push(`/${locale}/login`)
           return
         }
 
@@ -42,13 +51,14 @@ export default function AdminLayout({
         setAuthorized(true)
         setLoading(false)
       } catch (err) {
-        console.error('[Admin Layout] Error:', err)
+        console.error('[Admin Layout] Unexpected error:', err)
+        // Default to 'en' in case of error
         router.push('/en/login')
       }
     }
 
     checkAuth()
-  }, [router])
+  }, [router, pathname])
 
   if (loading) {
     return (

@@ -1,19 +1,16 @@
 /**
  * Superuser Layout
  *
- * Layout for superuser dashboard pages with authentication check only.
+ * Client-side layout with authentication check only.
  * Authorization (superuser role check) is handled by each individual page.
  *
- * NOTE: Uses Client Components because Server Components cannot access
- * cookies set by external libraries (like Supabase's sb-auth-token).
+ * @module app/superuser/layout
  */
 
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
-import { LogoutButton } from '@/components/auth/logout-button'
 
 export default function SuperuserLayout({
   children,
@@ -25,8 +22,11 @@ export default function SuperuserLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Extract locale from pathname (e.g., /en/superuser -> en)
-  const locale = pathname?.split('/')[1] || 'en'
+  // Extract locale from pathname - only accept valid locales
+  const validLocales = ['en', 'nl', 'fr']
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  // For routes like /fr/admin, pathParts would be ['fr', 'admin']
+  const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
 
   useEffect(() => {
     async function checkAuth() {
@@ -40,7 +40,7 @@ export default function SuperuserLayout({
 
         if (authError || !user) {
           console.log('[Superuser Layout] No user, redirecting to login')
-          router.push(`/${locale}/login?redirectTo=/superuser`)
+          router.push(`/${locale}/login`)
           return
         }
 
@@ -49,7 +49,7 @@ export default function SuperuserLayout({
         setLoading(false)
       } catch (err) {
         console.error('[Superuser Layout] Error:', err)
-        router.push(`/${locale}/login?redirectTo=/superuser`)
+        router.push(`/${locale}/login`)
       }
     }
 
@@ -71,47 +71,6 @@ export default function SuperuserLayout({
     return null
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href={`/${locale}/superuser`} className="text-xl font-bold text-gray-900">
-                Language Map - Superuser
-              </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                href={`/${locale}/superuser`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href={`/${locale}/superuser/cities`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Cities
-              </Link>
-            </nav>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
-  )
+  return <>{children}</>
 }
+

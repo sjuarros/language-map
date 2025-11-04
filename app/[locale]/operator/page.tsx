@@ -1,44 +1,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
 export default function OperatorDashboard() {
-  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
-  const router = useRouter()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function checkAuth() {
-      console.log('[Operator] Starting auth check')
+    async function getUser() {
       try {
-        // Import dynamically to avoid SSR issues
         const { createAuthClient } = await import('@/lib/auth/client')
-        console.log('[Operator] Imported createAuthClient')
-
         const supabase = createAuthClient()
-        console.log('[Operator] Created supabase client')
 
-        const { data: { user }, error } = await supabase.auth.getUser()
-        console.log('[Operator] Auth result:', { hasUser: !!user, email: user?.email, error: error?.message })
-
-        if (error || !user) {
-          console.log('[Operator] No user, redirecting to login')
-          router.push('/en/login')
-          return
-        }
-
+        const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
         setLoading(false)
       } catch (err) {
-        console.error('[Operator] Error:', err)
-        router.push('/en/login')
+        console.error('[Operator] Error getting user:', err)
+        setLoading(false)
       }
     }
 
-    checkAuth()
-  }, [router])
+    getUser()
+  }, [])
 
   if (loading) {
     return (

@@ -5,12 +5,14 @@
  *
  * NOTE: Uses Client Components because Server Components cannot access
  * cookies set by external libraries (like Supabase's sb-auth-token).
+ *
+ * NOTE: Authentication is handled by the layout (SuperuserLayout).
+ * This page only loads data.
  */
 
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,29 +20,20 @@ import { Plus } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 export default function SuperuserDashboard() {
-  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<User | null>(null)
   const [cityCount, setCityCount] = useState(0)
   const [userCount, setUserCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
-    async function checkAuthAndLoadData() {
+    async function loadData() {
       try {
-        console.log('[Superuser] Starting auth check')
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
-        const { data: { user }, error: authError } = await supabase.auth.getUser()
-        console.log('[Superuser] Auth result:', { hasUser: !!user, email: user?.email, error: authError?.message })
-
-        if (authError || !user) {
-          console.log('[Superuser] No user, redirecting to login')
-          router.push('/en/login')
-          return
-        }
-
+        // Get the current user
+        const { data: { user } } = await supabase.auth.getUser()
         setUser(user)
 
         // Get city count
@@ -57,18 +50,18 @@ export default function SuperuserDashboard() {
 
         setUserCount(users || 0)
 
-        setLoading(false)
-      } catch (err) {
-        console.error('[Superuser] Error:', err)
+        setIsLoading(false)
+      } catch (error) {
+        console.error('[Superuser] Error loading data:', error)
         setError('An unexpected error occurred')
-        setLoading(false)
+        setIsLoading(false)
       }
     }
 
-    checkAuthAndLoadData()
-  }, [router])
+    loadData()
+  }, [])
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div>
@@ -92,6 +85,9 @@ export default function SuperuserDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Auth check component - runs before render */}
+      <AuthCheck onAuthenticated={handleAuthenticated} />
+
       {/* Page header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Superuser Dashboard ✅</h1>
