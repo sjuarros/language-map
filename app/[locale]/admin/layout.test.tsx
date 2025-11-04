@@ -18,6 +18,9 @@ vi.mock('next/navigation', () => ({
     push: vi.fn(),
   })),
   usePathname: vi.fn(() => '/en/admin'),
+  useParams: vi.fn(() => ({
+    locale: 'en',
+  })),
 }))
 
 vi.mock('@/lib/auth/client', () => ({

@@ -93,11 +93,11 @@ export default function CityAdminLayout({
           return
         }
 
-        // Extract city name from translations
+        // Extract city name from translations (translations is an array from the join)
         const cityWithName = {
           id: cityData.id,
           slug: cityData.slug,
-          name: cityData.translations?.name || cityData.slug
+          name: cityData.translations?.[0]?.name || cityData.slug
         }
 
         setCity(cityWithName)

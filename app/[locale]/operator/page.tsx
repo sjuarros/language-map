@@ -1,29 +1,47 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 
 export default function OperatorDashboard() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
+    let isMounted = true
+
     async function getUser() {
       try {
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: { user }, error } = await supabase.auth.getUser()
+
+        if (error || !user) {
+          if (isMounted) {
+            router.push('/en/login')
+          }
+          return
+        }
+
+        if (!isMounted) return
         setUser(user)
         setLoading(false)
-      } catch (err) {
-        console.error('[Operator] Error getting user:', err)
-        setLoading(false)
+      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        if (isMounted) {
+          router.push('/en/login')
+        }
       }
     }
 
     getUser()
-  }, [])
+
+    return () => {
+      isMounted = false
+    }
+  }, [router])
 
   if (loading) {
     return (
@@ -32,6 +50,10 @@ export default function OperatorDashboard() {
         <p>Loading...</p>
       </div>
     )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (

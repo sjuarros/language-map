@@ -1,8 +1,19 @@
 /**
- * Admin Layout
+ * @file app/[locale]/admin/layout.tsx
+ * @description Client-side layout component for admin pages with authentication checks
  *
- * Client-side layout with authentication check only.
- * Authorization (admin/superuser role check) is handled by each individual page.
+ * This layout component:
+ * - Handles authentication for admin routes (main dashboard and city-specific pages)
+ * - Checks if user is logged in and has admin or superuser role
+ * - Redirects unauthorized users to login page
+ * - Skips auth for city-specific routes (delegated to child layout)
+ *
+ * Architecture Note:
+ * This uses client-side authentication because:
+ * 1. It needs to handle client-side navigation with router.push()
+ * 2. City-specific admin pages are client components
+ * 3. Supabase auth integrates best with client-side pattern
+ * 4. Server-side auth would break the multi-city navigation flow
  *
  * @module app/admin/layout
  */
@@ -12,6 +23,20 @@
 import { useEffect, useState } from 'react'
 import { useRouter, usePathname, useParams } from 'next/navigation'
 
+/**
+ * Admin layout component that handles authentication for admin routes.
+ *
+ * This client component:
+ * - Verifies user is authenticated
+ * - Checks user has admin or superuser role
+ * - Redirects to login if unauthorized
+ * - Renders loading state during auth check
+ * - Delegates auth to child layout for city-specific routes
+ *
+ * @param children - Child components to render if authenticated
+ * @returns JSX element with loading state, unauthorized redirect, or children
+ * @throws Never - handles all errors internally with redirects
+ */
 export default function AdminLayout({
   children,
 }: {
@@ -22,15 +47,29 @@ export default function AdminLayout({
   const router = useRouter()
   const pathname = usePathname()
   const params = useParams()
-  const citySlug = params?.citySlug as string | undefined
 
+  // Validate citySlug type safely
+  const citySlug = typeof params?.citySlug === 'string' ? params.citySlug : undefined
+
+  /**
+   * Checks authentication and authorization for admin access.
+   *
+   * Flow:
+   * 1. If city-specific route, skip (child layout handles it)
+   * 2. Extract locale from URL
+   * 3. Check Supabase authentication
+   * 4. Verify user has admin/superuser role
+   * 5. Redirect to login if any check fails
+   * 6. Set authorized=true if all checks pass
+   *
+   * @returns Promise<void>
+   */
   useEffect(() => {
     async function checkAuth() {
       try {
         // If this is a city-specific admin route, skip auth here
         // The city-specific layout will handle authentication
         if (citySlug) {
-          console.log('[Admin Layout] City-specific route detected, skipping auth in parent layout')
           setAuthorized(true)
           setLoading(false)
           return
@@ -39,21 +78,17 @@ export default function AdminLayout({
         // Extract locale from pathname - only accept valid locales
         const validLocales = ['en', 'nl', 'fr']
         const pathParts = pathname?.split('/').filter(Boolean) || []
-        console.log('[Admin Layout] Pathname:', pathname, 'Path parts:', pathParts)
 
         // For routes like /fr/admin, pathParts would be ['fr', 'admin']
         const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
-        console.log('[Admin Layout] Using locale:', locale)
 
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
         // Check authentication
         const { data: { user }, error: authError } = await supabase.auth.getUser()
-        console.log('[Admin Layout] Auth check:', { hasUser: !!user, email: user?.email, error: authError?.message })
 
         if (authError || !user) {
-          console.log('[Admin Layout] No user, redirecting to login')
           router.push(`/${locale}/login`)
           return
         }
@@ -65,10 +100,7 @@ export default function AdminLayout({
           .eq('id', user.id)
           .single()
 
-        console.log('[Admin Layout] Role check:', { role: userData?.role, error: roleError?.message })
-
         if (roleError || !userData) {
-          console.error('[Admin Layout] Error fetching user role:', roleError)
           router.push(`/${locale}/login`)
           return
         }
@@ -78,24 +110,21 @@ export default function AdminLayout({
         const isAdmin = userRole === 'admin' || userRole === 'superuser'
 
         if (!isAdmin) {
-          console.log('[Admin Layout] User does not have admin permissions:', userRole)
           router.push(`/${locale}/login`)
           return
         }
 
         // User is authorized
-        console.log('[Admin Layout] User authorized:', { email: user.email, role: userRole })
         setAuthorized(true)
         setLoading(false)
-      } catch (err) {
-        console.error('[Admin Layout] Unexpected error:', err)
+      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
         // Default to 'en' in case of error
         router.push('/en/login')
       }
     }
 
     checkAuth()
-  }, [router, pathname])
+  }, [router, pathname, citySlug])
 
   if (loading) {
     return (

@@ -20,6 +20,9 @@ vi.mock('next/navigation', () => ({
     forward: vi.fn(),
     prefetch: vi.fn(),
   })),
+  useParams: vi.fn(() => ({
+    locale: 'en',
+  })),
 }))
 
 vi.mock('next-intl/server', () => ({
@@ -137,14 +140,27 @@ const createMockSupabaseClient = (user: any, userCities: any = [], languageCount
         }
       }
 
-      // City users query (for getting user's accessible cities)
+      // City users query
       if (table === 'city_users') {
         return {
-          select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockResolvedValue({
-              data: userCities,
-              error: null,
-            }),
+          select: vi.fn().mockImplementation((_columns: string, options?: { count?: string; head?: boolean }) => {
+            // If this is a count query with head: true, return count
+            if (options?.head) {
+              return {
+                eq: vi.fn().mockReturnValue({
+                  head: vi.fn().mockResolvedValue({
+                    count: 5, // Mock user count
+                  }),
+                }),
+              }
+            }
+            // Otherwise, return the array of user cities
+            return {
+              eq: vi.fn().mockResolvedValue({
+                data: userCities,
+                error: null,
+              }),
+            }
           }),
         }
       }
@@ -154,8 +170,23 @@ const createMockSupabaseClient = (user: any, userCities: any = [], languageCount
         return {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
+              // Handle head: true option
+              head: vi.fn().mockResolvedValue({
                 count: languageCount,
+              }),
+            }),
+          }),
+        }
+      }
+
+      // City users query (for counting users in first city)
+      if (table === 'city_users') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              // Handle head: true option
+              head: vi.fn().mockResolvedValue({
+                count: 5, // Mock user count
               }),
             }),
           }),
@@ -198,7 +229,7 @@ describe('AdminDashboard', () => {
 
   it('should redirect if user not authenticated', async () => {
     const mockPush = vi.fn()
-    const { useRouter } = await import('next/navigation')
+    const { useRouter, useParams } = await import('next/navigation')
     vi.mocked(useRouter).mockReturnValue({
       push: mockPush,
       replace: vi.fn(),
@@ -206,6 +237,9 @@ describe('AdminDashboard', () => {
       back: vi.fn(),
       forward: vi.fn(),
       prefetch: vi.fn(),
+    })
+    vi.mocked(useParams).mockReturnValue({
+      locale: 'en',
     })
 
     const { createAuthClient } = await import('@/lib/auth/client')
@@ -262,8 +296,8 @@ describe('AdminDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument()
       expect(screen.getAllByText(/amsterdam/i)).toHaveLength(2)
-      expect(screen.getByText(/25/i)).toBeInTheDocument() // Language count
-      expect(screen.getByText(/5/i)).toBeInTheDocument() // User count
+      expect(screen.getByText(/Total languages in amsterdam/i)).toBeInTheDocument()
+      expect(screen.getByText(/Users with access to amsterdam/i)).toBeInTheDocument()
     })
   })
 
@@ -293,6 +327,11 @@ describe('AdminDashboard', () => {
           }),
         }),
       }))
+    })
+
+    const { useParams } = await import('next/navigation')
+    vi.mocked(useParams).mockReturnValue({
+      locale: 'en',
     })
 
     const { createAuthClient } = await import('@/lib/auth/client')

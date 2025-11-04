@@ -3,13 +3,22 @@
  *
  * Dashboard for managing a specific city with statistics and quick actions.
  *
+ * This component displays:
+ * - City overview and statistics (languages, users, descriptions, data quality)
+ * - Quick actions for common administrative tasks
+ * - Recent user activity for the city
+ *
  * NOTE: Uses Client Components for consistent authentication.
+ * NOTE: Authentication and authorization are handled by the parent layout component.
+ *
+ * @async
+ * @returns The rendered admin dashboard for a specific city
  */
 
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,20 +43,35 @@ interface RecentUser {
 
 export default function CityAdminPage() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
   const [city, setCity] = useState<City | null>(null)
   const [languageCount, setLanguageCount] = useState(0)
   const [userCount, setUserCount] = useState(0)
   const [descriptionCount, setDescriptionCount] = useState(0)
   const [recentUsers, setRecentUsers] = useState<RecentUser[]>([])
+  const router = useRouter()
   const params = useParams()
+
+  // Input validation
   const citySlug = params?.citySlug as string
   const locale = (params?.locale as string) || 'en'
 
   useEffect(() => {
-    async function loadCityData() {
-      try {
-        console.log('[City Admin Page] Loading data for city:', citySlug)
+    let isMounted = true
 
+    async function loadCityData() {
+      // Validate citySlug inside useEffect (after hooks)
+      if (!citySlug) {
+        return
+      }
+
+      try {
+        // Clear previous errors
+        setError(null)
+
+        // Get database client for client-side queries
+        // For client components, we use createAuthClient which connects to the database
+        // with the user's authentication session
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
@@ -65,21 +89,34 @@ export default function CityAdminPage() {
           .eq('translations.locale_code', locale)
           .single()
 
-        console.log('[City Admin Page] City data:', { city: cityData, error: cityError?.message })
-
         if (cityError || !cityData) {
-          console.error('[City Admin Page] Error fetching city:', cityError)
-          setLoading(false)
+          const errorMsg = cityError?.message || 'City not found'
+          const error = new Error(`Failed to load city: ${errorMsg}`)
+          if (isMounted) {
+            setError(error)
+            setLoading(false)
+          }
           return
         }
 
-        // Extract city name from translations
+        // Validate city data structure
+        if (!cityData.id || !cityData.slug) {
+          const error = new Error('Invalid city data structure received')
+          if (isMounted) {
+            setError(error)
+            setLoading(false)
+          }
+          return
+        }
+
+        // Extract city name from translations (translations is an array from the join)
         const cityWithName: City = {
           id: cityData.id,
           slug: cityData.slug,
-          translations: cityData.translations
+          translations: cityData.translations?.[0] ? { name: cityData.translations[0].name } : { name: cityData.slug }
         }
 
+        if (!isMounted) return
         setCity(cityWithName)
 
         // Get stats for this city
@@ -103,6 +140,8 @@ export default function CityAdminPage() {
             .eq('city_id', cityData.id),
         ])
 
+        if (!isMounted) return
+
         setLanguageCount(languageResult.count || 0)
         setUserCount(userResult.count || 0)
         setDescriptionCount(descriptionResult.count || 0)
@@ -122,20 +161,56 @@ export default function CityAdminPage() {
           .order('created_at', { ascending: false })
           .limit(5)
 
-        setRecentUsers(usersData as RecentUser[] || [])
+        if (!isMounted) return
 
-        setLoading(false)
-        console.log('[City Admin Page] Data loaded successfully')
+        // Validate and map user data (cast user field from potential array to object)
+        const validatedUsers: RecentUser[] = (usersData || []).map(item => ({
+          role: item?.role || 'unknown',
+          created_at: item?.created_at || new Date().toISOString(),
+          user: (item?.user as { email?: string; full_name?: string } | null) || null
+        }))
+
+        setRecentUsers(validatedUsers)
+
+        if (isMounted) {
+          setLoading(false)
+        }
       } catch (err) {
-        console.error('[City Admin Page] Error loading data:', err)
-        setLoading(false)
+        const error = err instanceof Error ? err : new Error('An unknown error occurred')
+        if (isMounted) {
+          setError(error)
+          setLoading(false)
+        }
       }
     }
 
     if (citySlug) {
       loadCityData()
     }
-  }, [citySlug])
+
+    return () => {
+      isMounted = false
+    }
+  }, [citySlug, locale])
+
+  // Validate citySlug after useEffect
+  if (!citySlug) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-red-600">Invalid Request</div>
+          <p className="mt-2 text-sm text-gray-600">City parameter is missing</p>
+          <Button
+            onClick={() => router.push('/en/admin')}
+            className="mt-4"
+            variant="outline"
+          >
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (
@@ -143,6 +218,36 @@ export default function CityAdminPage() {
         <div className="text-center py-12">
           <div className="text-lg font-medium text-gray-900">Loading city data...</div>
           <p className="mt-2 text-sm text-gray-600">Fetching statistics and recent activity</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-red-600">Error Loading Dashboard</div>
+          <p className="mt-2 text-sm text-gray-600">{error.message}</p>
+          <div className="mt-4 space-x-2">
+            <Button
+              onClick={() => {
+                setError(null)
+                setLoading(true)
+                // Trigger reload
+                window.location.reload()
+              }}
+              variant="outline"
+            >
+              Retry
+            </Button>
+            <Button
+              onClick={() => router.push('/en/admin')}
+              variant="outline"
+            >
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
     )

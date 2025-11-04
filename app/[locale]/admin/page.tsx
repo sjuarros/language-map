@@ -1,22 +1,31 @@
 /**
- * Admin Dashboard
+ * @file app/[locale]/admin/page.tsx
+ * @description Admin dashboard with city selector and overview statistics
  *
- * Main dashboard for admin users with city selector and overview statistics.
- * Admins can access multiple cities based on their grants in the city_users table.
+ * This component:
+ * - Displays admin dashboard for users with admin/operator roles
+ * - Shows city selector when user has access to multiple cities
+ * - Displays statistics for the primary city
+ * - Handles authentication and authorization
+ * - Provides navigation to city-specific admin pages
  *
- * NOTE: Uses Client Components because Server Components cannot access
- * cookies set by external libraries (like Supabase's sb-auth-token).
+ * Architecture Note:
+ * This uses client-side authentication because:
+ * 1. Server Components cannot access cookies set by external libraries (Supabase auth)
+ * 2. Needs to handle client-side navigation with router.push()
+ * 3. Must work with Supabase's client-side auth session
+ * 4. Direct database queries are necessary for auth state
+ *
+ * @module app/admin/page
  */
 
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Settings } from 'lucide-react'
-import type { User } from '@supabase/supabase-js'
 
 interface City {
   id: string
@@ -29,38 +38,59 @@ interface UserCity {
   city: City
 }
 
+/**
+ * Admin Dashboard - Main entry point for admin users
+ *
+ * This client component provides the main admin dashboard where users with
+ * admin/operator roles can view and manage their assigned cities. Shows city
+ * selector when user has access to multiple cities, and displays statistics
+ * for the primary city.
+ *
+ * Features:
+ * - Authentication check and redirect to login if unauthenticated
+ * - City access validation via city_users table
+ * - Statistics display (language count, user count)
+ * - Navigation to city-specific admin pages
+ *
+ * @returns Admin dashboard JSX or loading/error state
+ */
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
-  const [user, setUser] = useState<User | null>(null)
   const [userCities, setUserCities] = useState<UserCity[]>([])
-  const [languageCount, setLanguageCount] = useState(0)
-  const [userCount, setUserCount] = useState(0)
+  const [languageCount, setLanguageCount] = useState<number>(0)
+  const [userCount, setUserCount] = useState<number>(0)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const params = useParams()
-  const locale = (params?.locale as string) || 'en'
+
+  // Validate locale parameter
+  const localeParam = params?.locale
+  if (!localeParam || typeof localeParam !== 'string') {
+    if (typeof window !== 'undefined') {
+      router.push('/en/login')
+    }
+  }
+  const locale = localeParam || 'en'
 
   useEffect(() => {
+    let isMounted = true
+
     async function checkAuthAndLoadData() {
       try {
-        console.log('[Admin] Starting auth check')
-        console.log('[Admin] Cookies:', document.cookie)
         const { createAuthClient } = await import('@/lib/auth/client')
         const supabase = createAuthClient()
 
+        // Check authentication
         const { data: { user }, error: authError } = await supabase.auth.getUser()
-        console.log('[Admin] Auth result:', { hasUser: !!user, email: user?.email, userId: user?.id, error: authError?.message })
 
         if (authError || !user) {
-          console.log('[Admin] No user, redirecting to login')
-          router.push('/en/login')
+          if (isMounted) {
+            router.push('/en/login')
+          }
           return
         }
 
-        setUser(user)
-
         // Get user's accessible cities
-        console.log('[Admin] Querying city_users for user:', user.id)
         const { data: cities, error: citiesError } = await supabase
           .from('city_users')
           .select(`
@@ -73,14 +103,15 @@ export default function AdminDashboard() {
           `)
           .eq('user_id', user.id)
 
-        console.log('[Admin] City query result:', { cities, error: citiesError })
-
         if (citiesError) {
-          console.error('[Admin] Error fetching cities:', citiesError)
-          setError('Failed to load cities')
-          setLoading(false)
+          if (isMounted) {
+            setError('Failed to load cities')
+            setLoading(false)
+          }
           return
         }
+
+        if (!isMounted) return
 
         // Transform query result to UserCity array
         const transformedCities: UserCity[] = (cities as unknown as UserCity[]) || []
@@ -95,32 +126,54 @@ export default function AdminDashboard() {
         // Get stats for first city
         const firstCity = transformedCities[0].city
 
-        // Get language count
-        const { count: languages } = await supabase
+        // Get language count with error handling
+        const { count: languages, error: langError } = await supabase
           .from('languages')
           .select('*', { count: 'exact', head: true })
           .eq('city_id', firstCity.id)
 
+        if (langError) {
+          if (isMounted) {
+            setError('Failed to load statistics')
+            setLoading(false)
+          }
+          return
+        }
+
+        if (!isMounted) return
         setLanguageCount(languages || 0)
 
-        // Get user count for this city
-        const { count: users } = await supabase
+        // Get user count for this city with error handling
+        const { count: users, error: usersError } = await supabase
           .from('city_users')
           .select('*', { count: 'exact', head: true })
           .eq('city_id', firstCity.id)
 
-        setUserCount(users || 0)
+        if (usersError) {
+          if (isMounted) {
+            setError('Failed to load statistics')
+            setLoading(false)
+          }
+          return
+        }
 
+        if (!isMounted) return
+        setUserCount(users || 0)
         setLoading(false)
-      } catch (err) {
-        console.error('[Admin] Error:', err)
-        setError('An unexpected error occurred')
-        setLoading(false)
+      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        if (isMounted) {
+          setError('An unexpected error occurred')
+          setLoading(false)
+        }
       }
     }
 
     checkAuthAndLoadData()
-  }, [router])
+
+    return () => {
+      isMounted = false
+    }
+  }, [router, locale])
 
   if (loading) {
     return (
@@ -176,9 +229,6 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard ✅</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage users and settings for your assigned cities
-        </p>
-        <p className="mt-2 text-xs text-gray-500">
-          User: {user?.email} • Time: {new Date().toLocaleString()}
         </p>
       </div>
 
