@@ -32,7 +32,6 @@ const neighborhoodFormSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  isActive: z.boolean().optional(),
   // English (required)
   name_en: z.string().min(1, 'English name is required'),
   description_en: z.string().optional(),
@@ -63,7 +62,6 @@ interface NeighborhoodFormProps {
   initialData?: {
     id: string
     slug: string
-    is_active: boolean
     district_id: string
     translations: Array<{
       locale_code: string
@@ -94,7 +92,6 @@ export default function NeighborhoodForm({
     resolver: zodResolver(neighborhoodFormSchema),
     defaultValues: {
       slug: initialData?.slug || '',
-      isActive: initialData?.is_active ?? true,
       districtId: initialData?.district_id || (districts.length > 0 ? districts[0].id : ''),
       name_en:
         initialData?.translations.find((t) => t.locale_code === 'en')?.name || '',
@@ -227,19 +224,6 @@ export default function NeighborhoodForm({
               URL-friendly identifier. Only lowercase letters, numbers, and hyphens.
             </p>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <input
-              id="isActive"
-              type="checkbox"
-              {...register('isActive')}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <Label htmlFor="isActive">Active</Label>
-          </div>
-          <p className="text-xs text-gray-500">
-            Inactive neighborhoods are hidden from the public interface
-          </p>
         </CardContent>
       </Card>
 

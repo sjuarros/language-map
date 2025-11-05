@@ -417,7 +417,6 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -436,7 +435,6 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Insufficient permissions')
@@ -462,7 +460,6 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174999', // Valid UUID format but doesn't exist
           slug: 'test',
-          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Invalid district selected')
@@ -473,7 +470,6 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'test',
-        is_active: true,
         name_en: 'Test',
       }
 
@@ -595,7 +591,6 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -606,7 +601,6 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'test',
-        is_active: true,
         name_en: 'Test',
       }
 

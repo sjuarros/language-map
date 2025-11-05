@@ -21,7 +21,6 @@ const neighborhoodSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  is_active: z.boolean().optional().default(true),
   // Translations
   name_en: z.string().min(1, 'English name is required'),
   description_en: z.string().optional(),
@@ -79,7 +78,6 @@ export async function getNeighborhoods(citySlug: string) {
         id,
         district_id,
         slug,
-        is_active,
         created_at,
         updated_at,
         district:districts!inner(
@@ -159,7 +157,6 @@ export async function getNeighborhood(citySlug: string, neighborhoodId: string) 
         id,
         district_id,
         slug,
-        is_active,
         created_at,
         updated_at,
         translations:neighborhood_translations (
@@ -297,7 +294,6 @@ export async function createNeighborhood(citySlug: string, input: NeighborhoodIn
     .insert({
       district_id: validatedInput.districtId,
       slug: validatedInput.slug,
-      is_active: validatedInput.is_active ?? true,
     })
     .select()
     .single()
@@ -414,7 +410,6 @@ export async function updateNeighborhood(
     .update({
       district_id: validatedInput.districtId,
       slug: validatedInput.slug,
-      is_active: validatedInput.is_active ?? true,
     })
     .eq('id', neighborhoodId)
 

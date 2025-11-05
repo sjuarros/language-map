@@ -114,7 +114,6 @@ export default async function NewNeighborhoodPage({ params }: Props) {
       cityId: city.id,
       districtId: data.districtId as string,
       slug: data.slug as string,
-      is_active: data.isActive as boolean,
       name_en: data.name_en as string,
       description_en: data.description_en as string | undefined,
       name_nl: data.name_nl as string | undefined,

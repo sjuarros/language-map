@@ -168,7 +168,6 @@ type FieldProps = {
 // Mock react-hook-form
 const defaultFieldValue = {
   slug: '',
-  isActive: true,
   districtId: 'district-1',
   name_en: '',
   description_en: '',
@@ -184,15 +183,6 @@ const mockRegister = vi.fn((field: string): FieldProps => {
     onChange: vi.fn(),
     onBlur: vi.fn(),
     ref: vi.fn(),
-  }
-
-  if (field === 'isActive') {
-    return {
-      ...base,
-      type: 'checkbox' as const,
-      checked: defaultFieldValue.isActive,
-      defaultChecked: defaultFieldValue.isActive,
-    }
   }
 
   if (field === 'districtId') {
@@ -244,7 +234,6 @@ vi.mock('react-hook-form', async (importOriginal) => {
         // Set default values if fields are empty
         data.districtId = data.districtId || 'district-1'
         data.slug = data.slug || 'test-neighborhood'
-        data.isActive = data.isActive === 'on' || data.isActive === true
         data.name_en = data.name_en || 'Test Neighborhood'
         data.description_en = data.description_en || 'Test description'
         data.name_nl = data.name_nl || 'Test Buurt'
@@ -304,7 +293,6 @@ describe('NeighborhoodForm', () => {
 
     expect(screen.getByLabelText('District *')).toBeInTheDocument()
     expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Active/i)).toBeInTheDocument()
     expect(screen.getByLabelText('Neighborhood Name *')).toBeInTheDocument()
     expect(screen.getByText(/English Translation/i)).toBeInTheDocument()
     expect(screen.getByText(/Dutch Translation/i)).toBeInTheDocument()
@@ -358,7 +346,6 @@ describe('NeighborhoodForm', () => {
         fn({
           districtId: '', // Empty required field
           slug: 'test',
-          isActive: true,
           name_en: 'Test',
         })
       }),
@@ -385,7 +372,6 @@ describe('NeighborhoodForm', () => {
         fn({
           districtId: 'district-1',
           slug: 'test',
-          isActive: true,
           name_en: '', // Empty required field
         })
       }),
@@ -412,7 +398,6 @@ describe('NeighborhoodForm', () => {
         fn({
           districtId: 'district-1',
           slug: 'Invalid@Slug', // Invalid characters
-          isActive: true,
           name_en: 'Test',
         })
       }),
@@ -545,7 +530,6 @@ describe('NeighborhoodForm', () => {
     const initialData = {
       id: 'neighborhood-1',
       slug: 'existing-neighborhood',
-      is_active: true,
       district_id: 'district-2',
       translations: [
         { locale_code: 'en', name: 'Existing Neighborhood', description: 'Description EN' },
@@ -559,29 +543,12 @@ describe('NeighborhoodForm', () => {
     // The specific field values are managed by react-hook-form's internal state
     // We just verify the form rendered correctly
     expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Active/i)).toBeInTheDocument()
   })
 
   it('should render with custom submit label', () => {
     render(<NeighborhoodForm {...defaultProps} submitLabel="Create Neighborhood" />)
 
     expect(screen.getByRole('button', { name: /Create Neighborhood/i })).toBeInTheDocument()
-  })
-
-  it('should toggle active status checkbox', async () => {
-    const user = userEvent.setup()
-    render(<NeighborhoodForm {...defaultProps} />)
-
-    const activeCheckbox = screen.getByLabelText(/Active/i)
-
-    // The checkbox should be present and interactable
-    expect(activeCheckbox).toBeInTheDocument()
-
-    // Click the checkbox to toggle it
-    await user.click(activeCheckbox)
-
-    // Check that the click was registered
-    expect(activeCheckbox).toBeInTheDocument()
   })
 
   it('should handle generic errors gracefully', async () => {
@@ -609,14 +576,6 @@ describe('NeighborhoodForm', () => {
 
     expect(
       screen.getByText(/URL-friendly identifier. Only lowercase letters, numbers, and hyphens/i)
-    ).toBeInTheDocument()
-  })
-
-  it('should display help text for active status', () => {
-    render(<NeighborhoodForm {...defaultProps} />)
-
-    expect(
-      screen.getByText(/Inactive neighborhoods are hidden from the public interface/i)
     ).toBeInTheDocument()
   })
 
