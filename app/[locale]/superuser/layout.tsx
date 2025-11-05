@@ -1,118 +1,102 @@
 /**
  * Superuser Layout
  *
- * This layout wraps all superuser dashboard pages.
- * It requires superuser role and provides navigation.
+ * Client-side layout with authentication check only.
+ * Authorization (superuser role check) is handled by each individual page.
+ *
+ * @module app/superuser/layout
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import { LogoutButton } from '@/components/auth/logout-button'
-import { getLocale } from 'next-intl/server'
+'use client'
 
-export default async function SuperuserLayout({
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+
+export default function SuperuserLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
+  const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+  // Extract locale from pathname - only accept valid locales
+  const validLocales = ['en', 'nl', 'fr']
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  // For routes like /fr/admin, pathParts would be ['fr', 'admin']
+  const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        // Check authentication
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[Superuser Layout] Auth check:', { hasUser: !!user, email: user?.email })
+
+        if (authError || !user) {
+          console.log('[Superuser Layout] No user, redirecting to login')
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Check if user is superuser
+        const { data: userData, error: roleError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        console.log('[Superuser Layout] Role check:', { role: userData?.role, error: roleError?.message })
+
+        if (roleError || !userData) {
+          console.error('[Superuser Layout] Error fetching user role:', roleError)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Verify user has superuser permissions
+        const userRole = userData.role
+        const isSuperuser = userRole === 'superuser'
+
+        if (!isSuperuser) {
+          console.log('[Superuser Layout] User does not have superuser permissions:', userRole)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // User is authorized
+        console.log('[Superuser Layout] User authorized:', { email: user.email, role: userRole })
+        setAuthorized(true)
+        setLoading(false)
+      } catch (err) {
+        console.error('[Superuser Layout] Error:', err)
+        router.push(`/${locale}/login`)
+      }
     }
-  )
 
-  const locale = await getLocale()
+    checkAuth()
+  }, [router, locale])
 
-  // Check if user is authenticated
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect(`/${locale}/login?redirectTo=/superuser`)
-  }
-
-  // Check if user is superuser
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || profile.role !== 'superuser') {
-    redirect(`/${locale}/`)
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href={`/${locale}/superuser`} className="text-xl font-bold text-gray-900">
-                Language Map - Superuser
-              </Link>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <Link
-                href={`/${locale}/superuser`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href={`/${locale}/superuser/cities`}
-                className="text-gray-900 hover:text-gray-600 px-3 py-2 text-sm font-medium"
-              >
-                Cities
-              </Link>
-            </nav>
-
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
-              <LogoutButton />
-            </div>
-          </div>
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-medium text-gray-900">Loading...</div>
+          <p className="mt-2 text-sm text-gray-600">Checking authentication</p>
         </div>
-      </header>
+      </div>
+    )
+  }
 
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
-  )
+  if (!authorized) {
+    return null
+  }
+
+  return <>{children}</>
 }
+

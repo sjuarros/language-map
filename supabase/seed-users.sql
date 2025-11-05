@@ -58,7 +58,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000002',
   'authenticated',
   'authenticated',
-  'amsterdam-admin@example.com',
+  'admin-ams@example.com',
   crypt('password123', gen_salt('bf')),
   NOW(),
   '{"full_name": "Amsterdam Admin User"}',
@@ -88,7 +88,7 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000003',
   'authenticated',
   'authenticated',
-  'amsterdam-operator@example.com',
+  'operator-ams@example.com',
   crypt('password123', gen_salt('bf')),
   NOW(),
   '{"full_name": "Amsterdam Operator User"}',
@@ -153,7 +153,7 @@ INSERT INTO user_profiles (
   is_active
 ) VALUES (
   '00000000-0000-0000-0000-000000000002',
-  'amsterdam-admin@example.com',
+  'admin-ams@example.com',
   'Amsterdam Admin User',
   'admin',
   true
@@ -167,7 +167,7 @@ INSERT INTO user_profiles (
   is_active
 ) VALUES (
   '00000000-0000-0000-0000-000000000003',
-  'amsterdam-operator@example.com',
+  'operator-ams@example.com',
   'Amsterdam Operator User',
   'operator',
   true

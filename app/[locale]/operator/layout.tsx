@@ -1,77 +1,103 @@
 /**
  * Operator Layout
  *
- * Layout for operator dashboard pages with authentication and role-based access control.
- * Operators can access multiple cities as granted via the city_users junction table.
+ * Client-side layout with authentication and role checking.
+ * Only operators, admins, and superusers can access this layout.
+ *
+ * @module app/operator/layout
  */
 
-import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { isOperator } from '@/lib/auth/authorization'
 
-export default async function OperatorLayout({
+export default function OperatorLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const cookieStore = await cookies()
-  const locale = await getLocale()
+  const [loading, setLoading] = useState(true)
+  const [authorized, setAuthorized] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
-  // Initialize Supabase client
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+  // Extract locale from pathname - only accept valid locales
+  const validLocales = ['en', 'nl', 'fr']
+  const pathParts = pathname?.split('/').filter(Boolean) || []
+  // For routes like /fr/admin, pathParts would be ['fr', 'admin']
+  const locale = validLocales.includes(pathParts[0]) ? pathParts[0] : 'en'
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        // Check authentication
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+        console.log('[Operator Layout] Auth check:', { hasUser: !!user, email: user?.email })
+
+        if (authError || !user) {
+          console.log('[Operator Layout] No user, redirecting to login')
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Check if user is operator, admin, or superuser
+        const { data: userData, error: roleError } = await supabase
+          .from('user_profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        console.log('[Operator Layout] Role check:', { role: userData?.role, error: roleError?.message })
+
+        if (roleError || !userData) {
+          console.error('[Operator Layout] Error fetching user role:', roleError)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // Verify user has operator permissions or higher
+        const userRole = userData.role
+        const hasAccess = isOperator(userRole)
+
+        if (!hasAccess) {
+          console.log('[Operator Layout] User does not have operator permissions:', userRole)
+          router.push(`/${locale}/login`)
+          return
+        }
+
+        // User is authorized
+        console.log('[Operator Layout] User authorized:', { email: user.email, role: userRole })
+        setAuthorized(true)
+        setLoading(false)
+      } catch (err) {
+        console.error('[Operator Layout] Error:', err)
+        router.push(`/${locale}/login`)
+      }
     }
-  )
 
-  // Check authentication
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
+    checkAuth()
+  }, [router, locale])
 
-  if (authError || !user) {
-    redirect(`/${locale}/login`)
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg font-medium text-gray-900">Loading...</div>
+          <p className="mt-2 text-sm text-gray-600">Checking authentication</p>
+        </div>
+      </div>
+    )
   }
 
-  // Get user profile with role
-  const { data: userProfile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  // Check if user is operator, admin, or superuser
-  if (!isOperator(userProfile?.role)) {
-    redirect(`/${locale}/`)
+  if (!authorized) {
+    return null
   }
 
   return <>{children}</>
 }
+

@@ -7,19 +7,26 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
 import AdminDashboard from './page'
 
 // Mock Next.js modules
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  })),
+  useParams: vi.fn(() => ({
+    locale: 'en',
+  })),
+}))
+
 vi.mock('next-intl/server', () => ({
   getLocale: vi.fn().mockResolvedValue('en'),
-}))
-
-vi.mock('@supabase/ssr', () => ({
-  createServerClient: vi.fn(),
-}))
-
-vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
 }))
 
 vi.mock('next/link', () => ({
@@ -38,6 +45,34 @@ vi.mock('next/link', () => ({
   ),
 }))
 
+vi.mock('@/lib/auth/client', () => ({
+  createAuthClient: vi.fn(),
+}))
+
+vi.mock('@/components/ui/button', () => ({
+  Button: ({ children, ...props }: { children: React.ReactNode }) => (
+    <button {...props}>{children}</button>
+  ),
+}))
+
+vi.mock('@/components/ui/card', () => ({
+  Card: ({ children, ...props }: { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+  CardHeader: ({ children, ...props }: { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+  CardTitle: ({ children, ...props }: { children: React.ReactNode }) => (
+    <h3 {...props}>{children}</h3>
+  ),
+  CardDescription: ({ children, ...props }: { children: React.ReactNode }) => (
+    <p {...props}>{children}</p>
+  ),
+  CardContent: ({ children, ...props }: { children: React.ReactNode }) => (
+    <div {...props}>{children}</div>
+  ),
+}))
+
 // Test data
 const mockUser = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -49,26 +84,143 @@ const mockCities = [
     id: 'city-1',
     slug: 'amsterdam',
     name: 'Amsterdam',
-    country: 'Netherlands',
+    country_id: 'country-1',
   },
   {
     id: 'city-2',
     slug: 'paris',
     name: 'Paris',
-    country: 'France',
+    country_id: 'country-2',
   },
 ]
 
 const mockUserCities = [
   {
-    role: 'admin',
+    role: 'admin' as const,
     city: mockCities[0],
   },
   {
-    role: 'admin',
+    role: 'admin' as const,
     city: mockCities[1],
   },
 ]
+
+// Helper function to create a mock Supabase client
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const createMockSupabaseClient = (user: any, userCities: any = [], languageCount: number = 0) => {
+  return {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: { user },
+        error: null,
+      }),
+      getSession: vi.fn(),
+      signOut: vi.fn(),
+      onAuthStateChange: vi.fn(),
+      signInWithPassword: vi.fn(),
+      signUp: vi.fn(),
+      admin: {
+        getUserById: vi.fn(),
+        createUser: vi.fn(),
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any,
+    from: vi.fn().mockImplementation((table: string) => {
+      // User profile query
+      if (table === 'user_profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: user ? { role: 'admin' } : null,
+                error: null,
+              }),
+            }),
+          }),
+        }
+      }
+
+      // City users query
+      if (table === 'city_users') {
+        return {
+          select: vi.fn().mockImplementation((_columns: string, options?: { count?: string; head?: boolean }) => {
+            // If this is a count query with head: true, return count
+            if (options?.head) {
+              return {
+                eq: vi.fn().mockReturnValue({
+                  head: vi.fn().mockResolvedValue({
+                    count: 5, // Mock user count
+                  }),
+                }),
+              }
+            }
+            // Otherwise, return the array of user cities
+            return {
+              eq: vi.fn().mockResolvedValue({
+                data: userCities,
+                error: null,
+              }),
+            }
+          }),
+        }
+      }
+
+      // Languages query (for counting languages in first city)
+      if (table === 'languages') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              // Handle head: true option
+              head: vi.fn().mockResolvedValue({
+                count: languageCount,
+              }),
+            }),
+          }),
+        }
+      }
+
+      // City users query (for counting users in first city)
+      if (table === 'city_users') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              // Handle head: true option
+              head: vi.fn().mockResolvedValue({
+                count: 5, // Mock user count
+              }),
+            }),
+          }),
+        }
+      }
+
+      // Default empty mock
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: null,
+            }),
+          }),
+        }),
+      }
+    }),
+    supabaseUrl: 'http://localhost:54331',
+    supabaseKey: 'mock-key',
+    realtime: {
+      channel: vi.fn(),
+    },
+    storage: {
+      from: vi.fn(),
+    },
+    rpc: vi.fn(),
+    removeChannel: vi.fn(),
+    removeAllChannels: vi.fn(),
+    getChannels: vi.fn(),
+    channel: vi.fn(),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as any
+}
 
 describe('AdminDashboard', () => {
   beforeEach(() => {
@@ -76,205 +228,120 @@ describe('AdminDashboard', () => {
   })
 
   it('should redirect if user not authenticated', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: null },
-          error: null,
-        }),
-      },
-    }
+    const mockPush = vi.fn()
+    const { useRouter, useParams } = await import('next/navigation')
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      replace: vi.fn(),
+      refresh: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+      prefetch: vi.fn(),
+    })
+    vi.mocked(useParams).mockReturnValue({
+      locale: 'en',
+    })
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(null))
 
-    const result = await AdminDashboard()
+    render(<AdminDashboard />)
 
-    expect(result).toBeNull()
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/en/login')
+    })
   })
 
   it('should show no city access message if user has no city grants', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: mockUser },
-          error: null,
-        }),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { role: 'admin' },
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    }
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser, []))
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    render(<AdminDashboard />)
 
-    const result = await AdminDashboard()
-
-    expect(result).toBeDefined()
+    await waitFor(() => {
+      expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument()
+      expect(screen.getByText(/No City Access/i)).toBeInTheDocument()
+      expect(screen.getByText(/Contact a superuser to grant you access to cities/i)).toBeInTheDocument()
+    })
   })
 
   it('should display city selector for users with multiple city access', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: mockUser },
-          error: null,
-        }),
-      },
-      from: vi.fn()
-        // User profile query
-        .mockReturnValueOnce({
-          select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
-                data: { role: 'admin' },
-                error: null,
-              }),
-            }),
-          }),
-        })
-        // City users query
-        .mockReturnValueOnce({
-          select: vi.fn().mockResolvedValue({
-            data: mockUserCities,
-            error: null,
-          }),
-        })
-        // Language count query
-        .mockReturnValueOnce({
-          from: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  count: 50,
-                }),
-              }),
-            }),
-          }),
-        })
-        // User count query
-        .mockReturnValueOnce({
-          from: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  count: 10,
-                }),
-              }),
-            }),
-          }),
-        }),
-    }
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser, mockUserCities, 50))
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    render(<AdminDashboard />)
 
-    const result = await AdminDashboard()
-
-    expect(result).toBeDefined()
+    await waitFor(() => {
+      expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/amsterdam/i).length).toBeGreaterThan(0)
+      expect(screen.getAllByText(/paris/i).length).toBeGreaterThan(0)
+      expect(screen.getByText(/Select City/i)).toBeInTheDocument()
+      expect(screen.getByText(/You have access to 2 cities/i)).toBeInTheDocument()
+    })
   })
 
   it('should display stats for single city access', async () => {
     const singleCityUser = [
       {
-        role: 'admin',
+        role: 'admin' as const,
         city: mockCities[0],
       },
     ]
 
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: mockUser },
-          error: null,
-        }),
-      },
-      from: vi.fn()
-        // User profile query
-        .mockReturnValueOnce({
-          select: vi.fn().mockReturnValue({
-            eq: vi.fn().mockReturnValue({
-              single: vi.fn().mockResolvedValue({
-                data: { role: 'admin' },
-                error: null,
-              }),
-            }),
-          }),
-        })
-        // City users query
-        .mockReturnValueOnce({
-          select: vi.fn().mockResolvedValue({
-            data: singleCityUser,
-            error: null,
-          }),
-        })
-        // Language count query
-        .mockReturnValueOnce({
-          from: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  count: 25,
-                }),
-              }),
-            }),
-          }),
-        })
-        // User count query
-        .mockReturnValueOnce({
-          from: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({
-                  count: 5,
-                }),
-              }),
-            }),
-          }),
-        }),
-    }
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser, singleCityUser, 25))
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    render(<AdminDashboard />)
 
-    const result = await AdminDashboard()
-
-    expect(result).toBeDefined()
+    await waitFor(() => {
+      expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument()
+      expect(screen.getAllByText(/amsterdam/i)).toHaveLength(2)
+      expect(screen.getByText(/Total languages in amsterdam/i)).toBeInTheDocument()
+      expect(screen.getByText(/Users with access to amsterdam/i)).toBeInTheDocument()
+    })
   })
 
   it('should handle database errors gracefully', async () => {
-    const mockSupabase = {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: { user: mockUser },
-          error: null,
-        }),
-      },
-      from: vi.fn().mockReturnValue({
+    const mockSupabase = createMockSupabaseClient(mockUser, [])
+    mockSupabase.from = vi.fn().mockImplementation((table: string) => {
+      if (table === 'user_profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: null,
+                error: { message: 'Database error' },
+              }),
+            }),
+          }),
+        }
+      }
+      // Return default mocks for other tables
+      return vi.fn().mockImplementation(() => ({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
             single: vi.fn().mockResolvedValue({
               data: null,
-              error: { message: 'Database error' },
+              error: null,
             }),
           }),
         }),
-      }),
-    }
+      }))
+    })
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockReturnValue(mockSupabase)
+    const { useParams } = await import('next/navigation')
+    vi.mocked(useParams).mockReturnValue({
+      locale: 'en',
+    })
 
-    const result = await AdminDashboard()
+    const { createAuthClient } = await import('@/lib/auth/client')
+    vi.mocked(createAuthClient).mockReturnValue(mockSupabase)
 
-    expect(result).toBeDefined()
+    render(<AdminDashboard />)
+
+    await waitFor(() => {
+      expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument()
+      expect(screen.getByText(/Error/i)).toBeInTheDocument()
+    })
   })
 })

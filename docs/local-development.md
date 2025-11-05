@@ -27,7 +27,14 @@ docker --version
 
 ## Supabase Local Instance
 
-This project uses a local Supabase instance with **custom ports** to avoid conflicts with other projects running Supabase locally.
+### ⚠️ CRITICAL: Container Information
+
+**Container Name**: `supabase_db_language-map`
+**Ports**: 54331-54336 (NON-STANDARD)
+
+This project uses a local Supabase instance with **custom ports** and a **specific container name** to avoid conflicts with other projects running Supabase locally.
+
+⚠️ **DO NOT USE** the default Supabase instance (`supabase_db_supabase` on ports 54321-54324) - this belongs to a different project!
 
 ### Port Allocation
 

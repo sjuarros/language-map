@@ -1,296 +1,173 @@
-/**
- * Operator Dashboard
- *
- * Main dashboard for operator users with city selector and overview statistics.
- * Operators can access multiple cities based on their grants in the city_users table.
- */
+'use client'
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { getLocale } from 'next-intl/server'
+import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import type { User } from '@supabase/supabase-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Languages, FileText, MapPin, Database } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { MapPin } from 'lucide-react'
 
-export default async function OperatorDashboard() {
-  const cookieStore = await cookies()
-  const locale = await getLocale()
+interface City {
+  id: string
+  slug: string
+  name: string
+  role: string
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
+export default function OperatorDashboard() {
+  const [user, setUser] = useState<User | null>(null)
+  const [cities, setCities] = useState<City[]>([])
+  const [loading, setLoading] = useState(true)
+  const pathname = usePathname()
+
+  // Extract locale from pathname
+  const pathSegments = pathname?.split('/').filter(Boolean) || []
+  const currentLocale = pathSegments[0] || 'en'
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function getUserAndCities() {
+      try {
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        const { data: { user }, error } = await supabase.auth.getUser()
+
+        if (error || !user) {
+          // Redirect to login
+          window.location.href = `/${currentLocale}/login`
+          return
+        }
+
+        if (!isMounted) return
+        setUser(user)
+
+        // Get cities user has access to
+        const { data: citiesData, error: citiesError } = await supabase
+          .from('city_users')
+          .select(`
+            role,
+            city_id,
+            cities (
+              id,
+              slug,
+              city_translations!inner (
+                name,
+                locale_code
+              )
+            )
+          `)
+          .eq('user_id', user.id)
+
+        if (citiesError) {
+          console.error('Error fetching cities:', citiesError)
+        } else {
+          console.log('Cities raw data:', citiesData)
+          // Format cities data
+          const formattedCities: City[] = citiesData?.map((cityUser: {
+            role: string;
+            city_id: string;
+            cities: Array<{
+              id: string;
+              slug: string;
+              city_translations: Array<{ name: string; locale_code: string }>;
+            }>;
+          }) => {
+            console.log('Processing city user:', cityUser)
+            const cityData = cityUser.cities[0]
+            return {
+              id: cityData?.id || '',
+              slug: cityData?.slug || '',
+              name: cityData?.city_translations?.[0]?.name || cityData?.slug || 'Unknown',
+              role: cityUser.role
             }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+          }) || []
+          console.log('Formatted cities:', formattedCities)
+          setCities(formattedCities)
+        }
+
+        setLoading(false)
+      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        // Redirect to login on error
+        window.location.href = `/${currentLocale}/login`
+      }
     }
-  )
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    getUserAndCities()
+
+    return () => {
+      isMounted = false
+    }
+  }, [currentLocale])
+
+  if (loading) {
+    return (
+      <div style={{ padding: '20px' }}>
+        <h1>Operator Dashboard</h1>
+        <p>Loading...</p>
+      </div>
+    )
+  }
 
   if (!user) {
     return null
   }
 
-  // Get user's accessible cities via city_users junction table
-  const { data: userCities } = await supabase
-    .from('city_users')
-    .select(`
-      role,
-      city:cities (
-        id,
-        slug,
-        name,
-        country
-      )
-    `)
-    .eq('user_id', user.id)
-
-  // If user has no city access, show message
-  if (!userCities || userCities.length === 0) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Operator Dashboard</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            No cities assigned to your account yet
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>No City Access</CardTitle>
-            <CardDescription>
-              Contact an administrator to grant you access to cities
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    )
-  }
-
-  // Get stats for accessible cities (using first city as default)
-  const firstCity = userCities[0].city as unknown as {
-    id: string
-    slug: string
-    name: string
-    country: string
-  }
-  let languageCount = 0
-  let languagePointCount = 0
-  let descriptionCount = 0
-
-  if (firstCity) {
-    // Get language count
-    const { count: languages } = await supabase
-      .from('languages')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    languageCount = languages || 0
-
-    // Get language points count
-    const { count: points } = await supabase
-      .from('language_points')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    languagePointCount = points || 0
-
-    // Get description count
-    const { count: descriptions } = await supabase
-      .from('descriptions')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    descriptionCount = descriptions || 0
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Operator Dashboard</h1>
-        <p className="mt-2 text-sm text-gray-600">
-          Manage language data and content for your assigned cities
-        </p>
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>Operator Dashboard ✅</h1>
+        <p style={{ color: '#666' }}>User: {user?.email}</p>
+        <p style={{ color: '#666' }}>User ID: {user?.id}</p>
+        <p style={{ color: '#666' }}>Status: Authenticated successfully!</p>
+        <p style={{ color: '#666' }}>Time: {new Date().toLocaleString()}</p>
       </div>
 
-      {/* City selector */}
-      {userCities.length > 1 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Select City</CardTitle>
-            <CardDescription>
-              You have access to {userCities.length} cities
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {userCities.map((userCity) => {
-                const city = userCity.city as unknown as {
-                  id: string
-                  slug: string
-                  name: string
-                  country: string
-                }
-                return (
-                  <Link
-                    key={city.id}
-                    href={`/${locale}/operator/${city.slug}`}
-                    className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {city.name}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          {city.country} • Role: {userCity.role}
-                        </p>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        Manage
+      <div>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Your Cities</h2>
+        <p style={{ marginBottom: '24px', color: '#666' }}>
+          Select a city to manage its districts, neighborhoods, and taxonomy types.
+        </p>
+
+        {cities.length === 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No Cities Assigned</CardTitle>
+              <CardDescription>
+                You don&apos;t have access to any cities yet. Contact an administrator.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
+            {cities.map((city) => {
+              const href = `/${currentLocale}/operator/${city.slug}/districts`
+              return (
+                <Link key={city.id} href={href} prefetch={false} style={{ textDecoration: 'none' }}>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" />
+                        {city.name}
+                      </CardTitle>
+                      <CardDescription>
+                        Role: {city.role} | Slug: {city.slug}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button style={{ width: '100%' }}>
+                        Manage {city.name}
                       </Button>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick stats for primary city */}
-      {firstCity && (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Languages card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Languages</CardTitle>
-              <Languages className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{languageCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Total languages in {firstCity.name}
-              </p>
-              <Link href={`/${locale}/operator/${firstCity.slug}/languages`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  Manage languages →
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Language Points card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Language Points</CardTitle>
-              <MapPin className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{languagePointCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Geographic data points
-              </p>
-              <Link href={`/${locale}/operator/${firstCity.slug}/points`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  View points →
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Descriptions card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Descriptions</CardTitle>
-              <FileText className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{descriptionCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Community stories
-              </p>
-              <Link href={`/${locale}/operator/${firstCity.slug}/descriptions`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  Manage descriptions →
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Data Quality card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Data Quality</CardTitle>
-              <Database className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {languageCount > 0
-                  ? Math.round((descriptionCount / languageCount) * 100)
-                  : 0}
-                %
-              </div>
-              <p className="text-xs text-gray-600 mt-1">
-                Languages with descriptions
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Welcome message */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome to the Operator Panel</CardTitle>
-          <CardDescription>
-            As an operator, you can manage language data, add descriptions, and import content.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-medium text-gray-900">Available Actions:</h3>
-              <ul className="mt-2 list-disc list-inside text-sm text-gray-600 space-y-1">
-                <li>Create and manage languages</li>
-                <li>Add geographic language points</li>
-                <li>Write and edit community descriptions</li>
-                <li>Import data from CSV files</li>
-                <li>Generate AI-assisted descriptions</li>
-                <li>Translate content to multiple languages</li>
-              </ul>
-            </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
     </div>
   )
 }

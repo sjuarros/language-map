@@ -157,7 +157,7 @@ describe('lib/auth/client', () => {
         expect(mockSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({
           email: 'user@example.com',
           options: {
-            emailRedirectTo: undefined,
+            emailRedirectTo: 'http://localhost:3000/en/auth/callback',
           },
         })
       })
@@ -192,7 +192,7 @@ describe('lib/auth/client', () => {
         expect(mockSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({
           email: 'user@example.com',
           options: {
-            emailRedirectTo: '/dashboard',
+            emailRedirectTo: 'http://localhost:3000/en/auth/callback?next=%2Fdashboard',
           },
         })
       })
@@ -209,7 +209,7 @@ describe('lib/auth/client', () => {
         expect(mockSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({
           email: 'user@example.com',
           options: {
-            emailRedirectTo: 'https://example.com/dashboard',
+            emailRedirectTo: 'http://localhost:3000/en/auth/callback?next=https%3A%2F%2Fexample.com%2Fdashboard',
           },
         })
       })
@@ -229,7 +229,7 @@ describe('lib/auth/client', () => {
         expect(mockSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({
           email: 'user@example.com',
           options: {
-            emailRedirectTo: undefined,
+            emailRedirectTo: 'http://localhost:3000/en/auth/callback',
           },
         })
       })
@@ -246,7 +246,7 @@ describe('lib/auth/client', () => {
         expect(mockSupabaseClient.auth.signInWithOtp).toHaveBeenCalledWith({
           email: 'user@example.com',
           options: {
-            emailRedirectTo: '/operator/amsterdam',
+            emailRedirectTo: 'http://localhost:3000/en/auth/callback?next=%2Foperator%2Famsterdam',
           },
         })
       })

@@ -44,7 +44,11 @@ const { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY } = getSupabaseConfig()
  * @returns Supabase client for authentication
  */
 export function createAuthClient() {
-  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookieOptions: {
+      name: 'sb-auth-token',  // Use simple, consistent cookie name
+    },
+  })
 }
 
 /**
@@ -113,10 +117,15 @@ export async function signInWithMagicLink(
 
     const supabase = createAuthClient()
 
+    // Build the redirect URL - must go through /en/auth/callback to exchange code for session
+    // Use English locale for callback URL (can be adjusted if needed)
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+    const callbackUrl = `${baseUrl}/en/auth/callback${redirectTo ? `?next=${encodeURIComponent(redirectTo)}` : ''}`
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: redirectTo,
+        emailRedirectTo: callbackUrl,
       },
     })
 

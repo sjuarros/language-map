@@ -13,6 +13,14 @@ import { revalidatePath } from 'next/cache'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 
+// Mock the database abstraction layer
+vi.mock('@/lib/database/client', () => ({
+  getDatabaseAdminClient: vi.fn(),
+}))
+
+// Import the mocked function
+import { getDatabaseAdminClient } from '@/lib/database/client'
+
 // Mock Next.js modules
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
@@ -71,6 +79,7 @@ describe('app/actions/auth', () => {
     }
 
     vi.mocked(createServerClient).mockReturnValue(mockSupabaseClient as never)
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabaseClient as never)
   })
 
   afterEach(() => {
@@ -217,7 +226,7 @@ describe('app/actions/auth', () => {
         }
 
         // Assert
-        expect(vi.mocked(createServerClient)).toHaveBeenCalled()
+        expect(vi.mocked(getDatabaseAdminClient)).toHaveBeenCalled()
       })
 
       // Cookie tests removed - implementation details that are difficult to test in isolation

@@ -38,6 +38,7 @@ vi.mock('@supabase/supabase-js', () => ({
 // Mock the database functions
 vi.mock('@/lib/database/client', () => ({
   getDatabaseClient: vi.fn(),
+  getDatabaseAdminClient: vi.fn(),
 }))
 
 // Test data
@@ -125,8 +126,9 @@ describe('createInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await createInvitation({
       email: 'invited@example.com',
@@ -188,8 +190,9 @@ describe('createInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createInvitation({
@@ -245,8 +248,9 @@ describe('createInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createInvitation({
@@ -319,8 +323,9 @@ describe('createInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createInvitation({
@@ -365,8 +370,9 @@ describe('createInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(
       createInvitation({
@@ -394,8 +400,9 @@ describe('acceptInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await acceptInvitation('valid-token')
 
@@ -417,8 +424,9 @@ describe('acceptInvitation', () => {
       },
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(acceptInvitation('test-token')).rejects.toThrow('Authentication required')
   })
@@ -437,8 +445,9 @@ describe('acceptInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(acceptInvitation('invalid-token')).rejects.toThrow('Invitation not found')
   })
@@ -457,8 +466,9 @@ describe('acceptInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(acceptInvitation('expired-token')).rejects.toThrow('Invitation expired')
   })
@@ -490,8 +500,9 @@ describe('revokeInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await revokeInvitation('invitation-123')
 
@@ -513,8 +524,9 @@ describe('revokeInvitation', () => {
       },
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(revokeInvitation('invitation-123')).rejects.toThrow('Authentication required')
   })
@@ -539,8 +551,9 @@ describe('revokeInvitation', () => {
       }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(revokeInvitation('invitation-123')).rejects.toThrow('Invitation not found')
   })
@@ -583,8 +596,9 @@ describe('revokeInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await revokeInvitation('invitation-123')
 
@@ -622,8 +636,9 @@ describe('revokeInvitation', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(revokeInvitation('invitation-123')).rejects.toThrow(
       'You can only revoke invitations you created'
@@ -680,8 +695,9 @@ describe('getInvitations', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await getInvitations()
 
@@ -730,8 +746,9 @@ describe('getInvitations', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await getInvitations()
 
@@ -773,8 +790,9 @@ describe('getInvitations', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     const result = await getInvitations()
 
@@ -791,8 +809,9 @@ describe('getInvitations', () => {
       },
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(getInvitations()).rejects.toThrow('Authentication required')
   })
@@ -819,8 +838,9 @@ describe('getInvitations', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(getInvitations()).rejects.toThrow('User profile not found')
   })
@@ -858,8 +878,9 @@ describe('getInvitations', () => {
         }),
     }
 
-    const { createServerClient } = await import('@supabase/ssr')
-    vi.mocked(createServerClient).mockResolvedValue(mockSupabase)
+    const { getDatabaseAdminClient } = await import('@/lib/database/client')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    vi.mocked(getDatabaseAdminClient).mockReturnValue(mockSupabase as any)
 
     await expect(getInvitations()).rejects.toThrow('Failed to fetch invitations')
   })

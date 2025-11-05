@@ -11,58 +11,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-
-/**
- * Create Supabase server client with cookie handling
- *
- * @returns Supabase client for server-side auth operations
- */
-async function createAuthServerClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            // The `set` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing user sessions.
-            // However, log for debugging purposes
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed (expected in Server Components):', {
-                name,
-                error: error instanceof Error ? error.message : 'Unknown error',
-              })
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            // The `delete` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing user sessions.
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed (expected in Server Components):', {
-                name,
-                error: error instanceof Error ? error.message : 'Unknown error',
-              })
-            }
-          }
-        },
-      },
-    }
-  )
-}
+import { getDatabaseAdminClient } from '@/lib/database/client'
 
 /**
  * Sign out the current user
@@ -89,7 +38,7 @@ export async function signOutAction(locale: string = 'en'): Promise<void> {
   }
 
   try {
-    const supabase = await createAuthServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     const { error } = await supabase.auth.signOut()
 
@@ -118,7 +67,7 @@ export async function signOutAction(locale: string = 'en'): Promise<void> {
  */
 export async function getSession() {
   try {
-    const supabase = await createAuthServerClient()
+    const supabase = getDatabaseAdminClient('system')
     const { data, error } = await supabase.auth.getSession()
 
     if (error) {
@@ -140,7 +89,7 @@ export async function getSession() {
  */
 export async function getCurrentUser() {
   try {
-    const supabase = await createAuthServerClient()
+    const supabase = getDatabaseAdminClient('system')
     const { data, error } = await supabase.auth.getUser()
 
     if (error) {
