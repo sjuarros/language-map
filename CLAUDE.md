@@ -880,6 +880,69 @@ import { Check, ChevronDown } from "lucide-react"
 
 ⚠️ **Always use Lucide Icons** - See Technology Stack section. Do NOT use `@radix-ui/react-icons`!
 
+### 8. Using Wrong Supabase Instance
+
+❌ **Wrong**:
+```bash
+# Connected to supabase_db_supabase (other project's database!)
+supabase start
+supabase db reset
+supabase link --project-ref xxx
+```
+
+✅ **Correct**:
+```bash
+# Connected to supabase_db_language-map (THIS project's database)
+# Verify with: docker ps | grep supabase_db_language-map
+supabase start
+supabase db reset
+supabase link --project-ref xxx
+```
+
+⚠️ **CRITICAL**: Always verify which Supabase instance you're using before running any commands!
+The wrong instance can corrupt data in the other project's database. See [Supabase Local Instance](#supabase-local-instance) for details.
+
+### 9. Authentication Not Working After `supabase db reset`
+
+❌ **Symptom**: Magic links don't work, users redirected to login even with valid session
+
+❌ **Wrong Diagnosis**: "Magic links are expiring too quickly"
+
+✅ **Root Cause**: Server Components cannot access Supabase's `sb-auth-token` cookie
+
+✅ **Quick Fix (3 Steps)**:
+
+1. **Verify all protected layouts are Client Components:**
+   ```typescript
+   'use client'  // Must be first line
+
+   // Use createAuthClient() not createServerClient()
+   // Use useRouter() not redirect()
+   // Use pathname parsing not await getLocale()
+   ```
+
+2. **Check `supabase/config.toml`:**
+   ```toml
+   [auth]
+   site_url = "http://localhost:3001"
+   additional_redirect_urls = ["https://localhost:3001"]
+   jwt_expiry = 86400  # 24 hours for development
+   ```
+
+3. **Restart Supabase:**
+   ```bash
+   npx supabase stop && npx supabase start
+   ```
+
+**Files to Check:**
+- `/app/[locale]/operator/layout.tsx` - Must be Client Component
+- `/app/[locale]/admin/layout.tsx` - Must be Client Component
+- `/app/[locale]/superuser/layout.tsx` - Must be Client Component
+
+**See also:** `docs/processes/authentication-troubleshooting.md` for complete fix details
+
+⚠️ **CRITICAL**: Server Components can ONLY see Next.js cookies (like `NEXT_LOCALE`), NOT external library cookies (like `sb-auth-token`). Always use Client Components for authentication checks.
+
 ---
 
 ## 🎯 Development Priorities
