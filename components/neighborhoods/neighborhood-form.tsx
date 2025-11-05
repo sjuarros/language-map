@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -77,8 +78,12 @@ export default function NeighborhoodForm({
   districts,
   initialData,
   onSubmit,
-  submitLabel = 'Save Neighborhood',
+  submitLabel,
 }: NeighborhoodFormProps) {
+  const t = useTranslations('auth.neighborhoods.form')
+  const tCommon = useTranslations('common')
+  const tErrors = useTranslations('errors')
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -132,23 +137,23 @@ export default function NeighborhoodForm({
       await onSubmit(data)
     } catch (err) {
       console.error('Form submission error:', err)
-      let errorMessage = 'An unexpected error occurred'
+      let errorMessage = tCommon('error')
 
       if (err instanceof Error) {
         const message = err.message.toLowerCase()
 
         if (message.includes('unauthorized') || message.includes('permission')) {
-          errorMessage = 'You do not have permission to perform this action. Please contact your administrator.'
+          errorMessage = tErrors('permissionDenied')
         } else if (message.includes('validation') || message.includes('invalid')) {
-          errorMessage = 'Please check your input and try again. Make sure all required fields are filled correctly.'
+          errorMessage = tErrors('validationFailed')
         } else if (message.includes('network') || message.includes('fetch')) {
-          errorMessage = 'A network error occurred. Please check your connection and try again.'
+          errorMessage = tErrors('networkError')
         } else if (message.includes('duplicate') || message.includes('unique')) {
-          errorMessage = 'A neighborhood with this slug already exists. Please choose a different slug.'
+          errorMessage = tErrors('duplicateSlug')
         } else if (message.includes('invalid district')) {
-          errorMessage = 'The selected district is invalid. Please choose a district from the list.'
+          errorMessage = tErrors('validationFailed')
         } else {
-          errorMessage = `An error occurred while saving: ${err.message}`
+          errorMessage = `${tErrors('saveFailed')}: ${err.message}`
         }
       }
 
@@ -169,15 +174,15 @@ export default function NeighborhoodForm({
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle>{t('basicInfo.title')}</CardTitle>
           <CardDescription>
-            Neighborhood identifier and geographic hierarchy
+            {t('basicInfo.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="districtId">
-              District <span className="text-red-500">*</span>
+              {t('basicInfo.districtLabel')} <span className="text-red-500">*</span>
             </Label>
             <Controller
               name="districtId"
@@ -185,7 +190,7 @@ export default function NeighborhoodForm({
               render={({ field }) => (
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger id="districtId">
-                    <SelectValue placeholder="Select a district" />
+                    <SelectValue placeholder={t('basicInfo.districtPlaceholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {districts.map((district) => {
@@ -204,24 +209,24 @@ export default function NeighborhoodForm({
               <p className="text-sm text-red-500">{errors.districtId.message}</p>
             )}
             <p className="text-xs text-gray-500">
-              Select the district this neighborhood belongs to
+              {t('basicInfo.districtHelpText')}
             </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="slug">
-              Slug <span className="text-red-500">*</span>
+              {t('basicInfo.slugLabel')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="slug"
               {...register('slug')}
-              placeholder="e.g., jordaan, de-pijp, vondelpark"
+              placeholder={t('basicInfo.slugPlaceholder')}
             />
             {errors.slug && (
               <p className="text-sm text-red-500">{errors.slug.message}</p>
             )}
             <p className="text-xs text-gray-500">
-              URL-friendly identifier. Only lowercase letters, numbers, and hyphens.
+              {t('basicInfo.slugHelpText')}
             </p>
           </div>
         </CardContent>
@@ -230,20 +235,20 @@ export default function NeighborhoodForm({
       {/* English Translation (Required) */}
       <Card>
         <CardHeader>
-          <CardTitle>English Translation</CardTitle>
+          <CardTitle>{t('translations.english.title')}</CardTitle>
           <CardDescription>
-            Required translation - Primary language
+            {t('translations.english.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name_en">
-              Neighborhood Name <span className="text-red-500">*</span>
+              {t('translations.english.nameLabel')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name_en"
               {...register('name_en')}
-              placeholder="e.g., Jordaan"
+              placeholder={t('translations.english.namePlaceholder')}
             />
             {errors.name_en && (
               <p className="text-sm text-red-500">{errors.name_en.message}</p>
@@ -251,11 +256,11 @@ export default function NeighborhoodForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_en">Description</Label>
+            <Label htmlFor="description_en">{t('translations.english.descriptionLabel')}</Label>
             <Textarea
               id="description_en"
               {...register('description_en')}
-              placeholder="Brief description of the neighborhood..."
+              placeholder={t('translations.english.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_en && (
@@ -268,18 +273,18 @@ export default function NeighborhoodForm({
       {/* Dutch Translation (Optional) */}
       <Card>
         <CardHeader>
-          <CardTitle>Dutch Translation (Optional)</CardTitle>
+          <CardTitle>{t('translations.dutch.title')}</CardTitle>
           <CardDescription>
-            Secondary language for Dutch-speaking users
+            {t('translations.dutch.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name_nl">Neighborhood Name</Label>
+            <Label htmlFor="name_nl">{t('translations.dutch.nameLabel')}</Label>
             <Input
               id="name_nl"
               {...register('name_nl')}
-              placeholder="e.g., Jordaan"
+              placeholder={t('translations.dutch.namePlaceholder')}
             />
             {errors.name_nl && (
               <p className="text-sm text-red-500">{errors.name_nl.message}</p>
@@ -287,11 +292,11 @@ export default function NeighborhoodForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_nl">Description</Label>
+            <Label htmlFor="description_nl">{t('translations.dutch.descriptionLabel')}</Label>
             <Textarea
               id="description_nl"
               {...register('description_nl')}
-              placeholder="Korte beschrijving van de buurt..."
+              placeholder={t('translations.dutch.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_nl && (
@@ -304,18 +309,18 @@ export default function NeighborhoodForm({
       {/* French Translation (Optional) */}
       <Card>
         <CardHeader>
-          <CardTitle>French Translation (Optional)</CardTitle>
+          <CardTitle>{t('translations.french.title')}</CardTitle>
           <CardDescription>
-            Secondary language for French-speaking users
+            {t('translations.french.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name_fr">Neighborhood Name</Label>
+            <Label htmlFor="name_fr">{t('translations.french.nameLabel')}</Label>
             <Input
               id="name_fr"
               {...register('name_fr')}
-              placeholder="e.g., Jordaan"
+              placeholder={t('translations.french.namePlaceholder')}
             />
             {errors.name_fr && (
               <p className="text-sm text-red-500">{errors.name_fr.message}</p>
@@ -323,11 +328,11 @@ export default function NeighborhoodForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_fr">Description</Label>
+            <Label htmlFor="description_fr">{t('translations.french.descriptionLabel')}</Label>
             <Textarea
               id="description_fr"
               {...register('description_fr')}
-              placeholder="Brève description du quartier..."
+              placeholder={t('translations.french.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_fr && (
@@ -343,12 +348,12 @@ export default function NeighborhoodForm({
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('submitting')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {submitLabel}
+              {submitLabel || t('submitButton')}
             </>
           )}
         </Button>

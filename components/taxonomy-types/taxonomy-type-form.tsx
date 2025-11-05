@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -82,8 +83,12 @@ type FormValues = {
 export default function TaxonomyTypeForm({
   initialData,
   onSubmit,
-  submitLabel = 'Save Taxonomy Type',
+  submitLabel,
 }: TaxonomyTypeFormProps) {
+  const t = useTranslations('auth.taxonomyTypes.form')
+  const tCommon = useTranslations('common')
+  const tErrors = useTranslations('errors')
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -155,21 +160,21 @@ export default function TaxonomyTypeForm({
       await onSubmit(transformedData)
     } catch (err) {
       console.error('Form submission error:', err)
-      let errorMessage = 'An error occurred'
+      let errorMessage = tCommon('error')
 
       if (err instanceof Error) {
         const message = err.message.toLowerCase()
 
         if (message.includes('unauthorized') || message.includes('permission')) {
-          errorMessage = 'You do not have permission to perform this action. Please contact your administrator.'
+          errorMessage = tErrors('permissionDenied')
         } else if (message.includes('validation') || message.includes('invalid')) {
-          errorMessage = 'Please check your input and try again. Make sure all required fields are filled correctly.'
+          errorMessage = tErrors('validationFailed')
         } else if (message.includes('network') || message.includes('fetch')) {
-          errorMessage = 'A network error occurred. Please check your connection and try again.'
+          errorMessage = tErrors('networkError')
         } else if (message.includes('duplicate') || message.includes('unique')) {
-          errorMessage = 'A taxonomy type with this slug already exists. Please choose a different slug.'
+          errorMessage = tErrors('duplicateSlug')
         } else {
-          errorMessage = `An error occurred while saving: ${err.message}`
+          errorMessage = `${tErrors('saveFailed')}: ${err.message}`
         }
       }
 
@@ -190,31 +195,31 @@ export default function TaxonomyTypeForm({
       {/* Basic Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle>{t('basicInfo.title')}</CardTitle>
           <CardDescription>
-            Taxonomy type identifier, configuration, and display settings
+            {t('basicInfo.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="slug">
-              Slug <span className="text-red-500">*</span>
+              {t('basicInfo.slugLabel')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="slug"
               {...register('slug')}
-              placeholder="e.g., size, status, script-type"
+              placeholder={t('basicInfo.slugPlaceholder')}
             />
             {errors.slug && (
               <p className="text-sm text-red-500">{errors.slug.message}</p>
             )}
             <p className="text-xs text-gray-500">
-              URL-friendly identifier. Only lowercase letters, numbers, and hyphens.
+              {t('basicInfo.slugHelpText')}
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="displayOrder">Display Order</Label>
+            <Label htmlFor="displayOrder">{t('basicInfo.displayOrderLabel')}</Label>
             <Input
               id="displayOrder"
               type="number"
@@ -226,12 +231,12 @@ export default function TaxonomyTypeForm({
               <p className="text-sm text-red-500">{errors.displayOrder.message}</p>
             )}
             <p className="text-xs text-gray-500">
-              Order in which this taxonomy type appears in lists (0 = first)
+              {t('basicInfo.displayOrderHelpText')}
             </p>
           </div>
 
           <div className="space-y-3 pt-4">
-            <h4 className="text-sm font-medium">Configuration Options</h4>
+            <h4 className="text-sm font-medium">{t('basicInfo.configOptionsTitle')}</h4>
 
             <div className="flex items-center space-x-2">
               <input
@@ -240,10 +245,10 @@ export default function TaxonomyTypeForm({
                 {...register('isRequired')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <Label htmlFor="isRequired">Required</Label>
+              <Label htmlFor="isRequired">{t('basicInfo.isRequiredLabel')}</Label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Languages must have a value from this taxonomy assigned
+              {t('basicInfo.isRequiredHelpText')}
             </p>
 
             <div className="flex items-center space-x-2">
@@ -253,10 +258,10 @@ export default function TaxonomyTypeForm({
                 {...register('allowMultiple')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <Label htmlFor="allowMultiple">Allow Multiple Values</Label>
+              <Label htmlFor="allowMultiple">{t('basicInfo.allowMultipleLabel')}</Label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Languages can have multiple values from this taxonomy
+              {t('basicInfo.allowMultipleHelpText')}
             </p>
 
             <div className="flex items-center space-x-2">
@@ -266,10 +271,10 @@ export default function TaxonomyTypeForm({
                 {...register('useForMapStyling')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <Label htmlFor="useForMapStyling">Use for Map Styling</Label>
+              <Label htmlFor="useForMapStyling">{t('basicInfo.useForMapStylingLabel')}</Label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Use this taxonomy to style language points on the map (color, size)
+              {t('basicInfo.useForMapStylingHelpText')}
             </p>
 
             <div className="flex items-center space-x-2">
@@ -279,10 +284,10 @@ export default function TaxonomyTypeForm({
                 {...register('useForFiltering')}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <Label htmlFor="useForFiltering">Show in Filters</Label>
+              <Label htmlFor="useForFiltering">{t('basicInfo.useForFilteringLabel')}</Label>
             </div>
             <p className="text-xs text-gray-500 ml-6">
-              Show this taxonomy in the public map filter interface
+              {t('basicInfo.useForFilteringHelpText')}
             </p>
           </div>
         </CardContent>
@@ -291,20 +296,20 @@ export default function TaxonomyTypeForm({
       {/* English Translation (Required) */}
       <Card>
         <CardHeader>
-          <CardTitle>English Translation</CardTitle>
+          <CardTitle>{t('translations.english.title')}</CardTitle>
           <CardDescription>
-            Required translation - Primary language
+            {t('translations.english.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name_en">
-              Taxonomy Type Name <span className="text-red-500">*</span>
+              {t('translations.english.nameLabel')} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name_en"
               {...register('name_en')}
-              placeholder="e.g., Community Size"
+              placeholder={t('translations.english.namePlaceholder')}
             />
             {errors.name_en && (
               <p className="text-sm text-red-500">{errors.name_en.message}</p>
@@ -312,11 +317,11 @@ export default function TaxonomyTypeForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_en">Description</Label>
+            <Label htmlFor="description_en">{t('translations.english.descriptionLabel')}</Label>
             <Textarea
               id="description_en"
               {...register('description_en')}
-              placeholder="Brief description of this classification system..."
+              placeholder={t('translations.english.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_en && (
@@ -329,18 +334,18 @@ export default function TaxonomyTypeForm({
       {/* Dutch Translation (Optional) */}
       <Card>
         <CardHeader>
-          <CardTitle>Dutch Translation (Optional)</CardTitle>
+          <CardTitle>{t('translations.dutch.title')}</CardTitle>
           <CardDescription>
-            Secondary language for Dutch-speaking users
+            {t('translations.dutch.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name_nl">Taxonomy Type Name</Label>
+            <Label htmlFor="name_nl">{t('translations.dutch.nameLabel')}</Label>
             <Input
               id="name_nl"
               {...register('name_nl')}
-              placeholder="e.g., Gemeenschapsgrootte"
+              placeholder={t('translations.dutch.namePlaceholder')}
             />
             {errors.name_nl && (
               <p className="text-sm text-red-500">{errors.name_nl.message}</p>
@@ -348,11 +353,11 @@ export default function TaxonomyTypeForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_nl">Description</Label>
+            <Label htmlFor="description_nl">{t('translations.dutch.descriptionLabel')}</Label>
             <Textarea
               id="description_nl"
               {...register('description_nl')}
-              placeholder="Korte beschrijving van dit classificatiesysteem..."
+              placeholder={t('translations.dutch.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_nl && (
@@ -365,18 +370,18 @@ export default function TaxonomyTypeForm({
       {/* French Translation (Optional) */}
       <Card>
         <CardHeader>
-          <CardTitle>French Translation (Optional)</CardTitle>
+          <CardTitle>{t('translations.french.title')}</CardTitle>
           <CardDescription>
-            Secondary language for French-speaking users
+            {t('translations.french.description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name_fr">Taxonomy Type Name</Label>
+            <Label htmlFor="name_fr">{t('translations.french.nameLabel')}</Label>
             <Input
               id="name_fr"
               {...register('name_fr')}
-              placeholder="e.g., Taille de la Communauté"
+              placeholder={t('translations.french.namePlaceholder')}
             />
             {errors.name_fr && (
               <p className="text-sm text-red-500">{errors.name_fr.message}</p>
@@ -384,11 +389,11 @@ export default function TaxonomyTypeForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description_fr">Description</Label>
+            <Label htmlFor="description_fr">{t('translations.french.descriptionLabel')}</Label>
             <Textarea
               id="description_fr"
               {...register('description_fr')}
-              placeholder="Brève description de ce système de classification..."
+              placeholder={t('translations.french.descriptionPlaceholder')}
               rows={3}
             />
             {errors.description_fr && (
@@ -404,12 +409,12 @@ export default function TaxonomyTypeForm({
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              {t('submitting')}
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {submitLabel}
+              {submitLabel || t('submitButton')}
             </>
           )}
         </Button>

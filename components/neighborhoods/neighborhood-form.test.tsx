@@ -10,6 +10,11 @@ import userEvent from '@testing-library/user-event'
 import NeighborhoodForm from './neighborhood-form'
 import * as reactHookForm from 'react-hook-form'
 
+// Mock next-intl
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}))
+
 // Types for Select components
 type SelectOption = {
   value: string
@@ -291,19 +296,19 @@ describe('NeighborhoodForm', () => {
   it('should render the form with all required fields', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
-    expect(screen.getByLabelText('District *')).toBeInTheDocument()
-    expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
-    expect(screen.getByLabelText('Neighborhood Name *')).toBeInTheDocument()
-    expect(screen.getByText(/English Translation/i)).toBeInTheDocument()
-    expect(screen.getByText(/Dutch Translation/i)).toBeInTheDocument()
-    expect(screen.getByText(/French Translation/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/basicInfo\.districtLabel/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/basicInfo\.slugLabel/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/translations\.english\.nameLabel/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.english\.title/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.dutch\.title/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.french\.title/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Save Neighborhood/i })).toBeInTheDocument()
   })
 
   it('should populate district dropdown with available districts', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
-    const districtSelect = screen.getByLabelText('District *')
+    const districtSelect = screen.getByLabelText(/basicInfo\.districtLabel/i)
     expect(districtSelect).toBeInTheDocument()
 
     const options = screen.getAllByRole('option')
@@ -321,9 +326,9 @@ describe('NeighborhoodForm', () => {
     const user = userEvent.setup()
     render(<NeighborhoodForm {...defaultProps} />)
 
-    const districtSelect = screen.getByLabelText('District *')
-    const slugInput = screen.getByLabelText('Slug *')
-    const nameInput = screen.getByLabelText('Neighborhood Name *')
+    const districtSelect = screen.getByLabelText(/basicInfo\.districtLabel/i)
+    const slugInput = screen.getByLabelText(/basicInfo\.slugLabel/i)
+    const nameInput = screen.getByLabelText(/translations\.english\.nameLabel/i)
 
     await user.selectOptions(districtSelect, 'district-1')
     await user.type(slugInput, 'test-neighborhood')
@@ -437,7 +442,7 @@ describe('NeighborhoodForm', () => {
 
       // Use waitFor to wait for the loading state to appear
       await waitFor(() => {
-        expect(screen.getByText('Saving...')).toBeInTheDocument()
+        expect(screen.getByText(/submitting/i)).toBeInTheDocument()
       })
     })
 
@@ -455,7 +460,7 @@ describe('NeighborhoodForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/Network error/i)).toBeInTheDocument()
+      expect(screen.getByText(/networkError/i)).toBeInTheDocument()
     })
   })
 
@@ -479,7 +484,7 @@ describe('NeighborhoodForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/check your input/i)).toBeInTheDocument()
+      expect(screen.getByText(/validationFailed/i)).toBeInTheDocument()
     })
   })
 
@@ -491,7 +496,7 @@ describe('NeighborhoodForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/network error/i)).toBeInTheDocument()
+      expect(screen.getByText(/networkError/i)).toBeInTheDocument()
     })
   })
 
@@ -503,7 +508,7 @@ describe('NeighborhoodForm', () => {
     fireEvent.click(submitButton)
 
     await waitFor(() => {
-      expect(screen.getByText(/already exists/i)).toBeInTheDocument()
+      expect(screen.getByText(/duplicateSlug/i)).toBeInTheDocument()
     })
   })
 
@@ -542,7 +547,7 @@ describe('NeighborhoodForm', () => {
     // The form should render with the initial data present
     // The specific field values are managed by react-hook-form's internal state
     // We just verify the form rendered correctly
-    expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
+    expect(screen.getByLabelText(/basicInfo\.slugLabel/i)).toBeInTheDocument()
   })
 
   it('should render with custom submit label', () => {
@@ -567,7 +572,7 @@ describe('NeighborhoodForm', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
     expect(
-      screen.getByText(/Select the district this neighborhood belongs to/i)
+      screen.getByText(/basicInfo\.districtHelpText/i)
     ).toBeInTheDocument()
   })
 
@@ -575,20 +580,20 @@ describe('NeighborhoodForm', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
     expect(
-      screen.getByText(/URL-friendly identifier. Only lowercase letters, numbers, and hyphens/i)
+      screen.getByText(/basicInfo\.slugHelpText/i)
     ).toBeInTheDocument()
   })
 
   it('should separate translation sections clearly', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
-    expect(screen.getByText(/English Translation/i)).toBeInTheDocument()
-    expect(screen.getByText(/Dutch Translation/i)).toBeInTheDocument()
-    expect(screen.getByText(/French Translation/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.english\.title/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.dutch\.title/i)).toBeInTheDocument()
+    expect(screen.getByText(/translations\.french\.title/i)).toBeInTheDocument()
 
-    const englishSection = screen.getByText(/English Translation/i).closest('div')
-    const dutchSection = screen.getByText(/Dutch Translation/i).closest('div')
-    const frenchSection = screen.getByText(/French Translation/i).closest('div')
+    const englishSection = screen.getByText(/translations\.english\.title/i).closest('div')
+    const dutchSection = screen.getByText(/translations\.dutch\.title/i).closest('div')
+    const frenchSection = screen.getByText(/translations\.french\.title/i).closest('div')
 
     // Check that sections exist
     expect(englishSection).toBeTruthy()
@@ -604,14 +609,14 @@ describe('NeighborhoodForm', () => {
   it('should show placeholder when no district is selected', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
-    expect(screen.getByText('Select a district')).toBeInTheDocument()
+    expect(screen.getByText(/basicInfo\.districtPlaceholder/i)).toBeInTheDocument()
   })
 
   it('should pre-select first district when initialData is not provided', () => {
     render(<NeighborhoodForm {...defaultProps} />)
 
     // The district select should have options available
-    const districtSelect = screen.getByLabelText('District *')
+    const districtSelect = screen.getByLabelText(/basicInfo\.districtLabel/i)
     expect(districtSelect).toBeInTheDocument()
 
     // Verify that options exist in the dropdown
