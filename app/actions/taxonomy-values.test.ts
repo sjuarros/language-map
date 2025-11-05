@@ -123,7 +123,7 @@ function createTaxonomyValuesMock() {
               color_hex: '#FFA500',
               icon_name: 'Circle',
               icon_size_multiplier: 1.0,
-              display_order: 0,
+              sort_order: 0,
               translations: [
                 { id: 't1', locale_code: 'en', name: 'Small', description: 'Small community', is_ai_translated: false, reviewed_at: null },
                 { id: 't2', locale_code: 'nl', name: 'Klein', description: 'Kleine gemeenschap', is_ai_translated: false, reviewed_at: null }
@@ -140,7 +140,7 @@ function createTaxonomyValuesMock() {
             color_hex: '#FFA500',
             icon_name: 'Circle',
             icon_size_multiplier: 1.0,
-            display_order: 0,
+            sort_order: 0,
             translations: [
               { id: 't1', locale_code: 'en', name: 'Small', description: 'Small community', is_ai_translated: false, reviewed_at: null }
             ],
@@ -286,7 +286,7 @@ describe('taxonomy-values', () => {
                     color_hex: '#FFA500',
                     icon_name: 'Circle',
                     icon_size_multiplier: 1.0,
-                    display_order: 0,
+                    sort_order: 0,
                     translations: [],
                     taxonomy_type: {
                       id: 'type-1',
@@ -381,7 +381,7 @@ describe('taxonomy-values', () => {
         slug: 'small',
         color_hex: '#FFA500',
         icon_size_multiplier: 1.0,
-        display_order: 0,
+        sort_order: 0,
         translations: [
           { locale_code: 'en', name: 'Small' },
           { locale_code: 'nl', name: 'Klein' }
@@ -459,7 +459,7 @@ describe('taxonomy-values', () => {
         slug: 'small',
         color_hex: '#FFA500',
         icon_size_multiplier: 1.0,
-        display_order: 0,
+        sort_order: 0,
         translations: [
           { locale_code: 'en', name: 'Small' }
         ]
@@ -474,7 +474,7 @@ describe('taxonomy-values', () => {
         slug: 'Invalid Slug!', // Invalid: contains spaces and uppercase
         color_hex: '#FFA500',
         icon_size_multiplier: 1.0,
-        display_order: 0,
+        sort_order: 0,
         translations: []
       }
 
@@ -487,7 +487,7 @@ describe('taxonomy-values', () => {
         slug: 'small',
         color_hex: 'invalid', // Invalid hex color
         icon_size_multiplier: 1.0,
-        display_order: 0,
+        sort_order: 0,
         translations: []
       }
 
@@ -500,7 +500,7 @@ describe('taxonomy-values', () => {
         slug: 'small',
         color_hex: '#FFA500',
         icon_size_multiplier: 5.0, // Too large
-        display_order: 0,
+        sort_order: 0,
         translations: []
       }
 

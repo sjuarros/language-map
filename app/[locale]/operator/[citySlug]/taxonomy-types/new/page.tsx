@@ -112,7 +112,7 @@ export default async function NewTaxonomyTypePage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold">Create Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Add a new classification type to {city.city_translations[0]?.name || city.name}
+            Add a new classification type to {city.city_translations[0]?.name}
           </p>
         </div>
       </div>

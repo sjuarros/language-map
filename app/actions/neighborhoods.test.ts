@@ -284,7 +284,7 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'new-neighborhood',
-        isActive: true,
+        is_active: true,
         name_en: 'New Neighborhood',
         description_en: 'A new neighborhood',
         name_nl: 'Nieuwe Buurt',
@@ -362,7 +362,7 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'english-only',
-        isActive: true,
+        is_active: true,
         name_en: 'English Neighborhood',
         description_en: 'English only',
       }
@@ -417,7 +417,7 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          isActive: true,
+          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -436,7 +436,7 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          isActive: true,
+          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Insufficient permissions')
@@ -462,7 +462,7 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174999', // Valid UUID format but doesn't exist
           slug: 'test',
-          isActive: true,
+          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Invalid district selected')
@@ -473,7 +473,7 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'test',
-        isActive: true,
+        is_active: true,
         name_en: 'Test',
       }
 
@@ -546,7 +546,7 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174003',
         slug: 'updated-neighborhood',
-        isActive: false,
+        is_active: false,
         name_en: 'Updated Neighborhood',
         description_en: 'Updated description',
       }
@@ -595,7 +595,7 @@ describe('neighborhoods', () => {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           districtId: '123e4567-e89b-12d3-a456-426614174002',
           slug: 'test',
-          isActive: true,
+          is_active: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -606,7 +606,7 @@ describe('neighborhoods', () => {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         districtId: '123e4567-e89b-12d3-a456-426614174002',
         slug: 'test',
-        isActive: true,
+        is_active: true,
         name_en: 'Test',
       }
 

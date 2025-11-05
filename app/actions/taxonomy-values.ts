@@ -90,7 +90,8 @@ export async function getTaxonomyValues(citySlug: string, taxonomyTypeId: string
         id,
         locale_code,
         name,
-        description
+        description,
+        is_ai_translated
       )
     `)
     .eq('taxonomy_type_id', taxonomyTypeId)

@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default async function TaxonomyValuesPage({ params }: Props) {
-  const { locale, citySlug, taxonomyTypeId } = await params
+  const { citySlug, taxonomyTypeId } = await params
   const currentLocale = await getLocale()
 
   // Fetch data on the server

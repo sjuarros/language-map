@@ -31,7 +31,7 @@ export default async function EditTaxonomyValuePage({
     valueId: string
   }>
 }) {
-  const { locale, citySlug, taxonomyTypeId, valueId } = await params
+  const { citySlug, taxonomyTypeId, valueId } = await params
   const currentLocale = await getLocale()
 
   // Fetch taxonomy value and type in parallel

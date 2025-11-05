@@ -29,7 +29,7 @@ export default async function NewTaxonomyValuePage({
     taxonomyTypeId: string
   }>
 }) {
-  const { locale, citySlug, taxonomyTypeId } = await params
+  const { citySlug, taxonomyTypeId } = await params
   const currentLocale = await getLocale()
 
   // Fetch taxonomy type to verify it exists

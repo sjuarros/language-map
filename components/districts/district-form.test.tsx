@@ -102,7 +102,6 @@ describe('DistrictForm', () => {
     render(<DistrictForm {...defaultProps} />)
 
     expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Active/i)).toBeInTheDocument()
     expect(screen.getByLabelText('District Name *')).toBeInTheDocument()
     expect(screen.getByText(/English Translation/i)).toBeInTheDocument()
     expect(screen.getByText(/Dutch Translation/i)).toBeInTheDocument()

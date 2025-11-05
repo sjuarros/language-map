@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import type { User } from '@supabase/supabase-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -20,7 +20,6 @@ export default function OperatorDashboard() {
   const [cities, setCities] = useState<City[]>([])
   const [loading, setLoading] = useState(true)
   const pathname = usePathname()
-  const router = useRouter()
 
   // Extract locale from pathname
   const pathSegments = pathname?.split('/').filter(Boolean) || []
@@ -67,14 +66,22 @@ export default function OperatorDashboard() {
         } else {
           console.log('Cities raw data:', citiesData)
           // Format cities data
-          const formattedCities: City[] = citiesData?.map((city: any) => {
-            console.log('Processing city:', city)
-            const cityData = city.cities
+          const formattedCities: City[] = citiesData?.map((cityUser: {
+            role: string;
+            city_id: string;
+            cities: Array<{
+              id: string;
+              slug: string;
+              city_translations: Array<{ name: string; locale_code: string }>;
+            }>;
+          }) => {
+            console.log('Processing city user:', cityUser)
+            const cityData = cityUser.cities[0]
             return {
               id: cityData?.id || '',
               slug: cityData?.slug || '',
               name: cityData?.city_translations?.[0]?.name || cityData?.slug || 'Unknown',
-              role: city.role
+              role: cityUser.role
             }
           }) || []
           console.log('Formatted cities:', formattedCities)
@@ -93,7 +100,7 @@ export default function OperatorDashboard() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [currentLocale])
 
   if (loading) {
     return (
@@ -129,7 +136,7 @@ export default function OperatorDashboard() {
             <CardHeader>
               <CardTitle>No Cities Assigned</CardTitle>
               <CardDescription>
-                You don't have access to any cities yet. Contact an administrator.
+                You don&apos;t have access to any cities yet. Contact an administrator.
               </CardDescription>
             </CardHeader>
           </Card>

@@ -97,17 +97,17 @@ export default function NeighborhoodForm({
       isActive: initialData?.is_active ?? true,
       districtId: initialData?.district_id || (districts.length > 0 ? districts[0].id : ''),
       name_en:
-        initialData?.translations.find((t) => t.locale === 'en')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'en')?.name || '',
       description_en:
-        initialData?.translations.find((t) => t.locale === 'en')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'en')?.description || '',
       name_nl:
-        initialData?.translations.find((t) => t.locale === 'nl')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'nl')?.name || '',
       description_nl:
-        initialData?.translations.find((t) => t.locale === 'nl')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'nl')?.description || '',
       name_fr:
-        initialData?.translations.find((t) => t.locale === 'fr')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'fr')?.name || '',
       description_fr:
-        initialData?.translations.find((t) => t.locale === 'fr')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'fr')?.description || '',
     },
   })
 

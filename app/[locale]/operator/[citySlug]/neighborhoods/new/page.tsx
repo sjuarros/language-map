@@ -86,7 +86,7 @@ export default async function NewNeighborhoodPage({ params }: Props) {
           <div className="flex-1">
             <h1 className="text-3xl font-bold">Create Neighborhood</h1>
             <p className="mt-2 text-sm text-gray-600">
-              Create neighborhood for {city.city_translations[0]?.name || city.name}
+              Create neighborhood for {city.city_translations[0]?.name}
             </p>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default async function NewNeighborhoodPage({ params }: Props) {
       cityId: city.id,
       districtId: data.districtId as string,
       slug: data.slug as string,
-      isActive: data.isActive as boolean,
+      is_active: data.isActive as boolean,
       name_en: data.name_en as string,
       description_en: data.description_en as string | undefined,
       name_nl: data.name_nl as string | undefined,
@@ -139,7 +139,7 @@ export default async function NewNeighborhoodPage({ params }: Props) {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Create Neighborhood</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Add a new neighborhood to {city.city_translations[0]?.name || city.name}
+            Add a new neighborhood to {city.city_translations[0]?.name}
           </p>
         </div>
       </div>

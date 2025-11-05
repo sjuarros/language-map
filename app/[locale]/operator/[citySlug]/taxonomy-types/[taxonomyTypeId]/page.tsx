@@ -127,7 +127,7 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Edit Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Update taxonomy type for {city.city_translations[0]?.name || city.name}
+            Update taxonomy type for {city.city_translations[0]?.name}
           </p>
         </div>
       </div>

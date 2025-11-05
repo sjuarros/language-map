@@ -269,16 +269,16 @@ const mockDistricts = [
     id: 'district-1',
     slug: 'centrum',
     translations: [
-      { locale: 'en', name: 'Center' },
-      { locale: 'nl', name: 'Centrum' },
+      { locale_code: 'en', name: 'Center' },
+      { locale_code: 'nl', name: 'Centrum' },
     ],
   },
   {
     id: 'district-2',
     slug: 'west',
     translations: [
-      { locale: 'en', name: 'West' },
-      { locale: 'nl', name: 'West' },
+      { locale_code: 'en', name: 'West' },
+      { locale_code: 'nl', name: 'West' },
     ],
   },
 ]
@@ -548,8 +548,8 @@ describe('NeighborhoodForm', () => {
       is_active: true,
       district_id: 'district-2',
       translations: [
-        { locale: 'en', name: 'Existing Neighborhood', description: 'Description EN' },
-        { locale: 'nl', name: 'Bestaande Buurt', description: 'Description NL' },
+        { locale_code: 'en', name: 'Existing Neighborhood', description: 'Description EN' },
+        { locale_code: 'nl', name: 'Bestaande Buurt', description: 'Description NL' },
       ],
     }
 
