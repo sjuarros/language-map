@@ -4,11 +4,11 @@
  * Page for editing an existing district with multilingual support.
  */
 
-import { getDatabaseClient } from '@/lib/database/client'
 import { getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getDistrict, updateDistrict, deleteDistrict } from '@/app/actions/districts'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import DistrictForm from '@/components/districts/district-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -23,14 +23,14 @@ interface Props {
 }
 
 export default async function EditDistrictPage({ params }: Props) {
-  const { locale, citySlug, id } = params
+  const { locale, citySlug, id } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/districts/${id}`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -44,9 +44,8 @@ export default async function EditDistrictPage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
     .single()
 
   if (!city) {
@@ -92,7 +91,6 @@ export default async function EditDistrictPage({ params }: Props) {
     await updateDistrict(citySlug, id, {
       cityId: city.id,
       slug: data.slug as string,
-      isActive: data.isActive as boolean,
       name_en: data.name_en as string,
       description_en: data.description_en as string | undefined,
       name_nl: data.name_nl as string | undefined,
@@ -122,7 +120,7 @@ export default async function EditDistrictPage({ params }: Props) {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Edit District</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Update district information for {city.translations[0]?.name || city.name}
+            Update district information for {citySlug}
           </p>
         </div>
       </div>
@@ -148,15 +146,7 @@ export default async function EditDistrictPage({ params }: Props) {
         </CardHeader>
         <CardContent>
           <form action={handleDelete}>
-            <Button
-              type="submit"
-              variant="destructive"
-              onClick={(e) => {
-                if (!confirm('Are you sure you want to delete this district? This action cannot be undone.')) {
-                  e.preventDefault()
-                }
-              }}
-            >
+            <Button type="submit" variant="destructive">
               <Trash2 className="mr-2 h-4 w-4" />
               Delete District
             </Button>

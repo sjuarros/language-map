@@ -32,7 +32,7 @@ export interface TaxonomyValue {
   color_hex: string
   icon_name?: string
   icon_size_multiplier: number
-  display_order: number
+  sort_order: number
   created_at: string
   updated_at: string
   translations: TaxonomyValueTranslation[]

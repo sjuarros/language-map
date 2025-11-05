@@ -50,7 +50,7 @@ interface District {
   id: string
   slug: string
   translations: Array<{
-    locale: string
+    locale_code: string
     name: string
   }>
 }
@@ -66,7 +66,7 @@ interface NeighborhoodFormProps {
     is_active: boolean
     district_id: string
     translations: Array<{
-      locale: string
+      locale_code: string
       name: string
       description: string | null
     }>
@@ -192,7 +192,7 @@ export default function NeighborhoodForm({
                   </SelectTrigger>
                   <SelectContent>
                     {districts.map((district) => {
-                      const translation = district.translations.find((t) => t.locale === 'en') || district.translations[0]
+                      const translation = district.translations.find((t) => t.locale_code === 'en') || district.translations[0]
                       return (
                         <SelectItem key={district.id} value={district.id}>
                           {translation?.name || district.slug}

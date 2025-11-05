@@ -26,7 +26,6 @@ type FieldProps = {
 // Mock react-hook-form
 const defaultFieldValue = {
   slug: '',
-  isActive: true,
   name_en: '',
   description_en: '',
   name_nl: '',
@@ -41,15 +40,6 @@ const mockRegister = vi.fn((field: string): FieldProps => {
     onChange: vi.fn(),
     onBlur: vi.fn(),
     ref: vi.fn(),
-  }
-
-  if (field === 'isActive') {
-    return {
-      ...base,
-      type: 'checkbox' as const,
-      checked: defaultFieldValue.isActive,
-      value: undefined,
-    }
   }
 
   return {
@@ -75,7 +65,6 @@ vi.mock('react-hook-form', () => ({
 
       // Set default values if fields are empty
       data.slug = data.slug || 'test-district'
-      data.isActive = data.isActive === 'on' || data.isActive === true
       data.name_en = data.name_en || 'Test District'
       data.description_en = data.description_en || 'Test description'
       data.name_nl = data.name_nl || 'Test District NL'
@@ -151,7 +140,6 @@ describe('DistrictForm', () => {
         e.preventDefault()
         fn({
           slug: 'test',
-          isActive: true,
           name_en: '', // Empty required field
         })
       }),
@@ -180,7 +168,6 @@ describe('DistrictForm', () => {
         e.preventDefault()
         fn({
           slug: 'Invalid@Slug', // Invalid characters
-          isActive: true,
           name_en: 'Test',
         })
       }),
@@ -297,10 +284,9 @@ describe('DistrictForm', () => {
     const initialData = {
       id: 'district-1',
       slug: 'existing-district',
-      is_active: true,
       translations: [
-        { locale: 'en', name: 'Existing District', description: 'Description EN' },
-        { locale: 'nl', name: 'Bestaand District', description: 'Description NL' },
+        { locale_code: 'en', name: 'Existing District', description: 'Description EN' },
+        { locale_code: 'nl', name: 'Bestaand District', description: 'Description NL' },
       ],
     }
 
@@ -310,29 +296,12 @@ describe('DistrictForm', () => {
     // The specific field values are managed by react-hook-form's internal state
     // We just verify the form rendered correctly
     expect(screen.getByLabelText('Slug *')).toBeInTheDocument()
-    expect(screen.getByLabelText(/Active/i)).toBeInTheDocument()
   })
 
   it('should render with custom submit label', () => {
     render(<DistrictForm {...defaultProps} submitLabel="Create District" />)
 
     expect(screen.getByRole('button', { name: /Create District/i })).toBeInTheDocument()
-  })
-
-  it('should toggle active status checkbox', async () => {
-    const user = userEvent.setup()
-    render(<DistrictForm {...defaultProps} />)
-
-    const activeCheckbox = screen.getByLabelText(/Active/i)
-
-    // The checkbox should be present and interactable
-    expect(activeCheckbox).toBeInTheDocument()
-
-    // Click the checkbox to toggle it
-    await user.click(activeCheckbox)
-
-    // Check that the click was registered
-    expect(activeCheckbox).toBeInTheDocument()
   })
 
   it('should handle generic errors gracefully', async () => {
@@ -353,14 +322,6 @@ describe('DistrictForm', () => {
 
     expect(
       screen.getByText(/URL-friendly identifier. Only lowercase letters, numbers, and hyphens/i)
-    ).toBeInTheDocument()
-  })
-
-  it('should display help text for active status', () => {
-    render(<DistrictForm {...defaultProps} />)
-
-    expect(
-      screen.getByText(/Inactive districts are hidden from the public interface/i)
     ).toBeInTheDocument()
   })
 

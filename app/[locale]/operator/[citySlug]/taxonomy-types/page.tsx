@@ -15,10 +15,10 @@ import { getLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTaxonomyTypes } from '@/app/actions/taxonomy-types'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Edit, Tag } from 'lucide-react'
-import { getDatabaseClient } from '@/lib/database/client'
 
 interface TaxonomyType {
   id: string
@@ -43,14 +43,14 @@ interface Props {
 }
 
 export default async function TaxonomyTypesPage({ params }: Props) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -64,9 +64,9 @@ export default async function TaxonomyTypesPage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug, city_translations!inner(name, locale_code)')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
+    .eq('city_translations.locale_code', locale)
     .single()
 
   if (!city) {
@@ -102,7 +102,7 @@ export default async function TaxonomyTypesPage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold">Taxonomy Types</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Manage classification types for {city.translations[0]?.name || city.name}
+            Manage classification types for {city.city_translations[0]?.name || citySlug}
           </p>
         </div>
         <Link href={`/${locale}/operator/${citySlug}/taxonomy-types/new`}>

@@ -69,6 +69,10 @@ vi.mock('@/lib/database/client', () => ({
   getDatabaseClient: vi.fn(() => mockSupabase),
 }))
 
+vi.mock('@/lib/supabase/server-client', () => ({
+  getServerSupabaseWithCookies: vi.fn(() => mockSupabase),
+}))
+
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))

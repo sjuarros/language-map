@@ -3,53 +3,41 @@
  * =========================
  * Displays all taxonomy values for a taxonomy type with CRUD operations.
  *
- * @component
+ * @async
+ * @param props - Component props
+ * @param props.params - Route parameters
+ * @param props.params.locale - Current locale code
+ * @param props.params.citySlug - City identifier
+ * @param props.params.taxonomyTypeId - Taxonomy type UUID
+ * @returns Page component JSX
  */
 
-'use client'
-
-import { notFound } from 'next/navigation'
-import { useTranslations } from 'next-intl'
-import { useEffect, useState } from 'react'
+import { getLocale } from 'next-intl/server'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, ArrowLeft, Edit } from 'lucide-react'
 import { getTaxonomyValues, getTaxonomyTypeForValues } from '@/app/actions/taxonomy-values'
-import type { TaxonomyType, TaxonomyValue } from '@/types/taxonomy'
 
-export default function TaxonomyValuesPage({
-  params
-}: {
+interface Props {
   params: {
     locale: string
     citySlug: string
     taxonomyTypeId: string
   }
-}) {
-  const t = useTranslations('TaxonomyValues')
-  const [taxonomyType, setTaxonomyType] = useState<TaxonomyType | null>(null)
-  const [taxonomyValues, setTaxonomyValues] = useState<TaxonomyValue[]>([])
-  const [loading, setLoading] = useState(true)
+}
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [typeData, valuesData] = await Promise.all([
-          getTaxonomyTypeForValues(params.citySlug, params.taxonomyTypeId),
-          getTaxonomyValues(params.citySlug, params.taxonomyTypeId),
-        ])
-        setTaxonomyType(typeData)
-        setTaxonomyValues(valuesData)
-      } catch (error) {
-        console.error('Error loading data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [params.citySlug, params.taxonomyTypeId])
+export default async function TaxonomyValuesPage({ params }: Props) {
+  const { locale, citySlug, taxonomyTypeId } = await params
+  const currentLocale = await getLocale()
+
+  // Fetch data on the server
+  const [taxonomyType, taxonomyValues] = await Promise.all([
+    getTaxonomyTypeForValues(citySlug, taxonomyTypeId),
+    getTaxonomyValues(citySlug, taxonomyTypeId),
+  ])
 
   if (!taxonomyType) {
     notFound()
@@ -57,13 +45,13 @@ export default function TaxonomyValuesPage({
 
   // Get taxonomy type name for current locale
   const taxonomyTypeName = taxonomyType.translations.find(
-    (translation) => translation.locale_code === params.locale
+    (translation) => translation.locale_code === currentLocale
   )?.name || taxonomyType.translations.find((translation) => translation.locale_code === 'en')?.name || taxonomyType.slug
 
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <Link href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types`}>
+        <Link href={`/${currentLocale}/operator/${citySlug}/taxonomy-types`}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Taxonomy Types
@@ -73,32 +61,30 @@ export default function TaxonomyValuesPage({
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold mb-2">
-              {t('list.title', { typeName: taxonomyTypeName })}
+              {taxonomyTypeName} Values
             </h1>
             <p className="text-muted-foreground">
-              {t('list.description')}
+              Manage values for this taxonomy type
             </p>
           </div>
 
-          <Link href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types/${params.taxonomyTypeId}/values/new`}>
+          <Link href={`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values/new`}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              {t('list.actions.create')}
+              Add Value
             </Button>
           </Link>
         </div>
       </div>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : taxonomyValues.length === 0 ? (
+      {taxonomyValues.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <p className="text-muted-foreground mb-4">{t('list.empty')}</p>
-            <Link href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types/${params.taxonomyTypeId}/values/new`}>
+            <p className="text-muted-foreground mb-4">No values yet</p>
+            <Link href={`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values/new`}>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                {t('list.actions.createFirst')}
+                Create First Value
               </Button>
             </Link>
           </CardContent>
@@ -108,7 +94,7 @@ export default function TaxonomyValuesPage({
           {taxonomyValues.map((value) => {
             // Get translation for current locale
             const translation = value.translations.find(
-              (t) => t.locale_code === params.locale
+              (t) => t.locale_code === currentLocale
             ) || value.translations.find((t) => t.locale_code === 'en')
 
             return (
@@ -126,7 +112,7 @@ export default function TaxonomyValuesPage({
                         </CardTitle>
                         {translation?.is_ai_translated && (
                           <Badge variant="secondary">
-                            {t('badges.aiGenerated')}
+                            AI Generated
                           </Badge>
                         )}
                       </div>
@@ -134,10 +120,10 @@ export default function TaxonomyValuesPage({
                         <div>Slug: <code className="bg-muted px-1 py-0.5 rounded text-sm">{value.slug}</code></div>
                         {value.icon_name && (
                           <div>
-                            {t('list.details.icon')}: {value.icon_name} ({(value.icon_size_multiplier * 100).toFixed(0)}%)
+                            Icon: {value.icon_name} ({(value.icon_size_multiplier * 100).toFixed(0)}%)
                           </div>
                         )}
-                        <div>{t('list.details.order')}: {value.display_order}</div>
+                        <div>Order: {value.sort_order}</div>
                         {translation?.description && (
                           <div className="mt-2">
                             <p className="text-sm text-muted-foreground">
@@ -150,14 +136,13 @@ export default function TaxonomyValuesPage({
 
                     <div className="flex gap-2">
                       <Link
-                        href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types/${params.taxonomyTypeId}/values/${value.id}/edit`}
+                        href={`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values/${value.id}/edit`}
                       >
                         <Button variant="outline" size="sm">
                           <Edit className="h-4 w-4 mr-2" />
-                          {t('list.actions.edit')}
+                          Edit
                         </Button>
                       </Link>
-                      {/* TODO: Add delete confirmation */}
                     </div>
                   </div>
                 </CardHeader>

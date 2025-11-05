@@ -33,8 +33,13 @@ file_size_limit = "50MiB"
 enabled = true
 site_url = "http://localhost:3001"
 additional_redirect_urls = ["https://localhost:3001", "http://localhost:3001/en/auth/callback", "http://localhost:3001/en/auth/callback?**"]
-jwt_expiry = 3600
+# JWT expiry in seconds (86400 = 24 hours for development)
+# Production should use shorter duration (3600 = 1 hour)
+jwt_expiry = 86400
 enable_signup = true
+# Session configuration
+# refresh_token_rotation_enabled = true (enabled by default)
+# Tokens are automatically refreshed when they're close to expiry
 
 [auth.email]
 enable_signup = true

@@ -24,19 +24,20 @@ import { ArrowLeft } from 'lucide-react'
 export default async function EditTaxonomyValuePage({
   params
 }: {
-  params: {
+  params: Promise<{
     locale: string
     citySlug: string
     taxonomyTypeId: string
     valueId: string
-  }
+  }>
 }) {
-  const locale = await getLocale()
+  const { locale, citySlug, taxonomyTypeId, valueId } = await params
+  const currentLocale = await getLocale()
 
   // Fetch taxonomy value and type in parallel
   const [taxonomyValue, taxonomyType] = await Promise.all([
-    getTaxonomyValue(params.citySlug, params.valueId),
-    getTaxonomyTypeForValues(params.citySlug, params.taxonomyTypeId),
+    getTaxonomyValue(citySlug, valueId),
+    getTaxonomyTypeForValues(citySlug, taxonomyTypeId),
   ])
 
   if (!taxonomyValue || !taxonomyType) {
@@ -44,18 +45,18 @@ export default async function EditTaxonomyValuePage({
   }
 
   // Verify taxonomy type matches
-  if (taxonomyValue.taxonomy_type_id !== params.taxonomyTypeId) {
+  if (taxonomyValue.taxonomy_type_id !== taxonomyTypeId) {
     notFound()
   }
 
   // Get taxonomy type name for current locale
   const taxonomyTypeName = taxonomyType.translations.find(
-    (translation) => translation.locale_code === locale
+    (translation) => translation.locale_code === currentLocale
   )?.name || taxonomyType.translations.find((translation) => translation.locale_code === 'en')?.name || taxonomyType.slug
 
   // Get taxonomy value name for current locale
   const translation = taxonomyValue.translations.find(
-    (t) => t.locale_code === locale
+    (t) => t.locale_code === currentLocale
   ) || taxonomyValue.translations.find((t) => t.locale_code === 'en')
 
   const initialData = {
@@ -63,7 +64,7 @@ export default async function EditTaxonomyValuePage({
     color_hex: taxonomyValue.color_hex,
     icon_name: taxonomyValue.icon_name || '',
     icon_size_multiplier: taxonomyValue.icon_size_multiplier,
-    display_order: taxonomyValue.display_order,
+    sort_order: taxonomyValue.sort_order,
     translations: taxonomyValue.translations.map((t) => ({
       locale_code: t.locale_code,
       name: t.name,
@@ -74,7 +75,7 @@ export default async function EditTaxonomyValuePage({
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <Link href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types/${params.taxonomyTypeId}/values`}>
+        <Link href={`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values`}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Taxonomy Values
@@ -92,10 +93,10 @@ export default async function EditTaxonomyValuePage({
       </div>
 
       <TaxonomyValueForm
-        taxonomyTypeId={params.taxonomyTypeId}
-        taxonomyValueId={params.valueId}
-        locale={params.locale}
-        citySlug={params.citySlug}
+        taxonomyTypeId={taxonomyTypeId}
+        taxonomyValueId={valueId}
+        locale={currentLocale}
+        citySlug={citySlug}
         initialData={initialData}
       />
     </div>

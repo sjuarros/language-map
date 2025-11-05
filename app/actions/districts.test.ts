@@ -83,6 +83,10 @@ vi.mock('@/lib/database/client', () => ({
   getDatabaseClient: vi.fn(() => mockSupabase),
 }))
 
+vi.mock('@/lib/supabase/server-client', () => ({
+  getServerSupabaseWithCookies: vi.fn(() => mockSupabase),
+}))
+
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }))
@@ -248,7 +252,6 @@ describe('districts', () => {
       const districtInput = {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'new-district',
-        isActive: true,
         name_en: 'New District',
         description_en: 'A new district',
         name_nl: 'Nieuw District',
@@ -259,7 +262,6 @@ describe('districts', () => {
         id: '123e4567-e89b-12d3-a456-426614174020',
         city_id: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'new-district',
-        is_active: true,
       }
 
       // Mock city_users query
@@ -297,7 +299,6 @@ describe('districts', () => {
       const districtInput = {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'english-only',
-        isActive: true,
         name_en: 'English District',
         description_en: 'English only',
       }
@@ -306,7 +307,6 @@ describe('districts', () => {
         id: '123e4567-e89b-12d3-a456-426614174020',
         city_id: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'english-only',
-        is_active: true,
       }
 
       // Mock city_users query
@@ -346,7 +346,6 @@ describe('districts', () => {
         createDistrict('amsterdam', {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           slug: 'test',
-          isActive: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -379,7 +378,6 @@ describe('districts', () => {
         createDistrict('amsterdam', {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           slug: 'test',
-          isActive: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Insufficient permissions')
@@ -389,11 +387,10 @@ describe('districts', () => {
       const districtInput = {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'test',
-        isActive: true,
         name_en: 'Test',
       }
 
-      const mockCreatedDistrict = { id: '123e4567-e89b-12d3-a456-426614174020', city_id: '123e4567-e89b-12d3-a456-426614174001', slug: 'test', is_active: true }
+      const mockCreatedDistrict = { id: '123e4567-e89b-12d3-a456-426614174020', city_id: '123e4567-e89b-12d3-a456-426614174001', slug: 'test' }
 
       let callCount = 0
       mockSupabase.from.mockImplementation((table) => {
@@ -457,7 +454,6 @@ describe('districts', () => {
       const districtInput = {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'updated-district',
-        isActive: false,
         name_en: 'Updated District',
         description_en: 'Updated description',
       }
@@ -518,7 +514,6 @@ describe('districts', () => {
         updateDistrict('amsterdam', '123e4567-e89b-12d3-a456-426614174000', {
           cityId: '123e4567-e89b-12d3-a456-426614174001',
           slug: 'test',
-          isActive: true,
           name_en: 'Test',
         })
       ).rejects.toThrow('Unauthorized')
@@ -528,7 +523,6 @@ describe('districts', () => {
       const districtInput = {
         cityId: '123e4567-e89b-12d3-a456-426614174001',
         slug: 'test',
-        isActive: true,
         name_en: 'Test',
       }
 

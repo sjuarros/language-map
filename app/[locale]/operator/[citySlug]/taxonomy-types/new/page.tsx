@@ -18,7 +18,7 @@ import { createTaxonomyType } from '@/app/actions/taxonomy-types'
 import TaxonomyTypeForm from '@/components/taxonomy-types/taxonomy-type-form'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 
 interface Props {
   params: {
@@ -28,14 +28,14 @@ interface Props {
 }
 
 export default async function NewTaxonomyTypePage({ params }: Props) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types/new`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -49,9 +49,9 @@ export default async function NewTaxonomyTypePage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug, city_translations!inner(name, locale_code)')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
+    .eq('city_translations.locale_code', locale)
     .single()
 
   if (!city) {
@@ -112,7 +112,7 @@ export default async function NewTaxonomyTypePage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold">Create Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Add a new classification type to {city.translations[0]?.name || city.name}
+            Add a new classification type to {city.city_translations[0]?.name || city.name}
           </p>
         </div>
       </div>

@@ -4,7 +4,7 @@
  * Page for creating a new neighborhood with multilingual support.
  */
 
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -21,14 +21,14 @@ interface Props {
 }
 
 export default async function NewNeighborhoodPage({ params }: Props) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/neighborhoods/new`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -42,9 +42,9 @@ export default async function NewNeighborhoodPage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug, city_translations!inner(name, locale_code)')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
+    .eq('city_translations.locale_code', locale)
     .single()
 
   if (!city) {
@@ -86,7 +86,7 @@ export default async function NewNeighborhoodPage({ params }: Props) {
           <div className="flex-1">
             <h1 className="text-3xl font-bold">Create Neighborhood</h1>
             <p className="mt-2 text-sm text-gray-600">
-              Create neighborhood for {city.translations[0]?.name || city.name}
+              Create neighborhood for {city.city_translations[0]?.name || city.name}
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default async function NewNeighborhoodPage({ params }: Props) {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Create Neighborhood</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Add a new neighborhood to {city.translations[0]?.name || city.name}
+            Add a new neighborhood to {city.city_translations[0]?.name || city.name}
           </p>
         </div>
       </div>

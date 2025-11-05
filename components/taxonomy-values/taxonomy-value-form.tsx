@@ -98,7 +98,7 @@ interface TaxonomyValueFormProps {
     color_hex?: string
     icon_name?: string
     icon_size_multiplier?: number
-    display_order?: number
+    sort_order?: number
     translations?: Array<{
       locale_code: string
       name: string
@@ -126,7 +126,7 @@ export default function TaxonomyValueForm({
     color_hex: initialData?.color_hex || '#CCCCCC',
     icon_name: initialData?.icon_name || '',
     icon_size_multiplier: initialData?.icon_size_multiplier || 1.0,
-    display_order: initialData?.display_order || 0,
+    sort_order: initialData?.sort_order || 0,
   })
 
   // Translation state
@@ -161,7 +161,7 @@ export default function TaxonomyValueForm({
       color_hex: formData.color_hex,
       icon_name: formData.icon_name || undefined,
       icon_size_multiplier: formData.icon_size_multiplier,
-      display_order: formData.display_order,
+      sort_order: formData.sort_order,
       translations: locales.map(locale => ({
         locale_code: locale,
         name: translations[locale].name,
@@ -175,13 +175,13 @@ export default function TaxonomyValueForm({
           await updateTaxonomyValue(citySlug, taxonomyValueId, input)
           setSuccess(t('success.updated'))
           setTimeout(() => {
-            router.push(`/${locale}/${citySlug}/operator/taxonomy-types/${taxonomyTypeId}/values`)
+            router.push(`/${locale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values`)
           }, 1500)
         } else {
           await createTaxonomyValue(citySlug, input)
           setSuccess(t('success.created'))
           setTimeout(() => {
-            router.push(`/${locale}/${citySlug}/operator/taxonomy-types/${taxonomyTypeId}/values`)
+            router.push(`/${locale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values`)
           }, 1500)
         }
       } catch (err) {
@@ -233,13 +233,13 @@ export default function TaxonomyValueForm({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="display_order">{t('form.displayOrder.label')}</Label>
+              <Label htmlFor="sort_order">{t('form.displayOrder.label')}</Label>
               <Input
-                id="display_order"
+                id="sort_order"
                 type="number"
                 min="0"
-                value={formData.display_order}
-                onChange={(e) => setFormData(prev => ({ ...prev, display_order: parseInt(e.target.value) || 0 }))}
+                value={formData.sort_order}
+                onChange={(e) => setFormData(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
               />
               <p className="text-sm text-muted-foreground">{t('form.displayOrder.help')}</p>
             </div>

@@ -4,7 +4,7 @@
  * Page for creating a new district with multilingual support.
  */
 
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { getLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
@@ -21,14 +21,14 @@ interface Props {
 }
 
 export default async function NewDistrictPage({ params }: Props) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/districts/new`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -42,9 +42,8 @@ export default async function NewDistrictPage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
     .single()
 
   if (!city) {
@@ -76,7 +75,6 @@ export default async function NewDistrictPage({ params }: Props) {
     await createDistrict(citySlug, {
       cityId: city.id,
       slug: data.slug as string,
-      isActive: data.isActive as boolean,
       name_en: data.name_en as string,
       description_en: data.description_en as string | undefined,
       name_nl: data.name_nl as string | undefined,
@@ -101,7 +99,7 @@ export default async function NewDistrictPage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold">Create District</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Add a new district to {city.translations[0]?.name || city.name}
+            Add a new district to {citySlug}
           </p>
         </div>
       </div>

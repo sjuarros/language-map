@@ -20,7 +20,7 @@ import TaxonomyTypeForm from '@/components/taxonomy-types/taxonomy-type-form'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Trash2 } from 'lucide-react'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 
 interface Props {
   params: {
@@ -31,14 +31,14 @@ interface Props {
 }
 
 export default async function EditTaxonomyTypePage({ params }: Props) {
-  const { locale, citySlug, taxonomyTypeId } = params
+  const { locale, citySlug, taxonomyTypeId } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -52,9 +52,9 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug, city_translations!inner(name, locale_code)')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
+    .eq('city_translations.locale_code', locale)
     .single()
 
   if (!city) {
@@ -114,13 +114,6 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
     })
   }
 
-  const handleDelete = async () => {
-    'use server'
-
-    await deleteTaxonomyType(citySlug, taxonomyTypeId)
-    redirect(`/${locale}/operator/${citySlug}/taxonomy-types`)
-  }
-
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -134,7 +127,7 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Edit Taxonomy Type</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Update taxonomy type for {city.translations[0]?.name || city.name}
+            Update taxonomy type for {city.city_translations[0]?.name || city.name}
           </p>
         </div>
       </div>
@@ -159,15 +152,14 @@ export default async function EditTaxonomyTypePage({ params }: Props) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={handleDelete}>
+          <form action={async () => {
+            'use server'
+            await deleteTaxonomyType(citySlug, taxonomyTypeId)
+            redirect(`/${locale}/operator/${citySlug}/taxonomy-types`)
+          }}>
             <Button
               type="submit"
               variant="destructive"
-              onClick={(e) => {
-                if (!confirm('Are you sure you want to delete this taxonomy type? This action cannot be undone.')) {
-                  e.preventDefault()
-                }
-              }}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete Taxonomy Type

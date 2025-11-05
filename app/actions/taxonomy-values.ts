@@ -12,7 +12,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 
 // Validation schema for taxonomy value form
 const taxonomyValueSchema = z.object({
@@ -30,9 +30,9 @@ const taxonomyValueSchema = z.object({
   icon_size_multiplier: z.number()
     .min(0.5, 'Icon size multiplier must be at least 0.5')
     .max(3.0, 'Icon size multiplier must be at most 3.0'),
-  display_order: z.number()
-    .int('Display order must be an integer')
-    .min(0, 'Display order must be non-negative'),
+  sort_order: z.number()
+    .int('Sort order must be an integer')
+    .min(0, 'Sort order must be non-negative'),
   translations: z.array(z.object({
     locale_code: z.string(),
     name: z.string().min(1, 'Name is required'),
@@ -61,7 +61,7 @@ export async function getTaxonomyValues(citySlug: string, taxonomyTypeId: string
     throw new Error('Invalid city slug format')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase
@@ -83,20 +83,18 @@ export async function getTaxonomyValues(citySlug: string, taxonomyTypeId: string
       color_hex,
       icon_name,
       icon_size_multiplier,
-      display_order,
+      sort_order,
       created_at,
       updated_at,
       translations:taxonomy_value_translations(
         id,
         locale_code,
         name,
-        description,
-        is_ai_translated,
-        reviewed_at
+        description
       )
     `)
     .eq('taxonomy_type_id', taxonomyTypeId)
-    .order('display_order', { ascending: true })
+    .order('sort_order', { ascending: true })
 
   if (error) {
     console.error('Error fetching taxonomy values:', error)
@@ -129,7 +127,7 @@ export async function getTaxonomyValue(citySlug: string, valueId: string) {
     throw new Error('Taxonomy value ID is required')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase
@@ -151,7 +149,7 @@ export async function getTaxonomyValue(citySlug: string, valueId: string) {
       color_hex,
       icon_name,
       icon_size_multiplier,
-      display_order,
+      sort_order,
       created_at,
       updated_at,
       translations:taxonomy_value_translations(
@@ -202,7 +200,7 @@ export async function createTaxonomyValue(citySlug: string, input: TaxonomyValue
     throw new Error('Invalid city slug format')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase
@@ -246,7 +244,7 @@ export async function createTaxonomyValue(citySlug: string, input: TaxonomyValue
       color_hex: validatedInput.color_hex,
       icon_name: validatedInput.icon_name || null,
       icon_size_multiplier: validatedInput.icon_size_multiplier,
-      display_order: validatedInput.display_order,
+      sort_order: validatedInput.sort_order,
     })
     .select()
     .single()
@@ -313,7 +311,7 @@ export async function updateTaxonomyValue(
     throw new Error('Taxonomy value ID is required')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase
@@ -355,7 +353,7 @@ export async function updateTaxonomyValue(
     color_hex: string
     icon_name: string | null
     icon_size_multiplier: number
-    display_order: number
+    sort_order: number
   }> = {}
 
   if (validatedInput.taxonomy_type_id !== undefined) {
@@ -373,8 +371,8 @@ export async function updateTaxonomyValue(
   if (validatedInput.icon_size_multiplier !== undefined) {
     updateData.icon_size_multiplier = validatedInput.icon_size_multiplier
   }
-  if (validatedInput.display_order !== undefined) {
-    updateData.display_order = validatedInput.display_order
+  if (validatedInput.sort_order !== undefined) {
+    updateData.sort_order = validatedInput.sort_order
   }
 
   // Update taxonomy value
@@ -445,7 +443,7 @@ export async function deleteTaxonomyValue(citySlug: string, valueId: string) {
     throw new Error('Taxonomy value ID is required')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase
@@ -526,7 +524,7 @@ export async function getTaxonomyTypeForValues(citySlug: string, taxonomyTypeId:
     throw new Error('Taxonomy type ID is required')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Verify city exists
   const { data: city, error: cityError } = await supabase

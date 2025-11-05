@@ -23,7 +23,6 @@ const districtFormSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  isActive: z.boolean().default(true),
   // English (required)
   name_en: z.string().min(1, 'English name is required'),
   description_en: z.string().optional(),
@@ -44,9 +43,8 @@ interface DistrictFormProps {
   initialData?: {
     id: string
     slug: string
-    is_active: boolean
     translations: Array<{
-      locale: string
+      locale_code: string
       name: string
       description: string | null
     }>
@@ -58,7 +56,6 @@ interface DistrictFormProps {
 // Explicit type for form values to avoid type inference issues
 type FormValues = {
   slug: string
-  isActive?: boolean
   name_en: string
   description_en?: string
   name_nl?: string
@@ -84,19 +81,18 @@ export default function DistrictForm({
     resolver: zodResolver(districtFormSchema),
     defaultValues: {
       slug: initialData?.slug || '',
-      isActive: initialData?.is_active ?? true,
       name_en:
-        initialData?.translations.find((t) => t.locale === 'en')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'en')?.name || '',
       description_en:
-        initialData?.translations.find((t) => t.locale === 'en')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'en')?.description || '',
       name_nl:
-        initialData?.translations.find((t) => t.locale === 'nl')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'nl')?.name || '',
       description_nl:
-        initialData?.translations.find((t) => t.locale === 'nl')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'nl')?.description || '',
       name_fr:
-        initialData?.translations.find((t) => t.locale === 'fr')?.name || '',
+        initialData?.translations.find((t) => t.locale_code === 'fr')?.name || '',
       description_fr:
-        initialData?.translations.find((t) => t.locale === 'fr')?.description || '',
+        initialData?.translations.find((t) => t.locale_code === 'fr')?.description || '',
     },
   })
 
@@ -124,7 +120,6 @@ export default function DistrictForm({
       // Transform form data to match the expected DistrictFormValues type
       const transformedData = {
         slug: data.slug,
-        isActive: data.isActive ?? true,
         name_en: data.name_en,
         description_en: data.description_en,
         name_nl: data.name_nl,
@@ -192,19 +187,6 @@ export default function DistrictForm({
               URL-friendly identifier. Only lowercase letters, numbers, and hyphens.
             </p>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <input
-              id="isActive"
-              type="checkbox"
-              {...register('isActive')}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <Label htmlFor="isActive">Active</Label>
-          </div>
-          <p className="text-xs text-gray-500">
-            Inactive districts are hidden from the public interface
-          </p>
         </CardContent>
       </Card>
 

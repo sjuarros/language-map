@@ -11,7 +11,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 
 /**
  * Validation schema for taxonomy type creation/update
@@ -81,7 +81,7 @@ export async function getTaxonomyTypes(citySlug: string): Promise<TaxonomyType[]
     throw new Error('Invalid city slug format')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get city by slug
   const { data: city, error: cityError } = await supabase
@@ -153,7 +153,7 @@ export async function getTaxonomyType(citySlug: string, taxonomyTypeId: string):
     throw new Error('Invalid taxonomy type ID format')
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get city by slug
   const { data: city, error: cityError } = await supabase
@@ -217,7 +217,7 @@ export async function getTaxonomyType(citySlug: string, taxonomyTypeId: string):
  */
 export async function createTaxonomyType(citySlug: string, input: TaxonomyTypeInput): Promise<TaxonomyType> {
   const validatedInput = taxonomyTypeSchema.parse(input)
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -325,7 +325,7 @@ export async function updateTaxonomyType(
   input: TaxonomyTypeInput
 ): Promise<{ success: boolean }> {
   const validatedInput = taxonomyTypeSchema.parse(input)
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -433,7 +433,7 @@ export async function deleteTaxonomyType(
   citySlug: string,
   taxonomyTypeId: string
 ): Promise<{ success: boolean }> {
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {

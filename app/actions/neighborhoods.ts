@@ -8,7 +8,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { z } from 'zod'
 
 /**
@@ -21,7 +21,6 @@ const neighborhoodSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  isActive: z.boolean().default(true),
   // Translations
   name_en: z.string().min(1, 'English name is required'),
   description_en: z.string().optional(),
@@ -54,7 +53,7 @@ export async function getNeighborhoods(citySlug: string) {
       throw new Error('Invalid city slug format')
     }
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -77,25 +76,27 @@ export async function getNeighborhoods(citySlug: string) {
       .from('neighborhoods')
       .select(`
         id,
-        city_id,
         district_id,
         slug,
-        is_active,
         created_at,
         updated_at,
+        district:districts!inner(
+          city_id
+        ),
         translations:neighborhood_translations (
           id,
-          locale,
+          locale_code,
           name,
           description
         )
       `)
-      .eq('city_id', city.id)
+      .eq('district.city_id', city.id)
       .order('created_at', { ascending: true })
 
     if (neighborhoodsError) {
-      console.error('Error fetching neighborhoods:', neighborhoodsError)
-      throw new Error(`Failed to fetch neighborhoods: ${neighborhoodsError.message}`)
+      console.error('Error fetching neighborhoods:', JSON.stringify(neighborhoodsError, null, 2))
+      console.error('Full error object:', neighborhoodsError)
+      throw new Error(`Failed to fetch neighborhoods: ${JSON.stringify(neighborhoodsError)}`)
     }
 
     return neighborhoods
@@ -131,7 +132,7 @@ export async function getNeighborhood(citySlug: string, neighborhoodId: string) 
       throw new Error('Invalid neighborhood ID format')
     }
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -154,20 +155,17 @@ export async function getNeighborhood(citySlug: string, neighborhoodId: string) 
       .from('neighborhoods')
       .select(`
         id,
-        city_id,
         district_id,
         slug,
-        is_active,
         created_at,
         updated_at,
         translations:neighborhood_translations (
           id,
-          locale,
+          locale_code,
           name,
           description
         )
       `)
-      .eq('city_id', city.id)
       .eq('id', neighborhoodId)
       .single()
 
@@ -203,7 +201,7 @@ export async function getDistrictsForNeighborhood(citySlug: string) {
       throw new Error('City slug is required')
     }
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -223,12 +221,11 @@ export async function getDistrictsForNeighborhood(citySlug: string) {
         id,
         slug,
         translations:district_translations (
-          locale,
+          locale_code,
           name
         )
       `)
       .eq('city_id', city.id)
-      .eq('is_active', true)
       .order('created_at', { ascending: true })
 
     if (districtsError) {
@@ -256,7 +253,7 @@ export async function getDistrictsForNeighborhood(citySlug: string) {
 export async function createNeighborhood(citySlug: string, input: NeighborhoodInput) {
   const validatedInput = neighborhoodSchema.parse(input)
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -295,10 +292,8 @@ export async function createNeighborhood(citySlug: string, input: NeighborhoodIn
   const { data: neighborhood, error: neighborhoodError } = await supabase
     .from('neighborhoods')
     .insert({
-      city_id: validatedInput.cityId,
       district_id: validatedInput.districtId,
       slug: validatedInput.slug,
-      is_active: validatedInput.isActive,
     })
     .select()
     .single()
@@ -315,7 +310,7 @@ export async function createNeighborhood(citySlug: string, input: NeighborhoodIn
   if (validatedInput.name_en) {
     translations.push({
       neighborhood_id: neighborhood.id,
-      locale: 'en',
+      locale_code: 'en',
       name: validatedInput.name_en,
       description: validatedInput.description_en || null,
     })
@@ -325,7 +320,7 @@ export async function createNeighborhood(citySlug: string, input: NeighborhoodIn
   if (validatedInput.name_nl) {
     translations.push({
       neighborhood_id: neighborhood.id,
-      locale: 'nl',
+      locale_code: 'nl',
       name: validatedInput.name_nl,
       description: validatedInput.description_nl || null,
     })
@@ -335,7 +330,7 @@ export async function createNeighborhood(citySlug: string, input: NeighborhoodIn
   if (validatedInput.name_fr) {
     translations.push({
       neighborhood_id: neighborhood.id,
-      locale: 'fr',
+      locale_code: 'fr',
       name: validatedInput.name_fr,
       description: validatedInput.description_fr || null,
     })
@@ -374,7 +369,7 @@ export async function updateNeighborhood(
 ) {
   const validatedInput = neighborhoodSchema.parse(input)
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -415,7 +410,6 @@ export async function updateNeighborhood(
     .update({
       district_id: validatedInput.districtId,
       slug: validatedInput.slug,
-      is_active: validatedInput.isActive,
     })
     .eq('id', neighborhoodId)
 
@@ -437,7 +431,7 @@ export async function updateNeighborhood(
   if (validatedInput.name_en) {
     translations.push({
       neighborhood_id: neighborhoodId,
-      locale: 'en',
+      locale_code: 'en',
       name: validatedInput.name_en,
       description: validatedInput.description_en || null,
     })
@@ -447,7 +441,7 @@ export async function updateNeighborhood(
   if (validatedInput.name_nl) {
     translations.push({
       neighborhood_id: neighborhoodId,
-      locale: 'nl',
+      locale_code: 'nl',
       name: validatedInput.name_nl,
       description: validatedInput.description_nl || null,
     })
@@ -457,7 +451,7 @@ export async function updateNeighborhood(
   if (validatedInput.name_fr) {
     translations.push({
       neighborhood_id: neighborhoodId,
-      locale: 'fr',
+      locale_code: 'fr',
       name: validatedInput.name_fr,
       description: validatedInput.description_fr || null,
     })
@@ -488,7 +482,7 @@ export async function updateNeighborhood(
  * @returns Promise containing success status
  */
 export async function deleteNeighborhood(citySlug: string, neighborhoodId: string) {
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {

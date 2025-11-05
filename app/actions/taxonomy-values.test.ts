@@ -1,9 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- Test mocks require 'any' type for flexibility */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock the database client
+// Mock the Supabase client and related modules
+vi.mock('@supabase/ssr', () => ({
+  createServerClient: vi.fn(),
+}))
+
+vi.mock('next/headers', () => ({
+  cookies: vi.fn(),
+}))
+
+vi.mock('next/cache', () => ({
+  revalidatePath: vi.fn(),
+}))
+
+vi.mock('@supabase/supabase-js', () => ({
+  createClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn(),
+    },
+  })),
+}))
+
+// Mock the database abstraction layer
 vi.mock('@/lib/database/client', () => ({
   getDatabaseClient: vi.fn(() => createMockClient() as any)
+}))
+
+vi.mock('@/lib/supabase/server-client', () => ({
+  getServerSupabaseWithCookies: vi.fn(),
 }))
 
 // Helper function to create a consistent mock client
@@ -182,6 +207,10 @@ describe('taxonomy-values', () => {
 
   describe('getTaxonomyValues', () => {
     it('should fetch taxonomy values for a taxonomy type', async () => {
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
+      const mockClient = createMockClient() as any
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
+
       const values = await getTaxonomyValues('amsterdam', 'type-1')
 
       expect(values).toHaveLength(1)
@@ -189,7 +218,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should handle database errors', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       // Override taxonomy_values to return error
       mockClient.from = vi.fn((table: string) => {
@@ -222,7 +251,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       await expect(getTaxonomyValues('amsterdam', 'type-1')).rejects.toThrow('Failed to fetch taxonomy values: Database error')
     })
@@ -230,7 +259,7 @@ describe('taxonomy-values', () => {
 
   describe('getTaxonomyValue', () => {
     it('should fetch a single taxonomy value', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       // Make taxonomy_values single() return the expected data
       mockClient.from = vi.fn((table: string) => {
@@ -294,7 +323,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const value = await getTaxonomyValue('amsterdam', 'value-1')
 
@@ -302,7 +331,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should throw error when value not found', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       mockClient.from = vi.fn((table: string) => {
         if (table === 'cities') {
@@ -334,7 +363,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       await expect(getTaxonomyValue('amsterdam', 'invalid-id')).rejects.toThrow('Failed to fetch taxonomy value: Not found')
     })
@@ -342,10 +371,10 @@ describe('taxonomy-values', () => {
 
   describe('createTaxonomyValue', () => {
     it('should create a taxonomy value with translations', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const input = {
         taxonomy_type_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -365,7 +394,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should rollback on translation failure', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       // Override the translation insert to fail
       mockClient.from = vi.fn((table: string) => {
@@ -423,7 +452,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const input = {
         taxonomy_type_id: '550e8400-e29b-41d4-a716-446655440000',
@@ -481,9 +510,9 @@ describe('taxonomy-values', () => {
 
   describe('updateTaxonomyValue', () => {
     it('should update a taxonomy value', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const result = await updateTaxonomyValue('amsterdam', 'value-1', {
         slug: 'medium',
@@ -496,7 +525,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should handle partial updates', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
 
       let updateCalledWith: Record<string, unknown> | null = null
@@ -563,7 +592,7 @@ describe('taxonomy-values', () => {
         }
       })
 
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       await updateTaxonomyValue('amsterdam', 'value-1', {
         color_hex: '#FFD700'
@@ -576,10 +605,10 @@ describe('taxonomy-values', () => {
 
   describe('deleteTaxonomyValue', () => {
     it('should delete a taxonomy value', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const result = await deleteTaxonomyValue('amsterdam', 'value-1')
 
@@ -587,7 +616,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should handle database errors on delete', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       // Override delete to fail
       mockClient.from = vi.fn((table: string) => {
@@ -646,7 +675,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       await expect(deleteTaxonomyValue('amsterdam', 'value-1')).rejects.toThrow('Failed to delete taxonomy value: Delete error')
     })
@@ -654,10 +683,10 @@ describe('taxonomy-values', () => {
 
   describe('getTaxonomyTypeForValues', () => {
     it('should fetch taxonomy type with translations', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       const type = await getTaxonomyTypeForValues('amsterdam', 'type-1')
 
@@ -666,7 +695,7 @@ describe('taxonomy-values', () => {
     })
 
     it('should throw error when type not found', async () => {
-      const { getDatabaseClient } = await import('@/lib/database/client')
+      const { getServerSupabaseWithCookies } = await import('@/lib/supabase/server-client')
       const mockClient = createMockClient() as any
       // Override taxonomy_types to return not found
       mockClient.from = vi.fn((table: string) => {
@@ -699,7 +728,7 @@ describe('taxonomy-values', () => {
         }
       })
       
-      vi.mocked(getDatabaseClient).mockReturnValue(mockClient)
+      vi.mocked(getServerSupabaseWithCookies).mockReturnValue(mockClient)
 
       await expect(getTaxonomyTypeForValues('amsterdam', 'invalid-id')).rejects.toThrow('Failed to fetch taxonomy type: Not found')
     })

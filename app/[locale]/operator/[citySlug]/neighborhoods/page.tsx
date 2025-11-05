@@ -4,11 +4,11 @@
  * Displays all neighborhoods for a city with CRUD operations.
  */
 
-import { getDatabaseClient } from '@/lib/database/client'
 import { getLocale } from 'next-intl/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getNeighborhoods } from '@/app/actions/neighborhoods'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, Edit, MapPin, Home } from 'lucide-react'
@@ -16,10 +16,9 @@ import { Plus, Edit, MapPin, Home } from 'lucide-react'
 interface Neighborhood {
   id: string
   slug: string
-  is_active: boolean
   district_id: string
   translations: Array<{
-    locale: string
+    locale_code: string
     name: string
     description: string | null
   }>
@@ -33,14 +32,14 @@ interface Props {
 }
 
 export default async function NeighborhoodsPage({ params }: Props) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
   const currentLocale = await getLocale()
 
   if (locale !== currentLocale) {
     redirect(`/${currentLocale}/operator/${citySlug}/neighborhoods`)
   }
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -54,9 +53,8 @@ export default async function NeighborhoodsPage({ params }: Props) {
   // Get city info
   const { data: city } = await supabase
     .from('cities')
-    .select('id, name, slug, translations!inner(name, locale)')
+    .select('id, slug')
     .eq('slug', citySlug)
-    .eq('translations.locale', locale)
     .single()
 
   if (!city) {
@@ -69,6 +67,14 @@ export default async function NeighborhoodsPage({ params }: Props) {
       </div>
     )
   }
+
+  // Get city name translation
+  const { data: cityTranslation } = await supabase
+    .from('city_translations')
+    .select('name')
+    .eq('city_id', city.id)
+    .eq('locale_code', locale)
+    .single()
 
   // Check if user has access to this city
   const { data: cityAccess } = await supabase
@@ -92,7 +98,7 @@ export default async function NeighborhoodsPage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold">Neighborhoods</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Manage neighborhoods for {city.translations[0]?.name || city.name}
+            Manage neighborhoods for {cityTranslation?.name || citySlug}
           </p>
         </div>
         <Link href={`/${locale}/operator/${citySlug}/neighborhoods/new`}>
@@ -124,8 +130,8 @@ export default async function NeighborhoodsPage({ params }: Props) {
       ) : (
         <div className="grid gap-4">
           {neighborhoods.map((neighborhood: Neighborhood) => {
-            const currentTranslation = neighborhood.translations.find((t) => t.locale === locale) ||
-              neighborhood.translations.find((t) => t.locale === 'en')
+            const currentTranslation = neighborhood.translations.find((t) => t.locale_code === locale) ||
+              neighborhood.translations.find((t) => t.locale_code === 'en')
 
             return (
               <Card key={neighborhood.id}>
@@ -135,9 +141,6 @@ export default async function NeighborhoodsPage({ params }: Props) {
                       <CardTitle className="flex items-center gap-2">
                         <Home className="h-5 w-5 text-gray-600" />
                         {currentTranslation?.name || 'Unnamed Neighborhood'}
-                        {!neighborhood.is_active && (
-                          <span className="text-xs font-normal text-gray-500">(Inactive)</span>
-                        )}
                       </CardTitle>
                       {currentTranslation?.description && (
                         <CardDescription>{currentTranslation.description}</CardDescription>
@@ -151,7 +154,7 @@ export default async function NeighborhoodsPage({ params }: Props) {
                         <span>Slug: {neighborhood.slug}</span>
                         <span>•</span>
                         <span>
-                          Translations: {neighborhood.translations.map((t) => t.locale).join(', ')}
+                          Translations: {neighborhood.translations.map((t) => t.locale_code).join(', ')}
                         </span>
                       </div>
                     </div>

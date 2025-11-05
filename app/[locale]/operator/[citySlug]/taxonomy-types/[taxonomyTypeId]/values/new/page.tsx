@@ -23,16 +23,17 @@ import { ArrowLeft } from 'lucide-react'
 export default async function NewTaxonomyValuePage({
   params
 }: {
-  params: {
+  params: Promise<{
     locale: string
     citySlug: string
     taxonomyTypeId: string
-  }
+  }>
 }) {
-  const locale = await getLocale()
+  const { locale, citySlug, taxonomyTypeId } = await params
+  const currentLocale = await getLocale()
 
   // Fetch taxonomy type to verify it exists
-  const taxonomyType = await getTaxonomyTypeForValues(params.citySlug, params.taxonomyTypeId)
+  const taxonomyType = await getTaxonomyTypeForValues(citySlug, taxonomyTypeId)
 
   if (!taxonomyType) {
     notFound()
@@ -40,13 +41,13 @@ export default async function NewTaxonomyValuePage({
 
   // Get taxonomy type name for current locale
   const taxonomyTypeName = taxonomyType.translations.find(
-    (translation) => translation.locale_code === locale
+    (translation) => translation.locale_code === currentLocale
   )?.name || taxonomyType.translations.find((translation) => translation.locale_code === 'en')?.name || taxonomyType.slug
 
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <Link href={`/${params.locale}/operator/${params.citySlug}/taxonomy-types/${params.taxonomyTypeId}/values`}>
+        <Link href={`/${currentLocale}/operator/${citySlug}/taxonomy-types/${taxonomyTypeId}/values`}>
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Taxonomy Values
@@ -64,9 +65,9 @@ export default async function NewTaxonomyValuePage({
       </div>
 
       <TaxonomyValueForm
-        taxonomyTypeId={params.taxonomyTypeId}
-        locale={params.locale}
-        citySlug={params.citySlug}
+        taxonomyTypeId={taxonomyTypeId}
+        locale={currentLocale}
+        citySlug={citySlug}
       />
     </div>
   )

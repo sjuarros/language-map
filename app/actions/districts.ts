@@ -7,7 +7,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
 import { z } from 'zod'
 
 /**
@@ -19,7 +19,6 @@ const districtSchema = z.object({
     .string()
     .min(1, 'Slug is required')
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
-  isActive: z.boolean().default(true),
   // Translations
   name_en: z.string().min(1, 'English name is required'),
   description_en: z.string().optional(),
@@ -52,7 +51,7 @@ export async function getDistricts(citySlug: string) {
       throw new Error('Invalid city slug format')
     }
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -77,12 +76,11 @@ export async function getDistricts(citySlug: string) {
         id,
         city_id,
         slug,
-        is_active,
         created_at,
         updated_at,
         translations:district_translations (
           id,
-          locale,
+          locale_code,
           name,
           description
         )
@@ -128,7 +126,7 @@ export async function getDistrict(citySlug: string, districtId: string) {
       throw new Error('Invalid district ID format')
     }
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city by slug
     const { data: city, error: cityError } = await supabase
@@ -153,12 +151,11 @@ export async function getDistrict(citySlug: string, districtId: string) {
         id,
         city_id,
         slug,
-        is_active,
         created_at,
         updated_at,
         translations:district_translations (
           id,
-          locale,
+          locale_code,
           name,
           description
         )
@@ -196,7 +193,7 @@ export async function getDistrict(citySlug: string, districtId: string) {
 export async function createDistrict(citySlug: string, input: DistrictInput) {
   const validatedInput = districtSchema.parse(input)
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -225,7 +222,6 @@ export async function createDistrict(citySlug: string, input: DistrictInput) {
     .insert({
       city_id: validatedInput.cityId,
       slug: validatedInput.slug,
-      is_active: validatedInput.isActive,
     })
     .select()
     .single()
@@ -242,7 +238,7 @@ export async function createDistrict(citySlug: string, input: DistrictInput) {
   if (validatedInput.name_en) {
     translations.push({
       district_id: district.id,
-      locale: 'en',
+      locale_code: 'en',
       name: validatedInput.name_en,
       description: validatedInput.description_en || null,
     })
@@ -252,7 +248,7 @@ export async function createDistrict(citySlug: string, input: DistrictInput) {
   if (validatedInput.name_nl) {
     translations.push({
       district_id: district.id,
-      locale: 'nl',
+      locale_code: 'nl',
       name: validatedInput.name_nl,
       description: validatedInput.description_nl || null,
     })
@@ -262,7 +258,7 @@ export async function createDistrict(citySlug: string, input: DistrictInput) {
   if (validatedInput.name_fr) {
     translations.push({
       district_id: district.id,
-      locale: 'fr',
+      locale_code: 'fr',
       name: validatedInput.name_fr,
       description: validatedInput.description_fr || null,
     })
@@ -301,7 +297,7 @@ export async function updateDistrict(
 ) {
   const validatedInput = districtSchema.parse(input)
 
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
@@ -329,7 +325,6 @@ export async function updateDistrict(
     .from('districts')
     .update({
       slug: validatedInput.slug,
-      is_active: validatedInput.isActive,
     })
     .eq('id', districtId)
 
@@ -351,7 +346,7 @@ export async function updateDistrict(
   if (validatedInput.name_en) {
     translations.push({
       district_id: districtId,
-      locale: 'en',
+      locale_code: 'en',
       name: validatedInput.name_en,
       description: validatedInput.description_en || null,
     })
@@ -361,7 +356,7 @@ export async function updateDistrict(
   if (validatedInput.name_nl) {
     translations.push({
       district_id: districtId,
-      locale: 'nl',
+      locale_code: 'nl',
       name: validatedInput.name_nl,
       description: validatedInput.description_nl || null,
     })
@@ -371,7 +366,7 @@ export async function updateDistrict(
   if (validatedInput.name_fr) {
     translations.push({
       district_id: districtId,
-      locale: 'fr',
+      locale_code: 'fr',
       name: validatedInput.name_fr,
       description: validatedInput.description_fr || null,
     })
@@ -402,7 +397,7 @@ export async function updateDistrict(
  * @returns Promise containing success status
  */
 export async function deleteDistrict(citySlug: string, districtId: string) {
-  const supabase = getDatabaseClient(citySlug)
+  const supabase = await getServerSupabaseWithCookies(citySlug)
 
   // Get current user
   const {
