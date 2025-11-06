@@ -7,6 +7,7 @@ import type { User } from '@supabase/supabase-js'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { MapPin } from 'lucide-react'
+import { useAuth } from '@/components/auth/AuthContext'
 
 interface City {
   id: string
@@ -16,9 +17,9 @@ interface City {
 }
 
 export default function OperatorDashboard() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading: authLoading } = useAuth()
   const [cities, setCities] = useState<City[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) // For fetching cities data
   const pathname = usePathname()
 
   // Extract locale from pathname
@@ -26,83 +27,72 @@ export default function OperatorDashboard() {
   const currentLocale = pathSegments[0] || 'en'
 
   useEffect(() => {
-    let isMounted = true
+    console.log('[Operator Page] Auth state:', { hasUser: !!user, authLoading })
+    // Only fetch cities if we have a user and auth is complete
+    if (user && !authLoading) {
+      fetchCities(user)
+    }
+  }, [user, authLoading])
 
-    async function getUserAndCities() {
-      try {
-        const { createAuthClient } = await import('@/lib/auth/client')
-        const supabase = createAuthClient()
+  async function fetchCities(userToFetch: User) {
+    try {
+      const { createAuthClient } = await import('@/lib/auth/client')
+      const supabase = createAuthClient()
 
-        const { data: { user }, error } = await supabase.auth.getUser()
-
-        if (error || !user) {
-          // Redirect to login
-          window.location.href = `/${currentLocale}/login`
-          return
-        }
-
-        if (!isMounted) return
-        setUser(user)
-
-        // Get cities user has access to
-        const { data: citiesData, error: citiesError } = await supabase
-          .from('city_users')
-          .select(`
-            role,
-            city_id,
-            cities (
-              id,
-              slug,
-              city_translations!inner (
-                name,
-                locale_code
-              )
+      // Get cities user has access to
+      const { data: citiesData, error: citiesError } = await supabase
+        .from('city_users')
+        .select(`
+          role,
+          city_id,
+          cities (
+            id,
+            slug,
+            city_translations!inner (
+              name,
+              locale_code
             )
-          `)
-          .eq('user_id', user.id)
+          )
+        `)
+        .eq('user_id', userToFetch.id)
 
-        if (citiesError) {
-          console.error('Error fetching cities:', citiesError)
-        } else {
-          console.log('Cities raw data:', citiesData)
-          // Format cities data
-          const formattedCities: City[] = citiesData?.map((cityUser: {
-            role: string;
-            city_id: string;
-            cities: Array<{
-              id: string;
-              slug: string;
-              city_translations: Array<{ name: string; locale_code: string }>;
-            }>;
-          }) => {
-            console.log('Processing city user:', cityUser)
-            const cityData = cityUser.cities[0]
-            return {
-              id: cityData?.id || '',
-              slug: cityData?.slug || '',
-              name: cityData?.city_translations?.[0]?.name || cityData?.slug || 'Unknown',
-              role: cityUser.role
-            }
-          }) || []
-          console.log('Formatted cities:', formattedCities)
-          setCities(formattedCities)
-        }
-
-        setLoading(false)
-      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
-        // Redirect to login on error
-        window.location.href = `/${currentLocale}/login`
+      if (citiesError) {
+        console.error('Error fetching cities:', citiesError.message, citiesError)
+        setCities([])
+      } else {
+        console.log('Cities raw data:', citiesData)
+        // Format cities data
+        const formattedCities: City[] = citiesData?.map((cityUser: {
+          role: string;
+          city_id: string;
+          cities: Array<{
+            id: string;
+            slug: string;
+            city_translations: Array<{ name: string; locale_code: string }>;
+          }>;
+        }) => {
+          console.log('Processing city user:', cityUser)
+          const cityData = cityUser.cities[0]
+          return {
+            id: cityData?.id || '',
+            slug: cityData?.slug || '',
+            name: cityData?.city_translations?.[0]?.name || cityData?.slug || 'Unknown',
+            role: cityUser.role
+          }
+        }) || []
+        console.log('Formatted cities:', formattedCities)
+        setCities(formattedCities)
       }
+
+      setLoading(false)
+    } catch (err) {
+      console.error('Error in fetchCities:', err)
+      setLoading(false)
     }
+  }
 
-    getUserAndCities()
-
-    return () => {
-      isMounted = false
-    }
-  }, [currentLocale])
-
-  if (loading) {
+  // Show loading if auth is still loading OR we're still fetching cities
+  if (authLoading || (loading && !user)) {
     return (
       <div style={{ padding: '20px' }}>
         <h1>Operator Dashboard</h1>
@@ -111,10 +101,7 @@ export default function OperatorDashboard() {
     )
   }
 
-  if (!user) {
-    return null
-  }
-
+  // At this point, we should have a user (layout ensures this)
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ marginBottom: '32px' }}>

@@ -9,10 +9,11 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
-import { signInWithMagicLink } from '@/lib/auth/client'
+import { useRouter } from 'next/navigation'
+import { signInWithMagicLink, createAuthClient } from '@/lib/auth/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,11 +30,66 @@ import { CheckCircle2, Mail } from 'lucide-react'
  */
 export default function LoginPage() {
   const t = useTranslations('auth.login')
+  const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  // Handle magic link token from URL hash
+  useEffect(() => {
+    const handleHash = async () => {
+      const hash = window.location.hash
+
+      if (hash && hash.includes('access_token')) {
+        const searchParams = new URLSearchParams(hash.substring(1))
+        const accessToken = searchParams.get('access_token')
+
+        if (accessToken) {
+          try {
+            const supabase = createAuthClient()
+            const { data, error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: searchParams.get('refresh_token') || '',
+            })
+
+            if (error) {
+              console.error('[Login Page] Error setting session:', error)
+              setError('Failed to authenticate. Please try again.')
+              return
+            }
+
+            if (data.user) {
+              console.log('[Login Page] Session established, redirecting...')
+              // Redirect based on user role
+              const { data: profile } = await supabase
+                .from('user_profiles')
+                .select('role')
+                .eq('id', data.user.id)
+                .single()
+
+              let redirectPath = '/'
+              if (profile?.role === 'superuser') {
+                redirectPath = '/en/superuser'
+              } else if (profile?.role === 'admin') {
+                redirectPath = '/en/admin'
+              } else if (profile?.role === 'operator') {
+                redirectPath = '/en/operator'
+              }
+
+              router.push(redirectPath)
+            }
+          } catch (err) {
+            console.error('[Login Page] Unexpected error:', err)
+            setError('An unexpected error occurred. Please try again.')
+          }
+        }
+      }
+    }
+
+    handleHash()
+  }, [router])
 
   /**
    * Handle form submission

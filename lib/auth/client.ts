@@ -46,7 +46,8 @@ const { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY } = getSupabaseConfig()
 export function createAuthClient() {
   return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookieOptions: {
-      name: 'sb-auth-token',  // Use simple, consistent cookie name
+      name: 'sb-auth-token',
+      path: '/',
     },
   })
 }
