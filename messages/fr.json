@@ -119,6 +119,57 @@
         "currentRole": "Votre rôle actuel : {role}"
       }
     },
+    "operator": {
+      "languageFamilies": {
+        "list": {
+          "title": "Familles de Langues",
+          "description": "Gérer les familles de langues pour {city}",
+          "createButton": "Ajouter une Famille de Langues",
+          "empty": "Aucune Famille de Langues",
+          "createFirst": "Créer une Famille de Langues",
+          "translations": "traductions",
+          "help": {
+            "title": "Qu'est-ce que les Familles de Langues?",
+            "description": "Les familles de langues sont des groupes mondiaux de langues apparentées. Elles aident à organiser les langues selon leurs origines historiques et relations linguistiques. Par exemple, 'Indo-européen' est une famille de langues qui inclut l'anglais, le néerlandais, le français et muchas autres langues."
+          }
+        },
+        "create": {
+          "title": "Créer une Famille de Langues",
+          "description": "Ajouter une nouvelle famille de langues au système",
+          "form": {
+            "slug": {
+              "label": "Slug",
+              "placeholder": "ex. indo-européen",
+              "help": "Identifiant URL (lettres minuscules, chiffres et traits d'union uniquement)"
+            },
+            "translations": {
+              "title": "Traductions",
+              "description": {
+                "label": "Description",
+                "placeholder": "Brève description de cette famille de langues..."
+              },
+              "basicInformation": "Informations de Base",
+              "englishRequired": "Anglais (Requis)",
+              "dutchOptional": "Néerlandais (Optionnel)",
+              "frenchOptional": "Français (Optionnel)",
+              "name": {
+                "label": "Nom",
+                "placeholder": "ex. Indo-européen"
+              }
+            }
+          },
+          "actions": {
+            "cancel": "Annuler",
+            "create": "Créer une Famille de Langues",
+            "saving": "Enregistrement..."
+          }
+        },
+        "edit": {
+          "title": "Modifier la Famille de Langues",
+          "description": "Mettre à jour les informations de la famille de langues"
+        }
+      }
+    },
     "admin": {
       "invitations": {
         "title": "Invitations Utilisateur",
@@ -463,14 +514,13 @@
         },
         "translations": {
           "title": "Traductions",
-          "description": "Fournir des traductions pour cette valeur de taxonomie",
-          "name": {
-            "label": "Nom de Valeur",
-            "placeholder": "ex. Petite Communauté"
-          },
           "description": {
             "label": "Description",
             "placeholder": "Brève description de cette valeur..."
+          },
+          "name": {
+            "label": "Nom de Valeur",
+            "placeholder": "ex. Petite Communauté"
           }
         },
         "actions": {
@@ -494,6 +544,72 @@
         "en": "Anglais",
         "nl": "Néerlandais",
         "fr": "Français"
+      }
+    }
+  },
+  "operator": {
+    "languageFamilies": {
+      "list": {
+        "title": "Familles de Langues",
+        "description": "Gérer les familles de langues pour {city}",
+        "createButton": "Ajouter une Famille de Langues",
+        "translations": "traductions",
+        "help": {
+          "title": "Que sont les Familles de Langues ?",
+          "description": "Les familles de langues sont des groupes mondiaux de langues apparentées."
+        }
+      },
+      "delete": {
+        "confirmTitle": "Supprimer la Famille de Langues ?",
+        "confirmMessage": "Ceci supprimera définitivement '{familyName}' et toutes ses traductions. Cette action ne peut pas être annulée."
+      },
+      "create": {
+        "new": {
+          "back": "Retour aux Familles de Langues",
+          "title": "Créer une Famille de Langues",
+          "description": "Ajouter une nouvelle famille de langues au système"
+        },
+        "form": {
+          "basicInfo": {
+            "title": "Informations de Base",
+            "description": "Fournir les informations de base pour cette famille de langues",
+            "slugLabel": "Slug",
+            "slugHelpText": "Identifiant URL (lettres minuscules, chiffres et traits d'union uniquement)"
+          },
+          "english": {
+            "title": "Anglais (Requis)",
+            "description": "Traduction requise - Langue principale",
+            "nameLabel": "Nom",
+            "descriptionLabel": "Description"
+          },
+          "dutch": {
+            "title": "Néerlandais (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs Dutch-speaking",
+            "nameLabel": "Nom",
+            "descriptionLabel": "Description"
+          },
+          "french": {
+            "title": "Français (Optionnel)",
+            "description": "Langue secondaire pour les utilisateurs français",
+            "nameLabel": "Nom",
+            "descriptionLabel": "Description"
+          },
+          "actions": {
+            "cancel": "Annuler",
+            "createButton": "Créer une Famille de Langues",
+            "saving": "Création..."
+          }
+        }
+      },
+      "edit": {
+        "back": "Retour aux Familles de Langues",
+        "title": "Éditer la Famille de Langues",
+        "updateButton": "Mettre à Jour la Famille de Langues",
+        "saving": "Mise à jour...",
+        "dangerZone": {
+          "title": "Zone de Danger",
+          "description": "La suppression d'une famille de langues ne peut pas être annulée. Les langues référençant cette famille ne seront pas supprimées mais auront leur famille définie sur null."
+        }
       }
     }
   }

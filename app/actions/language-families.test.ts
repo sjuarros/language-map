@@ -231,7 +231,23 @@ describe('language-families', () => {
 
       expect(mockSupabase.rpc).toHaveBeenCalledWith('create_language_family_with_translations', {
         p_slug: 'indo-european',
-        p_translations: expect.any(String),
+        p_translations: [
+          {
+            locale_code: 'en',
+            name: 'Indo-European',
+            description: 'The Indo-European language family',
+          },
+          {
+            locale_code: 'nl',
+            name: 'Indo-Europees',
+            description: 'De Indo-Europese taalfamilie',
+          },
+          {
+            locale_code: 'fr',
+            name: 'Indo-européen',
+            description: 'La famille linguistique indo-européenne',
+          },
+        ],
       })
       expect(result).toEqual({
         id: '123e4567-e89b-12d3-a456-426614174000',
@@ -337,7 +353,18 @@ describe('language-families', () => {
       expect(mockSupabase.rpc).toHaveBeenCalledWith('update_language_family_with_translations', {
         p_family_id: '123e4567-e89b-12d3-a456-426614174000',
         p_slug: 'indo-european-updated',
-        p_translations: expect.any(String),
+        p_translations: [
+          {
+            locale_code: 'en',
+            name: 'Indo-European (Updated)',
+            description: 'Updated description',
+          },
+          {
+            locale_code: 'nl',
+            name: 'Indo-Europees (Bijgewerkt)',
+            description: '',
+          },
+        ],
       })
       expect(result).toEqual({
         id: '123e4567-e89b-12d3-a456-426614174000',

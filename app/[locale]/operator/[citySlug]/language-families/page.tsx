@@ -70,7 +70,7 @@ export default async function LanguageFamiliesPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
-          <p className="text-gray-500 mt-1">{t('description')}</p>
+          <p className="text-gray-500 mt-1">{t('description', { city: citySlug })}</p>
         </div>
         <Link href={`/${locale}/operator/${citySlug}/language-families/new`}>
           <Button>

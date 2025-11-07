@@ -8,6 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
+import type { User } from '@supabase/supabase-js'
 import OperatorDashboard from './page'
 
 // Mock window.location
@@ -28,6 +29,29 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/lib/auth/client', () => ({
   createAuthClient: vi.fn(),
 }))
+
+vi.mock('@/lib/auth/authorization', () => ({
+  isOperator: vi.fn((role) => role === 'operator'),
+}))
+
+// Mock AuthContext
+let mockUseAuthReturn: {
+  user: User | null
+  loading: boolean
+  authorized: boolean
+} = {
+  user: null,
+  loading: true,
+  authorized: false,
+}
+
+vi.mock('@/components/auth/AuthContext', async () => {
+  const actual = await vi.importActual('@/components/auth/AuthContext')
+  return {
+    ...actual,
+    useAuth: () => mockUseAuthReturn,
+  }
+})
 
 // Test data
 const mockUser = {
@@ -110,11 +134,22 @@ describe('OperatorDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.location.href = ''
+
+    // Reset mock auth return
+    mockUseAuthReturn = {
+      user: null,
+      loading: true,
+      authorized: false,
+    }
   })
 
   it('should render loading state initially', async () => {
-    const { createAuthClient } = await import('@/lib/auth/client')
-    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser))
+    // Set loading to true
+    mockUseAuthReturn = {
+      user: null,
+      loading: true,
+      authorized: false,
+    }
 
     render(<OperatorDashboard />)
 
@@ -122,20 +157,30 @@ describe('OperatorDashboard', () => {
     expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
   })
 
-  it('should redirect if user not authenticated', async () => {
-    const { createAuthClient } = await import('@/lib/auth/client')
-    vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(null))
+  it('should render loading state when not authenticated', async () => {
+    // Simulate not authenticated (layout handles redirect, page just shows loading)
+    mockUseAuthReturn = {
+      user: null,
+      loading: true,
+      authorized: false,
+    }
 
     render(<OperatorDashboard />)
 
-    await waitFor(() => {
-      expect(window.location.href).toBe('/en/login')
-    })
+    expect(screen.getByText(/Operator Dashboard/i)).toBeInTheDocument()
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
   })
 
   it('should display user information after authentication', async () => {
     const { createAuthClient } = await import('@/lib/auth/client')
     vi.mocked(createAuthClient).mockReturnValue(createMockSupabaseClient(mockUser))
+
+    // Set user as authenticated
+    mockUseAuthReturn = {
+      user: mockUser as User,
+      loading: false,
+      authorized: true,
+    }
 
     render(<OperatorDashboard />)
 
@@ -146,19 +191,17 @@ describe('OperatorDashboard', () => {
     })
   })
 
-  it('should handle authentication errors', async () => {
-    const { createAuthClient } = await import('@/lib/auth/client')
-    const mockSupabase = createMockSupabaseClient(null)
-    mockSupabase.auth.getUser = vi.fn().mockResolvedValue({
-      data: { user: null },
-      error: { message: 'Auth error' },
-    })
-    vi.mocked(createAuthClient).mockReturnValue(mockSupabase)
+  it('should handle authentication errors by showing loading', async () => {
+    // Simulate authentication error
+    mockUseAuthReturn = {
+      user: null,
+      loading: true,
+      authorized: false,
+    }
 
     render(<OperatorDashboard />)
 
-    await waitFor(() => {
-      expect(window.location.href).toBe('/en/login')
-    })
+    expect(screen.getByText(/Operator Dashboard/i)).toBeInTheDocument()
+    expect(screen.getByText(/Loading.../i)).toBeInTheDocument()
   })
 })

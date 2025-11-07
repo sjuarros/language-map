@@ -42,9 +42,22 @@ vi.mock('next/link', () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
 }))
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+  usePathname: () => '/login',
+}))
+
 // Mock lib/auth/client
 vi.mock('@/lib/auth/client', () => ({
   signInWithMagicLink: vi.fn(),
+  createAuthClient: vi.fn(() => ({
+    auth: {
+      setSession: vi.fn(),
+    },
+  })),
 }))
 
 describe('LoginPage', () => {

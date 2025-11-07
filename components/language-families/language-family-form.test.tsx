@@ -13,37 +13,39 @@ import LanguageFamilyForm from './language-family-form'
 const messages = {
   operator: {
     languageFamilies: {
-      form: {
-        basicInfo: {
-          title: 'Basic Information',
-          description: 'Family identifier and URL slug',
-          slugLabel: 'Slug',
-          slugPlaceholder: 'e.g., indo-european',
-          slugHelpText: 'URL-friendly identifier',
-        },
-        english: {
-          title: 'English (Required)',
-          description: 'English name and description',
-          nameLabel: 'Name',
-          namePlaceholder: 'e.g., Indo-European',
-          descriptionLabel: 'Description',
-          descriptionPlaceholder: 'Brief description...',
-        },
-        dutch: {
-          title: 'Dutch (Optional)',
-          description: 'Nederlandse vertaling',
-          nameLabel: 'Naam',
-          namePlaceholder: 'bijv. Indo-Europees',
-          descriptionLabel: 'Beschrijving',
-          descriptionPlaceholder: 'Korte beschrijving...',
-        },
-        french: {
-          title: 'French (Optional)',
-          description: 'Traduction française',
-          nameLabel: 'Nom',
-          namePlaceholder: 'par ex. Indo-européen',
-          descriptionLabel: 'Description',
-          descriptionPlaceholder: 'Brève description...',
+      create: {
+        form: {
+          basicInfo: {
+            title: 'Basic Information',
+            description: 'Family identifier and URL slug',
+            slugLabel: 'Slug',
+            slugPlaceholder: 'e.g., indo-european',
+            slugHelpText: 'URL-friendly identifier',
+          },
+          english: {
+            title: 'English (Required)',
+            description: 'English name and description',
+            nameLabel: 'Name',
+            namePlaceholder: 'e.g., Indo-European',
+            descriptionLabel: 'Description',
+            descriptionPlaceholder: 'Brief description...',
+          },
+          dutch: {
+            title: 'Dutch (Optional)',
+            description: 'Nederlandse vertaling',
+            nameLabel: 'Naam',
+            namePlaceholder: 'bijv. Indo-Europees',
+            descriptionLabel: 'Beschrijving',
+            descriptionPlaceholder: 'Korte beschrijving...',
+          },
+          french: {
+            title: 'French (Optional)',
+            description: 'Traduction française',
+            nameLabel: 'Nom',
+            namePlaceholder: 'par ex. Indo-européen',
+            descriptionLabel: 'Description',
+            descriptionPlaceholder: 'Brève description...',
+          },
         },
       },
     },

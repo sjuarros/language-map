@@ -219,7 +219,7 @@ export async function createLanguageFamily(citySlug: string, formData: LanguageF
     // This ensures the operation is transactional - either both succeed or both fail
     const { data, error } = await supabase.rpc('create_language_family_with_translations', {
       p_slug: validatedData.slug,
-      p_translations: JSON.stringify(translations),
+      p_translations: translations,
     })
 
     if (error) {
@@ -333,7 +333,7 @@ export async function updateLanguageFamily(
     const { data, error } = await supabase.rpc('update_language_family_with_translations', {
       p_family_id: id,
       p_slug: validatedData.slug,
-      p_translations: JSON.stringify(translations),
+      p_translations: translations,
     })
 
     if (error) {

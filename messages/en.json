@@ -119,6 +119,56 @@
         "currentRole": "Your current role: {role}"
       }
     },
+    "operator": {
+      "languageFamilies": {
+        "list": {
+          "title": "Language Families",
+          "description": "Manage language families for {city}",
+          "createButton": "Add Language Family",
+          "empty": "No Language Families Yet",
+          "createFirst": "Create Language Family",
+          "help": {
+            "title": "What are Language Families?",
+            "description": "Language families are global groups of related languages. They help organize languages by their historical origins and linguistic relationships. For example, 'Indo-European' is a language family that includes English, Dutch, French, and many other languages."
+          }
+        },
+        "create": {
+          "title": "Create Language Family",
+          "description": "Add a new language family to the system",
+          "form": {
+            "slug": {
+              "label": "Slug",
+              "placeholder": "e.g., indo-european",
+              "help": "URL-friendly identifier (lowercase letters, numbers, and hyphens only)"
+            },
+            "translations": {
+              "title": "Translations",
+              "description": {
+                "label": "Description",
+                "placeholder": "Brief description of this language family..."
+              },
+              "basicInformation": "Basic Information",
+              "englishRequired": "English (Required)",
+              "dutchOptional": "Dutch (Optional)",
+              "frenchOptional": "French (Optional)",
+              "name": {
+                "label": "Name",
+                "placeholder": "e.g., Indo-European"
+              }
+            }
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "create": "Create Language Family",
+            "saving": "Saving..."
+          }
+        },
+        "edit": {
+          "title": "Edit Language Family",
+          "description": "Update language family information"
+        }
+      }
+    },
     "admin": {
       "invitations": {
         "title": "User Invitations",
@@ -463,14 +513,13 @@
         },
         "translations": {
           "title": "Translations",
-          "description": "Provide translations for this taxonomy value",
-          "name": {
-            "label": "Value Name",
-            "placeholder": "e.g., Small Community"
-          },
           "description": {
             "label": "Description",
             "placeholder": "Brief description of this value..."
+          },
+          "name": {
+            "label": "Value Name",
+            "placeholder": "e.g., Small Community"
           }
         },
         "actions": {
@@ -495,6 +544,75 @@
         "nl": "Dutch",
         "fr": "French"
       }
+    }
+  },
+  "operator": {
+    "languageFamilies": {
+      "list": {
+        "title": "Language Families",
+        "description": "Manage language families for {city}",
+        "createButton": "Add Language Family",
+        "empty": "No Language Families Yet",
+        "createFirst": "Create Language Family",
+        "translations": "translations",
+        "help": {
+          "title": "What are Language Families?",
+          "description": "Language families are global groups of related languages."
+        }
+      },
+      "create": {
+        "new": {
+          "back": "Back to Language Families",
+          "title": "Create Language Family",
+          "description": "Add a new language family to the system"
+        },
+        "form": {
+          "basicInfo": {
+            "title": "Basic Information",
+            "description": "Provide basic information for this language family",
+            "slugLabel": "Slug",
+            "slugHelpText": "URL-friendly identifier (lowercase letters, numbers, and hyphens only)"
+          },
+          "english": {
+            "title": "English (Required)",
+            "description": "Required translation - Primary language",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "dutch": {
+            "title": "Dutch (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "french": {
+            "title": "French (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "createButton": "Create Language Family",
+            "saving": "Creating..."
+          }
+        }
+      },
+      "edit": {
+        "back": "Back to Language Families",
+        "title": "Edit Language Family",
+        "updateButton": "Update Language Family",
+        "saving": "Updating...",
+        "dangerZone": {
+          "title": "Danger Zone",
+          "description": "Deleting a language family cannot be undone. Languages referencing this family will not be deleted but will have their family set to null."
+        }
+      }
+    }
+  },
+  "admin": {
+    "invitations": {
+      "title": "User Invitations"
     }
   }
 }

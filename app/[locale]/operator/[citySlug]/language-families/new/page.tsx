@@ -31,7 +31,8 @@ export default async function NewLanguageFamilyPage({
   params,
 }: NewLanguageFamilyPageProps) {
   const { locale, citySlug } = await params
-  const t = await getTranslations('operator.languageFamilies.new')
+  const t = await getTranslations('operator.languageFamilies.create.new')
+  const tForm = await getTranslations('operator.languageFamilies.create.form.actions')
 
   /**
    * Handle form submission for creating a new language family
@@ -69,7 +70,7 @@ export default async function NewLanguageFamilyPage({
       {/* Form */}
       <LanguageFamilyForm
         onSubmit={handleSubmit}
-        submitLabel={t('createButton')}
+        submitLabel={tForm('createButton')}
       />
     </div>
   )

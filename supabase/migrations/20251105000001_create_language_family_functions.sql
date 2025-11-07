@@ -108,7 +108,7 @@ BEGIN
 
   -- Delete existing translations and insert new ones
   -- This is simpler than trying to upsert and handles removed translations
-  DELETE FROM language_family_translations WHERE family_id = p_family_id;
+  DELETE FROM language_family_translations WHERE language_family_translations.family_id = p_family_id;
 
   INSERT INTO language_family_translations (family_id, locale_code, name, description)
   SELECT

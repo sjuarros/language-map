@@ -119,6 +119,57 @@
         "currentRole": "Uw huidige rol: {role}"
       }
     },
+    "operator": {
+      "languageFamilies": {
+        "list": {
+          "title": "Taalfamilies",
+          "description": "Beheer taalfamilies voor {city}",
+          "createButton": "Taalfamilie Toevoegen",
+          "empty": "Nog Geen Taalfamilies",
+          "createFirst": "Taalfamilie Aanmaken",
+          "translations": "vertalingen",
+          "help": {
+            "title": "Wat zijn Taalfamilies?",
+            "description": "Taalfamilies zijn wereldwijde groepen van verwante talen. Ze helpen talen te organiseren op basis van hun historische oorsprong en linguïstische relaties. Bijvoorbeeld, 'Indo-Europees' is een taalfamilie die Engels, Nederlands, Frans en veel andere talen omvat."
+          }
+        },
+        "create": {
+          "title": "Taalfamilie Aanmaken",
+          "description": "Voeg een nieuwe taalfamilie toe aan het systeem",
+          "form": {
+            "slug": {
+              "label": "Slug",
+              "placeholder": "bijv. indo-europees",
+              "help": "URL-vriendelijke identificatie (alleen kleine letters, cijfers en koppeltekens)"
+            },
+            "translations": {
+              "title": "Vertalingen",
+              "description": {
+                "label": "Beschrijving",
+                "placeholder": "Korte beschrijving van deze taalfamilie..."
+              },
+              "basicInformation": "Basisinformatie",
+              "englishRequired": "Engels (Vereist)",
+              "dutchOptional": "Nederlands (Optioneel)",
+              "frenchOptional": "Frans (Optioneel)",
+              "name": {
+                "label": "Naam",
+                "placeholder": "bijv. Indo-Europees"
+              }
+            }
+          },
+          "actions": {
+            "cancel": "Annuleren",
+            "create": "Taalfamilie Aanmaken",
+            "saving": "Bezig met opslaan..."
+          }
+        },
+        "edit": {
+          "title": "Taalfamilie Bewerken",
+          "description": "Update taalfamilie-informatie"
+        }
+      }
+    },
     "admin": {
       "invitations": {
         "title": "Gebruikersuitnodigingen",
@@ -463,14 +514,13 @@
         },
         "translations": {
           "title": "Vertalingen",
-          "description": "Geef vertalingen voor deze taxonomie waarde",
-          "name": {
-            "label": "Waarde Naam",
-            "placeholder": "bijv. Kleine Gemeenschap"
-          },
           "description": {
             "label": "Beschrijving",
             "placeholder": "Korte beschrijving van deze waarde..."
+          },
+          "name": {
+            "label": "Waarde Naam",
+            "placeholder": "bijv. Kleine Gemeenschap"
           }
         },
         "actions": {
@@ -494,6 +544,72 @@
         "en": "Engels",
         "nl": "Nederlands",
         "fr": "Frans"
+      }
+    }
+  },
+  "operator": {
+    "languageFamilies": {
+      "list": {
+        "title": "Taalfamilies",
+        "description": "Beheer taalfamilies voor {city}",
+        "createButton": "Taalfamilie Toevoegen",
+        "translations": "vertalingen",
+        "help": {
+          "title": "Wat zijn Taalfamilies?",
+          "description": "Taalfamilies zijn wereldwijde groepen van verwante talen."
+        }
+      },
+      "delete": {
+        "confirmTitle": "Taalfamilie Verwijderen?",
+        "confirmMessage": "Dit zal '{familyName}' en alle vertalingen permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+      },
+      "create": {
+        "new": {
+          "back": "Terug naar Taalfamilies",
+          "title": "Taalfamilie Aanmaken",
+          "description": "Voeg een nieuwe taalfamilie toe aan het systeem"
+        },
+        "form": {
+          "basicInfo": {
+            "title": "Basisinformatie",
+            "description": "Geef basisinformatie voor deze taalfamilie",
+            "slugLabel": "Slug",
+            "slugHelpText": "URL-vriendelijke identificatie (alleen kleine letters, cijfers en koppeltekens)"
+          },
+          "english": {
+            "title": "Engels (Vereist)",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "dutch": {
+            "title": "Nederlands (Optioneel)",
+            "description": "Secundaire taal voor Nederlandse gebruikers",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "french": {
+            "title": "Frans (Optioneel)",
+            "description": "Secundaire taal voor Franse gebruikers",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "actions": {
+            "cancel": "Annuleren",
+            "createButton": "Taalfamilie Aanmaken",
+            "saving": "Aanmaken..."
+          }
+        }
+      },
+      "edit": {
+        "back": "Terug naar Taalfamilies",
+        "title": "Taalfamilie Bewerken",
+        "updateButton": "Taalfamilie Bijwerken",
+        "saving": "Bijwerken...",
+        "dangerZone": {
+          "title": "Gevaarlijke Zone",
+          "description": "Het verwijderen van een taalfamilie kan niet ongedaan worden gemaakt. Talen die naar deze familie verwijzen worden niet verwijderd, maar krijgen null als familie."
+        }
       }
     }
   }

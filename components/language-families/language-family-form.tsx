@@ -82,7 +82,7 @@ export default function LanguageFamilyForm({
   onSubmit,
   submitLabel,
 }: LanguageFamilyFormProps) {
-  const t = useTranslations('operator.languageFamilies.form')
+  const t = useTranslations('operator.languageFamilies.create.form')
   const tCommon = useTranslations('common')
   const tErrors = useTranslations('errors')
 
