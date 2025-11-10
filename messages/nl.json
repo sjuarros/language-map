@@ -676,6 +676,15 @@
       "title": "Over Talen",
       "description": "Talen vertegenwoordigen de taalkundige diversiteit in je stad. Elke taal kan worden geclassificeerd met behulp van aangepaste taxonomietypes."
     },
+    "delete": {
+      "confirmTitle": "Taal Verwijderen",
+      "confirmMessage": "Weet je zeker dat je \"{languageName}\" wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "deleting": "Verwijderen...",
+      "errors": {
+        "deleteFailed": "Taal verwijderen mislukt",
+        "stillReferenced": "Deze taal kan niet worden verwijderd omdat het nog wordt verwezen door andere gegevens."
+      }
+    },
     "error": {
       "title": "Fout",
       "notFound": "Taal niet gevonden",

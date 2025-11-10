@@ -676,6 +676,15 @@
       "title": "À Propos des Langues",
       "description": "Les langues représentent la diversité linguistique dans votre ville. Chaque langue peut être classée à l'aide de types taxonomiques personnalisés."
     },
+    "delete": {
+      "confirmTitle": "Supprimer la Langue",
+      "confirmMessage": "Êtes-vous sûr de vouloir supprimer \"{languageName}\" ? Cette action ne peut pas être annulée.",
+      "deleting": "Suppression...",
+      "errors": {
+        "deleteFailed": "Échec de la suppression de la langue",
+        "stillReferenced": "Cette langue ne peut pas être supprimée car elle est encore référencée par d'autres données."
+      }
+    },
     "error": {
       "title": "Erreur",
       "notFound": "Langue non trouvée",

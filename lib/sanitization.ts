@@ -58,17 +58,22 @@ export function sanitizeSlug(slug: string): string {
 
 /**
  * Sanitize email input
+ * Validates format and returns empty string for invalid emails
  *
  * @param email - The email to sanitize
- * @returns Sanitized email
+ * @returns Sanitized email or empty string if format is invalid
  */
 export function sanitizeEmail(email: string): string {
   if (!email) return ''
 
-  return email
+  const sanitized = email
     .toLowerCase()
     .trim()
     .slice(0, VALIDATION_LIMITS.EMAIL_MAX_LENGTH)
+
+  // Basic email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(sanitized) ? sanitized : ''
 }
 
 /**
@@ -96,10 +101,10 @@ export function sanitizeNumber(value: number | undefined | null, min: number = 0
  * Sanitize ISO code input (3-letter lowercase)
  *
  * @param code - The ISO code to sanitize
- * @returns Sanitized ISO code or empty string
+ * @returns Sanitized ISO code or null if invalid/empty
  */
-export function sanitizeISOCode(code: string | undefined | null): string {
-  if (!code) return ''
+export function sanitizeISOCode(code: string | undefined | null): string | null {
+  if (!code || code === '') return null
 
   const sanitized = code
     .toLowerCase()
@@ -107,8 +112,8 @@ export function sanitizeISOCode(code: string | undefined | null): string {
     .replace(/[^a-z]/g, '')
     .slice(0, VALIDATION_LIMITS.ISO_CODE_LENGTH)
 
-  // Must be exactly 3 characters or empty
-  return sanitized.length === VALIDATION_LIMITS.ISO_CODE_LENGTH ? sanitized : ''
+  // Must be exactly 3 characters or null
+  return sanitized.length === VALIDATION_LIMITS.ISO_CODE_LENGTH ? sanitized : null
 }
 
 /**
@@ -116,16 +121,16 @@ export function sanitizeISOCode(code: string | undefined | null): string {
  * Validates that the string is a valid UUID format
  *
  * @param uuid - The UUID to validate and sanitize
- * @returns Sanitized UUID or empty string if invalid
+ * @returns Sanitized UUID or null if invalid/empty
  */
-export function sanitizeUUID(uuid: string | undefined | null): string {
-  if (!uuid) return ''
+export function sanitizeUUID(uuid: string | undefined | null): string | null {
+  if (!uuid || uuid === '') return null
 
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
   const sanitized = uuid.trim().toLowerCase()
 
-  return uuidRegex.test(sanitized) ? sanitized : ''
+  return uuidRegex.test(sanitized) ? sanitized : null
 }
 
 /**
@@ -139,7 +144,7 @@ export function sanitizeUUIDArray(uuids: string[] | undefined | null): string[] 
 
   return uuids
     .map(sanitizeUUID)
-    .filter(uuid => uuid !== '')
+    .filter((uuid): uuid is string => uuid !== null)
 }
 
 /**

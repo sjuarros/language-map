@@ -6,6 +6,7 @@
  * @module app/[locale]/operator/[citySlug]/languages/page
  */
 
+import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 import { Plus, Edit } from 'lucide-react'
@@ -29,7 +30,63 @@ import { Badge } from '@/components/ui/badge'
 import { getLanguages } from '@/app/actions/languages'
 
 /**
- * Page props
+ * Language structure returned by getLanguages server action
+ *
+ * This type represents the processed language data after Supabase joins
+ * and post-processing in the getLanguages function.
+ */
+type Language = {
+  id: string
+  endonym: string | null
+  iso_639_3_code: string | null
+  speaker_count: number | null
+  created_at: string
+  updated_at: string
+  translations: Array<{
+    id: string
+    locale_code: string
+    name: string
+    is_ai_translated: boolean
+  }>
+  language_family: {
+    id: string
+    slug: string
+    translations: Array<{
+      locale_code: string
+      name: string
+    }>
+  } | null
+  country_of_origin: {
+    id: string
+    iso_code_2: string
+    iso_code_3: string
+    translations: Array<{
+      locale_code: string
+      name: string
+    }>
+  } | null
+  taxonomies: Array<{
+    id: string
+    taxonomy_value_id: string
+    taxonomy_value: {
+      id: string
+      slug: string
+      color_hex: string | null
+      icon_name: string | null
+      translations: Array<{
+        locale_code: string
+        name: string
+      }>
+    }
+  }>
+}
+
+/**
+ * Props interface for the Languages Page component
+ *
+ * @param params - Route parameters containing locale and citySlug
+ * @param params.locale - The locale code (e.g., 'en', 'nl', 'fr')
+ * @param params.citySlug - The city identifier slug (e.g., 'amsterdam', 'paris')
  */
 interface LanguagesPageProps {
   params: Promise<{
@@ -41,16 +98,51 @@ interface LanguagesPageProps {
 /**
  * Languages List Page Component
  *
+ * Server component that displays all languages for a city with support for:
+ * - Multi-language translations
+ * - Taxonomy assignments
+ * - Language family and country relationships
+ * - CRUD operations (create, edit, delete)
+ *
+ * Authentication & Authorization:
+ * - This page is protected by the parent layout (app/[locale]/operator/layout.tsx)
+ * - The layout uses AuthProvider and checks authentication before rendering
+ * - Users must be authenticated and have operator/admin/superuser role
+ * - City-level access is controlled via city_users table and RLS policies
+ *
  * @param props - Page props containing locale and citySlug
  * @returns Languages list page
+ * @throws {Error} If input parameters are invalid
  */
 export default async function LanguagesPage({ params }: LanguagesPageProps) {
-  const { locale, citySlug } = await params
+  // CRITICAL FIX 1: Input Validation
+  // Validate all external parameters to prevent runtime errors and security issues
+  const { locale: rawLocale, citySlug: rawCitySlug } = await params
+
+  if (!rawLocale || typeof rawLocale !== 'string') {
+    console.error('[Languages Page] Invalid locale parameter')
+    return notFound()
+  }
+
+  if (!rawCitySlug || typeof rawCitySlug !== 'string') {
+    console.error('[Languages Page] Invalid citySlug parameter')
+    return notFound()
+  }
+
+  if (!rawCitySlug.match(/^[a-z0-9-]+$/)) {
+    console.error('[Languages Page] Invalid citySlug format:', String(rawCitySlug))
+    return notFound()
+  }
+
+  const locale = rawLocale
+  const citySlug = rawCitySlug
+
   const t = await getTranslations('languages')
   const tCommon = await getTranslations('common')
 
+  // CRITICAL FIX 2: Type Safety - Explicit type definition
   // Fetch all languages for this city
-  let languages: Awaited<ReturnType<typeof getLanguages>> = []
+  let languages: Language[] = []
   let error: string | null = null
 
   try {
@@ -148,7 +240,12 @@ export default async function LanguagesPage({ params }: LanguagesPageProps) {
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {language.taxonomies && language.taxonomies.length > 0 ? (
-                            language.taxonomies.map(taxonomy => {
+                            // Note: Taxonomy structure from Supabase joins is dynamic.
+                            // Each taxonomy contains a taxonomy_value which may be a single object or array.
+                            // We handle this dynamically with Array.isArray() checks.
+                            // Using 'any' is necessary due to the complex join structure from the server action.
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            language.taxonomies.map((taxonomy: any) => {
                               const taxonomyValue = Array.isArray(taxonomy.taxonomy_value)
                                 ? taxonomy.taxonomy_value[0]
                                 : taxonomy.taxonomy_value

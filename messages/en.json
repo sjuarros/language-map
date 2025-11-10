@@ -673,6 +673,15 @@
       "title": "About Languages",
       "description": "Languages represent the linguistic diversity in your city. Each language can be classified using custom taxonomy types."
     },
+    "delete": {
+      "confirmTitle": "Delete Language?",
+      "confirmMessage": "Are you sure you want to delete {languageName}? This action cannot be undone and will remove all associated data including translations and taxonomy assignments.",
+      "deleting": "Deleting...",
+      "errors": {
+        "stillReferenced": "Cannot delete this language because it is still referenced by other data (such as language points or descriptions). Please remove those references first.",
+        "deleteFailed": "Failed to delete language"
+      }
+    },
     "error": {
       "title": "Error",
       "notFound": "Language not found",

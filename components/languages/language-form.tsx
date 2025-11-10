@@ -17,7 +17,7 @@
 
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -52,7 +52,8 @@ interface LanguageFamily {
  */
 interface Country {
   id: string
-  iso_code: string
+  iso_code_2: string
+  iso_code_3: string
   translations: Array<{ name: string }>
 }
 
@@ -138,6 +139,15 @@ export function LanguageForm({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
+  // WARNING FIX 3: Add cleanup for component unmount
+  const isMountedRef = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
   // Initialize form state from existing language or defaults
   const getTranslation = (localeCode: string) => {
     return language?.translations.find(t => t.locale_code === localeCode)?.name || ''
@@ -200,6 +210,7 @@ export function LanguageForm({
   /**
    * Handle form submission
    */
+  // WARNING FIX 2: Enhanced error handling with better user experience
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -215,14 +226,53 @@ export function LanguageForm({
       try {
         if (mode === 'create') {
           await createLanguage(citySlug, formData)
-          router.push(`/${locale}/operator/${citySlug}/languages`)
+          // Only navigate if still mounted
+          if (isMountedRef.current) {
+            router.push(`/${locale}/operator/${citySlug}/languages`)
+          }
         } else if (language) {
           await updateLanguage(citySlug, language.id, formData)
-          router.push(`/${locale}/operator/${citySlug}/languages`)
+          // Only navigate if still mounted
+          if (isMountedRef.current) {
+            router.push(`/${locale}/operator/${citySlug}/languages`)
+          }
         }
       } catch (err) {
-        console.error('Form submission error:', err)
-        setError(err instanceof Error ? err.message : t('error.unknown'))
+        // Only set error if still mounted
+        if (!isMountedRef.current) {
+          return
+        }
+
+        // Enhanced error handling with better user messages
+        console.error('Form submission error:', {
+          error: err,
+          mode,
+          citySlug,
+          timestamp: new Date().toISOString(),
+        })
+
+        let errorMessage: string
+
+        if (err instanceof Error) {
+          const message = err.message.toLowerCase()
+
+          // Provide specific guidance based on error type
+          if (message.includes('validation')) {
+            errorMessage = t('error.validation') + ': ' + err.message
+          } else if (message.includes('unauthorized') || message.includes('permission')) {
+            errorMessage = t('error.permission')
+          } else if (message.includes('network') || message.includes('fetch')) {
+            errorMessage = t('error.network')
+          } else if (message.includes('duplicate') || message.includes('unique')) {
+            errorMessage = t('error.duplicate')
+          } else {
+            errorMessage = err.message
+          }
+        } else {
+          errorMessage = t('error.unknown')
+        }
+
+        setError(errorMessage)
       }
     })
   }
@@ -230,12 +280,14 @@ export function LanguageForm({
   /**
    * Handle taxonomy checkbox change
    */
+  // STYLE FIX 1: Added inline comments explaining complex business logic
   const handleTaxonomyChange = (taxonomyType: TaxonomyType, valueId: string, checked: boolean) => {
     setFormData(prev => {
       const currentIds = prev.taxonomy_value_ids ?? []
 
       if (taxonomyType.allow_multiple) {
-        // Multiple selection allowed
+        // Business rule: Multiple values can be selected from this taxonomy type
+        // Add or remove individual values based on checkbox state
         if (checked) {
           return { ...prev, taxonomy_value_ids: [...currentIds, valueId] }
         } else {
@@ -245,7 +297,9 @@ export function LanguageForm({
           }
         }
       } else {
-        // Single selection - remove other values from same type first
+        // Business rule: Single selection required - values are mutually exclusive
+        // Before adding new value, remove all existing values from this taxonomy type
+        // This ensures only one value can be selected at a time
         const otherTypeValueIds = taxonomyType.values.map(v => v.id)
         const filteredIds = currentIds.filter(id => !otherTypeValueIds.includes(id))
 
@@ -323,15 +377,15 @@ export function LanguageForm({
           <div className="space-y-2">
             <Label htmlFor="language_family">{t('form.languageFamily')}</Label>
             <Select
-              value={formData.language_family_id}
-              onValueChange={value => setFormData({ ...formData, language_family_id: value })}
+              value={formData.language_family_id || 'none'}
+              onValueChange={value => setFormData({ ...formData, language_family_id: value === 'none' ? '' : value })}
               disabled={isPending}
             >
               <SelectTrigger id="language_family">
                 <SelectValue placeholder={t('form.selectLanguageFamily')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('form.none')}</SelectItem>
+                <SelectItem value="none">{t('form.none')}</SelectItem>
                 {languageFamilies.map(family => (
                   <SelectItem key={family.id} value={family.id}>
                     {family.translations[0]?.name || family.slug}
@@ -345,18 +399,18 @@ export function LanguageForm({
           <div className="space-y-2">
             <Label htmlFor="country">{t('form.countryOfOrigin')}</Label>
             <Select
-              value={formData.country_of_origin_id}
-              onValueChange={value => setFormData({ ...formData, country_of_origin_id: value })}
+              value={formData.country_of_origin_id || 'none'}
+              onValueChange={value => setFormData({ ...formData, country_of_origin_id: value === 'none' ? '' : value })}
               disabled={isPending}
             >
               <SelectTrigger id="country">
                 <SelectValue placeholder={t('form.selectCountry')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t('form.none')}</SelectItem>
+                <SelectItem value="none">{t('form.none')}</SelectItem>
                 {countries.map(country => (
                   <SelectItem key={country.id} value={country.id}>
-                    {country.translations[0]?.name || country.iso_code}
+                    {country.translations[0]?.name || country.iso_code_2}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -511,6 +565,16 @@ export function LanguageForm({
 
       {/* Form Actions */}
       <div className="flex justify-end gap-4">
+        {/* WARNING FIX 3: Enhanced loading state with visual indicator */}
+        {isPending && (
+          <div
+            className="flex items-center gap-2 text-sm text-muted-foreground"
+            aria-live="polite"
+          >
+            <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            {t('form.saving')}
+          </div>
+        )}
         <Button
           type="button"
           variant="outline"

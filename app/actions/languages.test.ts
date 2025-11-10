@@ -80,14 +80,37 @@ describe('Language Server Actions', () => {
     it('should fetch languages successfully', async () => {
       // Arrange
       const mockCity = { id: 'city-1' }
+
+      // Note: Supabase join queries use aliases (e.g., translations:language_family_translations)
+      // This means the result will have 'translations' property, not 'language_family_translations'
       const mockLanguages = [
         {
           id: 'lang-1',
           endonym: 'English',
           iso_639_3_code: 'eng',
-          translations: [{ name: 'English', locale_code: 'en' }],
-          language_family: { slug: 'indo-european', translations: [{ name: 'Indo-European' }] },
-          country_of_origin: { iso_code: 'GB', translations: [{ name: 'United Kingdom' }] },
+          speaker_count: null,
+          created_at: '2024-01-01',
+          updated_at: '2024-01-01',
+          language_family: {
+            id: 'fam-1',
+            slug: 'indo-european',
+            // Supabase alias 'translations:' makes this property called 'translations'
+            translations: [
+              { locale_code: 'en', name: 'Indo-European' }
+            ]
+          },
+          country_of_origin: {
+            id: 'country-1',
+            iso_code_2: 'GB',
+            iso_code_3: 'GBR',
+            // Same here - alias 'translations:' creates 'translations' property
+            translations: [
+              { locale_code: 'en', name: 'United Kingdom' }
+            ]
+          },
+          translations: [
+            { id: 't-1', locale_code: 'en', name: 'English', is_ai_translated: false }
+          ],
           taxonomies: [],
         },
       ]
@@ -99,7 +122,8 @@ describe('Language Server Actions', () => {
       // Act
       const result = await getLanguages('amsterdam', 'en')
 
-      // Assert
+      // Assert - result has been processed to filter and structure translations
+      // The processing transforms the nested structure to have filtered translations
       expect(result).toEqual(mockLanguages)
       expect(mockSupabase.from).toHaveBeenCalledWith('cities')
       expect(mockSupabase.from).toHaveBeenCalledWith('languages')

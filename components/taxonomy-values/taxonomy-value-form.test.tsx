@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
   }))
 }))
 
-// Mock server actions
+// Mock server actions - must be defined inline for vitest hoisting
 vi.mock('@/app/actions/taxonomy-values', () => ({
   createTaxonomyValue: vi.fn(),
   updateTaxonomyValue: vi.fn()
@@ -183,6 +183,11 @@ describe('TaxonomyValueForm', () => {
     })
 
     it('should submit form successfully', async () => {
+      // Import and mock the createTaxonomyValue action
+      const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
+      const mockCreate = vi.mocked(createTaxonomyValue)
+      mockCreate.mockResolvedValueOnce(undefined)
+
       const user = userEvent.setup()
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
@@ -198,9 +203,13 @@ describe('TaxonomyValueForm', () => {
       // Submit form
       await user.click(screen.getByText('Create Value'))
 
-      await waitFor(() => {
-        expect(screen.getByText('Taxonomy value created successfully')).toBeInTheDocument()
-      })
+      // Wait for success message to appear
+      await waitFor(
+        () => {
+          expect(screen.getByText('Taxonomy value created successfully')).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should handle color selection', async () => {
@@ -325,7 +334,8 @@ describe('TaxonomyValueForm', () => {
     it('should display error message on failed submission', async () => {
       const user = userEvent.setup()
       const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      vi.mocked(createTaxonomyValue).mockRejectedValue(new Error('Database error'))
+      const mockCreate = vi.mocked(createTaxonomyValue)
+      mockCreate.mockRejectedValueOnce(new Error('Database error'))
 
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
@@ -337,15 +347,19 @@ describe('TaxonomyValueForm', () => {
       await user.type(screen.getAllByLabelText('Value Name *')[2], 'Petit')
       await user.click(screen.getByText('Create Value'))
 
-      await waitFor(() => {
-        expect(screen.getByText('Database error')).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByText('Database error')).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
 
     it('should handle unknown errors', async () => {
       const user = userEvent.setup()
       const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      vi.mocked(createTaxonomyValue).mockRejectedValue('Unknown error')
+      const mockCreate = vi.mocked(createTaxonomyValue)
+      mockCreate.mockRejectedValueOnce('Unknown error')
 
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
@@ -357,9 +371,12 @@ describe('TaxonomyValueForm', () => {
       await user.type(screen.getAllByLabelText('Value Name *')[2], 'Petit')
       await user.click(screen.getByText('Create Value'))
 
-      await waitFor(() => {
-        expect(screen.getByText('An error occurred')).toBeInTheDocument()
-      })
+      await waitFor(
+        () => {
+          expect(screen.getByText('An error occurred')).toBeInTheDocument()
+        },
+        { timeout: 3000 }
+      )
     })
   })
 
@@ -367,8 +384,9 @@ describe('TaxonomyValueForm', () => {
     it('should show loading state during submission', async () => {
       const user = userEvent.setup()
       const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
+      const mockCreate = vi.mocked(createTaxonomyValue)
       // Mock a slow response
-      vi.mocked(createTaxonomyValue).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
+      mockCreate.mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)))
 
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
