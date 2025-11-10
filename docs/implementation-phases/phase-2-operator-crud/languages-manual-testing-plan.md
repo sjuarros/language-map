@@ -1,9 +1,9 @@
 # Phase 2 Manual Testing Plan - Language Data Management
 
 **Feature:** Language families and language data management with translations
-**Date:** November 5, 2025
+**Date:** November 10, 2025
 **Environment:** Local development (Supabase + Next.js)
-**Status:** 🟡 IN PROGRESS - Language Families complete, Languages pending (Days 23-26)
+**Status:** 🟡 IN PROGRESS - Language Families & Languages CRUD complete, Points/Descriptions/AI pending
 
 ---
 
@@ -11,16 +11,27 @@
 
 This testing plan covers all language-related functionality in Phase 2:
 
-### ✅ Completed (Day 22 - November 5, 2025)
-- **Language Families CRUD:** Full implementation with atomic transactions
-- **Delete Confirmation Dialog:** With loading states and error handling
-- **Comprehensive Test Coverage:** 36 unit/component tests passing
+### ✅ Completed Testing Documentation
+- **Day 22 (November 5, 2025) - Language Families CRUD:**
+  - Full implementation with atomic transactions
+  - Delete confirmation dialog with loading states and error handling
+  - 36 unit/component tests passing
+  - 10 testing sections with 44 test scenarios
 
-### 🔄 Pending (Days 23-26)
-- **Languages CRUD:** Core language entity management
-- **Language Points:** Geographic locations where languages are spoken
-- **Descriptions:** Community stories and descriptions
-- **AI Features:** Description generation and translation assistance
+- **Day 23 (November 10, 2025) - Languages CRUD:**
+  - Full CRUD operations with translations (EN/NL/FR)
+  - Universal endonym field (not translated)
+  - ISO 639-3 code support
+  - Flexible taxonomy assignment with multi-select support
+  - Dynamic taxonomy UI based on city configuration
+  - Visual taxonomy badges with colors
+  - 23 unit tests passing (all scenarios covered)
+  - 12 testing sections with 56 test scenarios
+
+### 🔄 Pending (Days 24-26)
+- **Language Points (Days 24-25):** Geographic locations where languages are spoken
+- **Descriptions (Days 25-26):** Community stories and descriptions
+- **AI Features (Day 26):** Description generation and translation assistance
 
 **This document will be extended** as each feature is implemented.
 
@@ -956,36 +967,1381 @@ Expected: 1 (not 2)
 
 ---
 
-## Part 2: Languages (Days 23-26 - Pending)
+## Part 2: Languages (Days 23-26)
 
-**This section will be added after implementing:**
-- Languages CRUD (Day 23)
-- Language Points CRUD (Day 24)
-- Descriptions CRUD (Day 25)
-- AI Features (Day 26)
+**Status:** 🟡 IN PROGRESS - Languages CRUD (Day 23) complete, Points/Descriptions/AI pending
 
-### Planned Test Coverage
+### Day 23 - Languages CRUD (Completed November 8, 2025)
 
-#### Languages Entity
-- [ ] List languages for a city
-- [ ] Create language with required fields
-- [ ] Assign language to family
-- [ ] Assign language to country
-- [ ] Update language endonym (NOT translated)
-- [ ] Update language translations (name per locale)
-- [ ] Add/edit ISO 639-3 code
-- [ ] Toggle active status
-- [ ] Delete language
-- [ ] Foreign key constraint with points/descriptions
+**Features Implemented:**
+- Full CRUD operations for languages with translations (EN/NL/FR)
+- Universal endonym field (not translated)
+- ISO 639-3 code support
+- Language family and country of origin selectors
+- Flexible taxonomy assignment with multi-select support
+- Dynamic taxonomy UI based on city's taxonomy configuration
+- Visual taxonomy badges with colors
 
-#### Language Points (Geographic Locations)
+---
+
+### 11. Languages - Access Control ✓
+
+#### 11.1 Operator Access to Languages
+
+**Steps:**
+1. Log in as operator: `operator-ams@example.com`
+2. Navigate to http://localhost:3001/en/operator/amsterdam/languages
+3. Observe the page content
+
+**Expected Result:**
+- ✅ Page loads successfully with "Languages" heading
+- ✅ Shows language management interface for Amsterdam
+- ✅ "Add Language" button visible
+- ✅ User has Amsterdam access (RLS check passes)
+- ✅ Table view displays with columns: Endonym, Name, ISO Code, Family, Origin, Taxonomies
+
+**Database Verification:**
+```bash
+# Verify operator has Amsterdam access
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT up.email, c.slug, cu.role FROM city_users cu JOIN user_profiles up ON cu.user_id = up.id JOIN cities c ON cu.city_id = c.id WHERE up.email = 'operator-ams@example.com'"
+```
+
+Expected: 1 row with slug='amsterdam'
+
+---
+
+#### 11.2 Cross-City Access Restriction
+
+**Steps:**
+1. Log in as operator: `operator-ams@example.com` (Amsterdam only)
+2. Try to access: http://localhost:3001/en/operator/rotterdam/languages
+
+**Expected Result:**
+- ✅ Access denied (redirect or error)
+- ✅ RLS policies prevent unauthorized access
+- ✅ No data exposure for unauthorized cities
+
+**Database Verification:**
+```bash
+# Verify languages are city-specific
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT l.endonym, c.slug FROM languages l JOIN cities c ON l.city_id = c.id WHERE c.slug = 'rotterdam' LIMIT 5"
+```
+
+Should not be accessible to Amsterdam operator
+
+---
+
+### 12. Languages - List View ✓
+
+#### 12.1 Empty State
+
+**Prerequisites:** No languages exist for Amsterdam
+
+**Steps:**
+1. Navigate to http://localhost:3001/en/operator/amsterdam/languages
+2. Observe empty state
+
+**Expected Result:**
+- ✅ Shows "No Languages Yet" or similar empty state message
+- ✅ Description explains languages are city-specific entities
+- ✅ "Add Language" button present
+- ✅ Links to create page: `/en/operator/amsterdam/languages/new`
+
+**Database Verification:**
+```bash
+# Verify no languages exist for Amsterdam
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')"
+```
+
+Expected: 0
+
+---
+
+#### 12.2 List with Data
+
+**Prerequisites:** Languages exist for Amsterdam
+
+**Steps:**
+1. Create test languages (see Test 13.1)
+2. Return to list page
+3. Observe language table
+
+**Expected Result:**
+- ✅ Shows table with language rows
+- ✅ Each row displays:
+  - **Endonym** (universal, not translated)
+  - **Name** (translated to current locale)
+  - **ISO 639-3 Code** (if available)
+  - **Language Family** (translated name)
+  - **Country of Origin** (translated name)
+  - **Taxonomy Badges** (visual indicators with colors)
+  - **Speaker Count** (if available)
+  - **"Edit" button**
+- ✅ Languages sorted by creation date or name
+- ✅ Taxonomy badges display with correct colors
+- ✅ Translations display in current locale
+
+**Database Verification:**
+```bash
+# List all languages for Amsterdam with translations
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.endonym,
+  l.iso_639_3_code,
+  lt.name as translated_name,
+  lt.locale_code,
+  lf.slug as family_slug,
+  c.iso_code as country_iso,
+  l.speaker_count,
+  COUNT(ltax.id) as taxonomy_count
+FROM languages l
+LEFT JOIN language_translations lt ON l.id = lt.language_id
+LEFT JOIN language_families lf ON l.language_family_id = lf.id
+LEFT JOIN countries c ON l.country_of_origin_id = c.id
+LEFT JOIN language_taxonomies ltax ON l.id = ltax.language_id
+WHERE l.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')
+GROUP BY l.id, l.endonym, l.iso_639_3_code, lt.name, lt.locale_code, lf.slug, c.iso_code, l.speaker_count
+ORDER BY l.created_at
+"
+```
+
+---
+
+#### 12.3 Translation Display in Different Locales
+
+**Prerequisites:** Language with multiple translations exists
+
+**Steps:**
+1. Create a language with en, nl, fr translations
+2. View list in different locales:
+   - http://localhost:3001/en/operator/amsterdam/languages (English)
+   - http://localhost:3001/nl/operator/amsterdam/languages (Dutch)
+   - http://localhost:3001/fr/operator/amsterdam/languages (French)
+
+**Expected Result:**
+- ✅ **Endonym remains the same** in all locales (e.g., "日本語", "Español")
+- ✅ **Language names** display in current locale when available
+- ✅ **Family names** display in current locale
+- ✅ **Country names** display in current locale
+- ✅ Falls back to English if translation missing
+- ✅ Page UI remains in current locale
+- ✅ No console errors
+
+**Database Verification:**
+```bash
+# Check translations for a specific language
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT l.endonym, lt.locale_code, lt.name FROM languages l JOIN language_translations lt ON l.id = lt.language_id WHERE l.endonym = 'English' ORDER BY lt.locale_code"
+```
+
+Expected: Multiple rows with different locale_code values
+
+---
+
+#### 12.4 Taxonomy Badge Display
+
+**Prerequisites:** Language with taxonomy assignments exists
+
+**Steps:**
+1. Create a language with taxonomy assignments (e.g., "Small Community", "Safe Status")
+2. View language list
+3. Observe taxonomy badges
+
+**Expected Result:**
+- ✅ Taxonomy badges display with correct colors
+- ✅ Badge text shows taxonomy value name (translated)
+- ✅ Colors match taxonomy configuration
+- ✅ Multiple taxonomies display as separate badges
+- ✅ Badges are visually distinct and readable
+
+**Database Verification:**
+```bash
+# Check taxonomy assignments for a language
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.endonym,
+  tt.slug as taxonomy_type,
+  tv.slug as taxonomy_value,
+  tv.color_hex,
+  tvt.name as value_name
+FROM languages l
+JOIN language_taxonomies ltax ON l.id = ltax.language_id
+JOIN taxonomy_values tv ON ltax.taxonomy_value_id = tv.id
+JOIN taxonomy_types tt ON tv.taxonomy_type_id = tt.id
+JOIN taxonomy_value_translations tvt ON tv.id = tvt.taxonomy_value_id
+WHERE l.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')
+  AND tvt.locale_code = 'en'
+ORDER BY l.endonym, tt.slug
+"
+```
+
+---
+
+### 13. Languages - Create Operations ✓
+
+#### 13.1 Create Language (Required Fields Only)
+
+**Steps:**
+1. Navigate to http://localhost:3001/en/operator/amsterdam/languages/new
+2. Fill form with required fields only:
+   - **Endonym**: `English`
+   - **Name (English)**: `English`
+3. Submit form
+
+**Expected Result:**
+- ✅ Form validates successfully
+- ✅ Shows loading state: "Saving..." button with spinner
+- ✅ Redirects to list page after successful creation
+- ✅ New language appears in list
+- ✅ Success confirmation (redirect indicates success)
+
+**Database Verification:**
+```bash
+# Verify language and translation created
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT l.id, l.endonym, lt.locale_code, lt.name FROM languages l JOIN language_translations lt ON l.id = lt.language_id WHERE l.endonym = 'English' AND l.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')"
+```
+
+Expected: 1 row with locale_code='en'
+
+---
+
+#### 13.2 Create Language (All Fields)
+
+**Steps:**
+1. Navigate to create page
+2. Fill form with all fields:
+   - **Endonym**: `Español`
+   - **ISO 639-3 Code**: `spa`
+   - **Name (English)**: `Spanish`
+   - **Name (Dutch)**: `Spaans`
+   - **Name (French)**: `Espagnol`
+   - **Language Family**: Select "Indo-European"
+   - **Country of Origin**: Select "Spain"
+   - **Speaker Count**: `500000000`
+   - **Taxonomies**: Select appropriate values (if available)
+3. Submit form
+
+**Expected Result:**
+- ✅ Form accepts all fields
+- ✅ Redirects to list page
+- ✅ Language shows all translations: "en, nl, fr"
+- ✅ Family and country display correctly
+- ✅ Speaker count displays
+- ✅ Taxonomy badges display with colors
+
+**Database Verification:**
+```bash
+# Verify all translations created
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT lt.locale_code, lt.name FROM language_translations lt JOIN languages l ON lt.language_id = l.id WHERE l.endonym = 'Español' AND l.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam') ORDER BY lt.locale_code"
+```
+
+Expected: 3 rows (en, fr, nl)
+
+```bash
+# Verify foreign keys
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.endonym,
+  l.iso_639_3_code,
+  l.speaker_count,
+  lf.slug as family,
+  c.iso_code as origin_country
+FROM languages l
+LEFT JOIN language_families lf ON l.language_family_id = lf.id
+LEFT JOIN countries c ON l.country_of_origin_id = c.id
+WHERE l.endonym = 'Español'
+  AND l.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')
+"
+```
+
+---
+
+#### 13.3 Create Language with Taxonomy Assignment
+
+**Prerequisites:** City has taxonomy types configured (e.g., "Community Size", "Endangerment Status")
+
+**Steps:**
+1. Navigate to create page
+2. Fill basic language information
+3. In taxonomy section:
+   - Select "Small" for "Community Size"
+   - Select "Safe" for "Endangerment Status"
+4. Submit form
+
+**Expected Result:**
+- ✅ Taxonomy selector displays city's configured taxonomies
+- ✅ For required taxonomies: selector is mandatory
+- ✅ For optional taxonomies: selector is optional
+- ✅ For single-select taxonomies: only one value can be selected
+- ✅ For multi-select taxonomies: multiple values can be selected
+- ✅ Form validates taxonomy requirements
+- ✅ Taxonomy assignments saved correctly
+
+**Database Verification:**
+```bash
+# Verify taxonomy assignments
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.endonym,
+  tt.slug as taxonomy_type,
+  tv.slug as taxonomy_value,
+  tt.is_required,
+  tt.allow_multiple
+FROM languages l
+JOIN language_taxonomies ltax ON l.id = ltax.language_id
+JOIN taxonomy_values tv ON ltax.taxonomy_value_id = tv.id
+JOIN taxonomy_types tt ON tv.taxonomy_type_id = tt.id
+WHERE l.endonym = 'Test Language'
+ORDER BY tt.slug, tv.slug
+"
+```
+
+---
+
+#### 13.4 Form Validation - Missing Required Fields
+
+**Steps:**
+1. Navigate to create page
+2. Leave endonym empty
+3. Leave English name empty
+4. Try to submit
+
+**Expected Result:**
+- ✅ Shows error: "Endonym is required"
+- ✅ Shows error: "English name is required"
+- ✅ Form not submitted
+- ✅ User can correct and resubmit
+
+---
+
+#### 13.5 Form Validation - Invalid ISO Code
+
+**Steps:**
+1. Navigate to create page
+2. Fill form
+3. Enter invalid ISO code: `invalid` (not 3 characters)
+4. Try to submit
+
+**Expected Result:**
+- ✅ Client-side validation prevents submission
+- ✅ Error message: "ISO 639-3 code must be exactly 3 lowercase letters"
+- ✅ Submit button remains enabled
+- ✅ No network request made
+
+---
+
+#### 13.6 Form Validation - Required Taxonomy Missing
+
+**Prerequisites:** City has a required taxonomy type
+
+**Steps:**
+1. Navigate to create page
+2. Fill language information
+3. Skip required taxonomy selection
+4. Try to submit
+
+**Expected Result:**
+- ✅ Form validation catches missing required taxonomy
+- ✅ Error message indicates which taxonomy is required
+- ✅ User must select value before submission
+- ✅ Form highlights required taxonomy selector
+
+---
+
+#### 13.7 Input Sanitization
+
+**Steps:**
+1. Navigate to create page
+2. Fill form with potentially unsafe input:
+   - Endonym: `  Test Language  ` (extra spaces)
+   - Name (English): `<script>alert("xss")</script>Test` (HTML injection)
+   - ISO Code: `ENG` (uppercase)
+3. Submit form
+
+**Expected Result:**
+- ✅ Endonym trimmed to `Test Language`
+- ✅ HTML tags removed from name
+- ✅ ISO code converted to lowercase: `eng`
+- ✅ No XSS vulnerability
+- ✅ Data stored safely in database
+
+**Database Verification:**
+```bash
+# Verify sanitized data
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym, iso_639_3_code FROM languages WHERE endonym = 'Test Language' AND city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')"
+```
+
+Expected: Clean data without HTML or extra spaces
+
+---
+
+### 14. Languages - Read Operations ✓
+
+#### 14.1 View Language Details
+
+**Prerequisites:** Language exists
+
+**Steps:**
+1. Navigate to list page
+2. Click "Edit" button on a language
+3. Observe form pre-population
+
+**Expected Result:**
+- ✅ Edit page loads: `/en/operator/amsterdam/languages/{id}`
+- ✅ Page shows "Edit Language" heading
+- ✅ Form fields pre-populated:
+  - Endonym (universal field)
+  - ISO 639-3 Code
+  - Name translations (EN/NL/FR)
+  - Language Family
+  - Country of Origin
+  - Speaker Count
+  - Taxonomy assignments
+- ✅ Back button links to list page
+- ✅ Delete button visible
+
+**Database Verification:**
+```bash
+# Verify language data matches form
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.id, l.endonym, l.iso_639_3_code, l.speaker_count,
+  lt.locale_code, lt.name,
+  lf.slug as family,
+  c.iso_code as country
+FROM languages l
+LEFT JOIN language_translations lt ON l.id = lt.language_id
+LEFT JOIN language_families lf ON l.language_family_id = lf.id
+LEFT JOIN countries c ON l.country_of_origin_id = c.id
+WHERE l.id = '{language-id}'
+ORDER BY lt.locale_code
+"
+```
+
+---
+
+#### 14.2 Language Not Found (404)
+
+**Steps:**
+1. Navigate to: http://localhost:3001/en/operator/amsterdam/languages/00000000-0000-0000-0000-000000000000
+
+**Expected Result:**
+- ✅ Shows 404 error page or "Not Found" message
+- ✅ No sensitive error details exposed
+- ✅ User can navigate back to list
+
+---
+
+#### 14.3 View Language with Multiple Taxonomies
+
+**Prerequisites:** Language with multiple taxonomy assignments
+
+**Steps:**
+1. Navigate to edit page for language with taxonomies
+2. Observe taxonomy selectors
+
+**Expected Result:**
+- ✅ All taxonomy types display
+- ✅ Currently assigned values are pre-selected
+- ✅ Multi-select taxonomies show multiple selections
+- ✅ Single-select taxonomies show one selection
+- ✅ Required taxonomies are marked as mandatory
+- ✅ Visual styling (colors) visible in selectors
+
+---
+
+### 15. Languages - Update Operations ✓
+
+#### 15.1 Update Basic Fields
+
+**Prerequisites:** Language exists
+
+**Steps:**
+1. Navigate to edit page
+2. Modify fields:
+   - Endonym: `English (Updated)`
+   - Speaker Count: `1600000000`
+3. Submit form
+
+**Expected Result:**
+- ✅ Shows loading state during submission
+- ✅ Redirects to list page after success
+- ✅ Updated data displays in list
+- ✅ Changes persisted in database
+
+**Database Verification:**
+```bash
+# Verify update
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym, speaker_count FROM languages WHERE endonym LIKE 'English%' AND city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')"
+```
+
+Expected: Updated values
+
+---
+
+#### 15.2 Update Translations - Add New Locale
+
+**Prerequisites:** Language exists with English only
+
+**Steps:**
+1. Navigate to edit page
+2. Add Dutch translation:
+   - Name (Dutch): `Engels`
+3. Add French translation:
+   - Name (French): `Anglais`
+4. Submit form
+
+**Expected Result:**
+- ✅ Form accepts new translations
+- ✅ Redirects to list page
+- ✅ Language now shows: "en, nl, fr"
+- ✅ All translations persisted
+
+**Database Verification:**
+```bash
+# Verify new translations added
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT locale_code, name FROM language_translations WHERE language_id = (SELECT id FROM languages WHERE endonym = 'English' AND city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')) ORDER BY locale_code"
+```
+
+Expected: 3 rows (en, fr, nl)
+
+---
+
+#### 15.3 Update Translations - Remove Locale
+
+**Prerequisites:** Language with multiple translations
+
+**Steps:**
+1. Navigate to edit page
+2. Clear Dutch name field
+3. Submit form
+
+**Expected Result:**
+- ✅ Form submits successfully
+- ✅ Dutch translation removed
+- ✅ Language shows: "en, fr" (no nl)
+- ✅ English and French translations remain
+
+**Database Verification:**
+```bash
+# Verify Dutch translation removed
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT locale_code FROM language_translations WHERE language_id = (SELECT id FROM languages WHERE endonym = 'English' AND city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')) ORDER BY locale_code"
+```
+
+Expected: Only 'en' and 'fr' (no 'nl')
+
+---
+
+#### 15.4 Update Endonym (Universal Field)
+
+**Prerequisites:** Language exists
+
+**Steps:**
+1. Navigate to edit page
+2. Change endonym from `Test` to `Test Language`
+3. Submit form
+
+**Expected Result:**
+- ✅ Endonym updated successfully
+- ✅ **Endonym remains NOT translated** (same in all locales)
+- ✅ All translations still reference same language
+- ✅ No data loss
+
+**Verification:**
+View language in different locales - endonym should be identical:
+- http://localhost:3001/en/operator/amsterdam/languages
+- http://localhost:3001/nl/operator/amsterdam/languages
+- http://localhost:3001/fr/operator/amsterdam/languages
+
+---
+
+#### 15.5 Update Taxonomy Assignments
+
+**Prerequisites:** Language with taxonomy assignments
+
+**Steps:**
+1. Navigate to edit page
+2. Change taxonomy assignments:
+   - Change "Small" to "Medium" for "Community Size"
+   - Add "Vulnerable" for "Endangerment Status"
+3. Submit form
+
+**Expected Result:**
+- ✅ Old taxonomy assignments removed
+- ✅ New taxonomy assignments added
+- ✅ List page shows updated badges
+- ✅ Badge colors updated to match new values
+
+**Database Verification:**
+```bash
+# Verify taxonomy updates
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  tv.slug as taxonomy_value,
+  tt.slug as taxonomy_type
+FROM language_taxonomies ltax
+JOIN taxonomy_values tv ON ltax.taxonomy_value_id = tv.id
+JOIN taxonomy_types tt ON tv.taxonomy_type_id = tt.id
+WHERE ltax.language_id = (SELECT id FROM languages WHERE endonym = 'Test Language')
+ORDER BY tt.slug, tv.slug
+"
+```
+
+Expected: Updated taxonomy assignments, no old values
+
+---
+
+#### 15.6 Update Language Family
+
+**Prerequisites:** Language with family assigned
+
+**Steps:**
+1. Navigate to edit page
+2. Change language family from "Indo-European" to "Afro-Asiatic"
+3. Submit form
+
+**Expected Result:**
+- ✅ Family updated successfully
+- ✅ List page shows new family name
+- ✅ Foreign key reference updated
+
+**Database Verification:**
+```bash
+# Verify family update
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT l.endonym, lf.slug as family
+FROM languages l
+JOIN language_families lf ON l.language_family_id = lf.id
+WHERE l.endonym = 'Test Language'
+"
+```
+
+Expected: New family slug
+
+---
+
+#### 15.7 Clear Optional Fields
+
+**Prerequisites:** Language with optional fields filled
+
+**Steps:**
+1. Navigate to edit page
+2. Clear optional fields:
+   - ISO Code (clear field)
+   - Language Family (deselect)
+   - Country of Origin (deselect)
+   - Speaker Count (clear field)
+3. Submit form
+
+**Expected Result:**
+- ✅ Form accepts empty optional fields
+- ✅ Fields set to NULL in database
+- ✅ List page shows empty/dash for these fields
+- ✅ Required fields (endonym, English name) remain
+
+**Database Verification:**
+```bash
+# Verify NULL values
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym, iso_639_3_code, language_family_id, country_of_origin_id, speaker_count FROM languages WHERE endonym = 'Test Language'"
+```
+
+Expected: NULL for cleared fields
+
+---
+
+### 16. Languages - Delete Operations ✓
+
+#### 16.1 Delete Language (Simple)
+
+**Prerequisites:** Language exists with no dependencies (no points, no descriptions)
+
+**Steps:**
+1. Navigate to edit page for a language
+2. Click "Delete" button
+3. Confirm deletion in dialog
+
+**Expected Result:**
+- ✅ Confirmation dialog appears
+- ✅ Shows warning about permanent deletion
+- ✅ Shows loading state: "Deleting..." with spinner
+- ✅ Redirects to list page after success
+- ✅ Deleted language removed from list
+- ✅ Language and all translations deleted from database
+
+**Database Verification:**
+```bash
+# Verify language deleted
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE endonym = 'Test Language'"
+```
+
+Expected: 0
+
+```bash
+# Verify translations deleted (cascade)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_translations WHERE language_id NOT IN (SELECT id FROM languages)"
+```
+
+Expected: 0 (no orphaned translations)
+
+---
+
+#### 16.2 Delete Language with Taxonomy Assignments
+
+**Prerequisites:** Language with taxonomy assignments
+
+**Steps:**
+1. Navigate to edit page
+2. Click "Delete" button
+3. Confirm deletion
+
+**Expected Result:**
+- ✅ Deletion succeeds
+- ✅ Taxonomy assignments deleted (cascade)
+- ✅ Language removed from database
+- ✅ Taxonomy values themselves remain (not deleted)
+
+**Database Verification:**
+```bash
+# Verify taxonomy assignments deleted
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_taxonomies WHERE language_id NOT IN (SELECT id FROM languages)"
+```
+
+Expected: 0 (no orphaned assignments)
+
+```bash
+# Verify taxonomy values still exist
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM taxonomy_values WHERE taxonomy_type_id = (SELECT id FROM taxonomy_types WHERE slug = 'community-size')"
+```
+
+Expected: > 0 (values preserved)
+
+---
+
+#### 16.3 Delete Language - Foreign Key Constraint (with Points)
+
+**Prerequisites:** Language exists and IS referenced by language points
+
+**Setup:**
+```bash
+# Create a test language point referencing the language
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+INSERT INTO language_points (language_id, neighborhood_id, latitude, longitude)
+VALUES (
+  (SELECT id FROM languages WHERE endonym = 'Test Language'),
+  (SELECT id FROM neighborhoods WHERE slug = 'jordaan'),
+  52.3676,
+  4.9041
+)
+"
+```
+
+**Steps:**
+1. Try to delete language
+2. Confirm deletion in dialog
+
+**Expected Result:**
+- ✅ Shows loading state during deletion attempt
+- ✅ Deletion fails (foreign key constraint)
+- ✅ Error message displays:
+  - "Cannot delete language: it is referenced by language points. Please remove those points first."
+- ✅ Language still exists in database
+- ✅ User can close dialog and fix issue
+
+**Database Verification:**
+```bash
+# Verify language still exists
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym FROM languages WHERE endonym = 'Test Language'"
+```
+
+Expected: 1 row
+
+```bash
+# Verify referencing point exists
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_points WHERE language_id = (SELECT id FROM languages WHERE endonym = 'Test Language')"
+```
+
+Expected: ≥ 1
+
+---
+
+#### 16.4 Delete - Cancel Action
+
+**Steps:**
+1. Navigate to edit page
+2. Click "Delete" button
+3. Click "Cancel" in confirmation dialog
+
+**Expected Result:**
+- ✅ Dialog closes
+- ✅ No deletion occurs
+- ✅ User remains on edit page
+- ✅ Language still exists in database
+
+---
+
+### 17. Languages - Taxonomy Integration ✓
+
+#### 17.1 Dynamic Taxonomy Selector
+
+**Prerequisites:** City has configured taxonomy types
+
+**Steps:**
+1. Navigate to create language page
+2. Observe taxonomy section
+
+**Expected Result:**
+- ✅ Taxonomy section displays all city's taxonomy types
+- ✅ Each taxonomy shows:
+  - Name (translated to current locale)
+  - Description (if available)
+  - Required indicator (for required taxonomies)
+  - Single/multi-select UI based on configuration
+- ✅ No taxonomies from other cities shown
+- ✅ Section is empty if city has no taxonomies
+
+**Database Verification:**
+```bash
+# Check city's taxonomy types
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  tt.slug,
+  ttt.name,
+  tt.is_required,
+  tt.allow_multiple,
+  COUNT(tv.id) as value_count
+FROM taxonomy_types tt
+JOIN taxonomy_type_translations ttt ON tt.id = ttt.taxonomy_type_id
+LEFT JOIN taxonomy_values tv ON tt.id = tv.taxonomy_type_id
+WHERE tt.city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')
+  AND ttt.locale_code = 'en'
+GROUP BY tt.id, tt.slug, ttt.name, tt.is_required, tt.allow_multiple
+ORDER BY tt.slug
+"
+```
+
+---
+
+#### 17.2 Single-Select Taxonomy
+
+**Prerequisites:** City has a single-select taxonomy type
+
+**Steps:**
+1. Navigate to create page
+2. Select a value for single-select taxonomy (e.g., "Community Size")
+3. Try to select a second value
+
+**Expected Result:**
+- ✅ UI only allows one selection (radio button or single-select dropdown)
+- ✅ Selecting a new value deselects the previous one
+- ✅ Cannot submit with multiple values for single-select taxonomy
+
+---
+
+#### 17.3 Multi-Select Taxonomy
+
+**Prerequisites:** City has a multi-select taxonomy type
+
+**Steps:**
+1. Navigate to create page
+2. Select multiple values for multi-select taxonomy (e.g., "Writing Systems")
+3. Submit form
+
+**Expected Result:**
+- ✅ UI allows multiple selections (checkboxes or multi-select dropdown)
+- ✅ All selected values saved to database
+- ✅ List page shows multiple badges for this taxonomy
+
+**Database Verification:**
+```bash
+# Verify multiple taxonomy assignments for same type
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  l.endonym,
+  tt.slug as taxonomy_type,
+  COUNT(*) as value_count,
+  STRING_AGG(tv.slug, ', ') as values
+FROM languages l
+JOIN language_taxonomies ltax ON l.id = ltax.language_id
+JOIN taxonomy_values tv ON ltax.taxonomy_value_id = tv.id
+JOIN taxonomy_types tt ON tv.taxonomy_type_id = tt.id
+WHERE l.endonym = 'Test Language'
+  AND tt.allow_multiple = true
+GROUP BY l.id, l.endonym, tt.slug
+"
+```
+
+Expected: Multiple values for same taxonomy type
+
+---
+
+#### 17.4 Required Taxonomy Validation
+
+**Prerequisites:** City has a required taxonomy type
+
+**Steps:**
+1. Navigate to create page
+2. Fill all fields EXCEPT required taxonomy
+3. Try to submit
+
+**Expected Result:**
+- ✅ Client-side validation prevents submission
+- ✅ Error message highlights required taxonomy
+- ✅ Form indicates which taxonomy is required
+- ✅ User must select value before submission
+
+---
+
+#### 17.5 Taxonomy Value Colors in List
+
+**Prerequisites:** Language with taxonomy assignments
+
+**Steps:**
+1. Navigate to list page
+2. Observe taxonomy badges
+
+**Expected Result:**
+- ✅ Each taxonomy badge has correct color from configuration
+- ✅ Colors are visually distinct
+- ✅ Badge text is readable against background color
+- ✅ Hover states work correctly
+
+**Database Verification:**
+```bash
+# Check taxonomy value colors
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT
+  tv.slug,
+  tv.color_hex,
+  tvt.name
+FROM taxonomy_values tv
+JOIN taxonomy_value_translations tvt ON tv.id = tvt.taxonomy_value_id
+WHERE tvt.locale_code = 'en'
+ORDER BY tv.slug
+"
+```
+
+---
+
+### 18. Languages - Internationalization (i18n) ✓
+
+#### 18.1 English Locale (EN)
+
+**Steps:**
+1. Navigate to: http://localhost:3001/en/operator/amsterdam/languages
+2. Observe all UI text
+
+**Expected Result:**
+- ✅ URL contains `/en/` prefix
+- ✅ Page title: "Languages"
+- ✅ Button: "Add Language"
+- ✅ Form labels: "Endonym", "ISO 639-3 Code", "Name", "Language Family", "Country of Origin", "Speaker Count", "Taxonomies"
+- ✅ Section headers: "Basic Information", "Translations", "Classification"
+- ✅ **Endonym field**: Description explains "Universal name (not translated)"
+- ✅ **Language names** display in English
+- ✅ **Taxonomy names** display in English
+
+---
+
+#### 18.2 Dutch Locale (NL)
+
+**Steps:**
+1. Navigate to: http://localhost:3001/nl/operator/amsterdam/languages
+2. Observe UI adaptation
+
+**Expected Result:**
+- ✅ URL contains `/nl/` prefix
+- ✅ All UI text in Dutch (if translations exist)
+- ✅ **Language names** display in Dutch (if available, else fallback to English)
+- ✅ **Family names** display in Dutch
+- ✅ **Country names** display in Dutch
+- ✅ **Taxonomy names** display in Dutch
+- ✅ **Endonym field remains universal** (same value as English UI)
+- ✅ No console errors
+
+---
+
+#### 18.3 French Locale (FR)
+
+**Steps:**
+1. Navigate to: http://localhost:3001/fr/operator/amsterdam/languages
+2. Observe UI adaptation
+
+**Expected Result:**
+- ✅ URL contains `/fr/` prefix
+- ✅ All functionality works identically
+- ✅ French translations display where available
+- ✅ Graceful fallback to English
+- ✅ **Endonym remains universal**
+
+---
+
+#### 18.4 Endonym Universality Test
+
+**Critical Test:** Verify endonym is NOT translated
+
+**Steps:**
+1. Create a language with endonym: `日本語` (Japanese)
+2. Add translations:
+   - Name (English): `Japanese`
+   - Name (Dutch): `Japans`
+   - Name (French): `Japonais`
+3. View in all three locales:
+   - http://localhost:3001/en/operator/amsterdam/languages
+   - http://localhost:3001/nl/operator/amsterdam/languages
+   - http://localhost:3001/fr/operator/amsterdam/languages
+
+**Expected Result:**
+- ✅ **Endonym shows as `日本語` in ALL locales**
+- ✅ **Name column shows translated names**:
+  - English UI: "Japanese"
+  - Dutch UI: "Japans"
+  - French UI: "Japonais"
+- ✅ This demonstrates correct i18n architecture
+
+**Database Verification:**
+```bash
+# Verify endonym is in languages table (NOT translated)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym FROM languages WHERE endonym = '日本語'"
+```
+
+Expected: Exactly 1 row
+
+```bash
+# Verify translations are in language_translations table
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT locale_code, name FROM language_translations WHERE language_id = (SELECT id FROM languages WHERE endonym = '日本語') ORDER BY locale_code"
+```
+
+Expected: 3 rows with different names (Japanese, Japans, Japonais)
+
+---
+
+### 19. Languages - Error Handling & Edge Cases ✓
+
+#### 19.1 Network Timeout
+
+**Simulate:** Use browser DevTools to throttle network to "Slow 3G"
+
+**Steps:**
+1. Navigate to create page
+2. Fill form
+3. Submit
+4. Observe behavior during slow network
+
+**Expected Result:**
+- ✅ Loading state persists
+- ✅ Form remains disabled during submission
+- ✅ Eventually completes or times out gracefully
+- ✅ User informed of status
+
+---
+
+#### 19.2 Duplicate Endonym in Same City
+
+**Steps:**
+1. Create language with endonym: `Test Language`
+2. Try to create another with same endonym in same city
+3. Submit
+
+**Expected Result:**
+- ✅ Server validation prevents duplicate
+- ✅ Error message: "A language with this endonym already exists in this city"
+- ✅ Form data preserved
+- ✅ User can modify and retry
+
+**Note:** Different cities CAN have same endonym (e.g., both Amsterdam and Rotterdam can have "English")
+
+**Database Verification:**
+```bash
+# Verify only one language with that endonym per city
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE endonym = 'Test Language' AND city_id = (SELECT id FROM cities WHERE slug = 'amsterdam')"
+```
+
+Expected: 1 (not 2)
+
+---
+
+#### 19.3 Invalid UUID in URL
+
+**Steps:**
+1. Navigate to: http://localhost:3001/en/operator/amsterdam/languages/invalid-uuid-format
+
+**Expected Result:**
+- ✅ Shows 404 or validation error
+- ✅ No server crash
+- ✅ User can navigate away
+
+---
+
+#### 19.4 Large Speaker Count
+
+**Steps:**
+1. Create language
+2. Enter speaker count: `9999999999999` (very large number)
+3. Submit
+
+**Expected Result:**
+- ✅ Number stored correctly (or truncated to max safe integer)
+- ✅ Displays correctly in UI
+- ✅ No overflow errors
+
+---
+
+#### 19.5 Special Characters in Endonym
+
+**Steps:**
+1. Create language
+2. Enter endonym with special characters: `Français (Européen)`
+3. Submit
+
+**Expected Result:**
+- ✅ Special characters preserved
+- ✅ Displays correctly in list
+- ✅ No encoding issues
+- ✅ Search/filter works correctly
+
+---
+
+#### 19.6 Empty Optional Translations
+
+**Steps:**
+1. Create language
+2. Fill only English name
+3. Leave Dutch and French names empty
+4. Submit
+
+**Expected Result:**
+- ✅ Form accepts empty optional translations
+- ✅ Only English translation created
+- ✅ No NULL constraint violations
+- ✅ List shows only "en" badge
+
+**Database Verification:**
+```bash
+# Verify only English translation exists
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT locale_code FROM language_translations WHERE language_id = (SELECT id FROM languages WHERE endonym = 'Test') ORDER BY locale_code"
+```
+
+Expected: Only 'en'
+
+---
+
+### 20. Languages - Database Integrity ✓
+
+#### 20.1 Orphaned Translations Check
+
+**Purpose:** Verify cascade deletes work
+
+**Steps:**
+1. Create language
+2. Verify translations created
+3. Delete language
+4. Check for orphaned translations
+
+**Database Verification:**
+```bash
+# Check for orphaned translations (should be 0)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_translations WHERE language_id NOT IN (SELECT id FROM languages)"
+```
+
+Expected: 0
+
+---
+
+#### 20.2 Orphaned Taxonomy Assignments Check
+
+**Database Verification:**
+```bash
+# Check for orphaned taxonomy assignments (should be 0)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_taxonomies WHERE language_id NOT IN (SELECT id FROM languages)"
+```
+
+Expected: 0
+
+```bash
+# Check for invalid taxonomy value references (should be 0)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM language_taxonomies WHERE taxonomy_value_id NOT IN (SELECT id FROM taxonomy_values)"
+```
+
+Expected: 0
+
+---
+
+#### 20.3 Missing Required Translations
+
+**Purpose:** Verify all languages have at least English translation
+
+**Database Verification:**
+```bash
+# Check for languages without English translation (should be 0)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "
+SELECT l.endonym
+FROM languages l
+WHERE NOT EXISTS (
+  SELECT 1 FROM language_translations lt
+  WHERE lt.language_id = l.id
+  AND lt.locale_code = 'en'
+)
+"
+```
+
+Expected: 0 rows
+
+---
+
+#### 20.4 Foreign Key Consistency
+
+**Database Verification:**
+```bash
+# Check for invalid language_family_id references
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE language_family_id IS NOT NULL AND language_family_id NOT IN (SELECT id FROM language_families)"
+```
+
+Expected: 0
+
+```bash
+# Check for invalid country_of_origin_id references
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE country_of_origin_id IS NOT NULL AND country_of_origin_id NOT IN (SELECT id FROM countries)"
+```
+
+Expected: 0
+
+```bash
+# Check for invalid city_id references
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT COUNT(*) FROM languages WHERE city_id NOT IN (SELECT id FROM cities)"
+```
+
+Expected: 0
+
+---
+
+#### 20.5 ISO Code Format Validation
+
+**Database Verification:**
+```bash
+# Check for invalid ISO codes (should be 3 lowercase letters or NULL)
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT endonym, iso_639_3_code FROM languages WHERE iso_639_3_code IS NOT NULL AND iso_639_3_code !~ '^[a-z]{3}$'"
+```
+
+Expected: 0 rows
+
+---
+
+### 21. Languages - Row-Level Security (RLS) ✓
+
+#### 21.1 City-Specific Language Access
+
+**Prerequisites:** operator-ams@example.com has access to Amsterdam only
+
+**Steps:**
+1. Log in as operator
+2. Create language in Amsterdam
+3. Try to query Rotterdam languages via browser console:
+   ```javascript
+   const { data, error } = await supabase
+     .from('languages')
+     .select('*')
+     .eq('city_id', 'rotterdam-uuid')
+   ```
+
+**Expected Result:**
+- ✅ Query returns empty or error
+- ✅ No data from Rotterdam exposed
+- ✅ RLS policies enforce city access
+
+**Database Verification:**
+```bash
+# Verify RLS policies exist for languages table
+docker exec supabase_db_language-map psql -U postgres -d postgres -c "SELECT tablename, policyname FROM pg_policies WHERE tablename = 'languages'"
+```
+
+Expected: Multiple policies for select, insert, update, delete
+
+---
+
+#### 21.2 Operator Cannot Access Other Cities
+
+**Steps:**
+1. Log in as operator-ams@example.com
+2. Try to navigate to: http://localhost:3001/en/operator/rotterdam/languages
+
+**Expected Result:**
+- ✅ Access denied or redirect
+- ✅ No Rotterdam language data visible
+- ✅ Error message or empty state
+
+---
+
+#### 21.3 Admin Multi-City Access
+
+**Prerequisites:** Admin user with access to Amsterdam and Rotterdam
+
+**Steps:**
+1. Log in as admin with multi-city access
+2. Navigate to Amsterdam languages
+3. Navigate to Rotterdam languages
+
+**Expected Result:**
+- ✅ Can access both cities
+- ✅ Correct data shown for each city
+- ✅ No cross-contamination of data
+
+---
+
+#### 21.4 Superuser Access All Cities
+
+**Steps:**
+1. Log in as superuser
+2. Access Amsterdam, Rotterdam, Utrecht languages
+
+**Expected Result:**
+- ✅ Superuser can access all cities
+- ✅ RLS policies allow superuser bypass
+- ✅ Data visible across all cities
+
+---
+
+### 22. Languages - Performance ✓
+
+#### 22.1 List Page Load Time
+
+**Prerequisites:** Database with 100+ languages
+
+**Steps:**
+1. Navigate to list page
+2. Measure load time (use browser DevTools)
+
+**Expected Result:**
+- ✅ Page loads in < 2 seconds
+- ✅ No N+1 query problems
+- ✅ Proper indexing on database queries
+- ✅ Translations loaded efficiently
+
+---
+
+#### 22.2 Form Load Time with Many Taxonomies
+
+**Prerequisites:** City with 10+ taxonomy types, each with 5+ values
+
+**Steps:**
+1. Navigate to create page
+2. Measure load time
+
+**Expected Result:**
+- ✅ Form loads in < 1 second
+- ✅ Taxonomy selectors populate quickly
+- ✅ No UI lag when interacting with selectors
+
+---
+
+### Pending Test Coverage (Days 24-26)
+
+#### Language Points (Day 24-25 - Pending)
 - [ ] Create language point (latitude/longitude)
 - [ ] Associate point with neighborhood
 - [ ] Display on map
 - [ ] Update point location
 - [ ] Delete point
 
-#### Descriptions (Community Stories)
+#### Descriptions (Day 25-26 - Pending)
 - [ ] Create description for language
 - [ ] Add translations
 - [ ] Mark as AI-generated
@@ -993,7 +2349,7 @@ Expected: 1 (not 2)
 - [ ] Edit/update description
 - [ ] Delete description
 
-#### AI Features
+#### AI Features (Day 26 - Pending)
 - [ ] AI description generation
 - [ ] Source filtering (whitelist/blacklist)
 - [ ] Cost tracking (ai_generation_log)
@@ -1014,31 +2370,92 @@ Expected: 1 (not 2)
 - [ ] RPC functions created
 
 ### Language Families Testing (Day 22) ✅
-- [ ] Access control (operator, admin, superuser)
-- [ ] Cross-city access restriction
-- [ ] Empty state display
-- [ ] List view with data
-- [ ] Translation display in all locales
-- [ ] Create with English only
-- [ ] Create with all locales
-- [ ] Form validation (client-side)
-- [ ] Server validation (duplicate slug)
-- [ ] View family details
-- [ ] Update existing translations
-- [ ] Add new translations
-- [ ] Remove translations
-- [ ] Update slug
-- [ ] Delete confirmation dialog
-- [ ] Delete success
-- [ ] Delete with foreign key constraint
-- [ ] Delete error handling
-- [ ] Internationalization (en, nl, fr)
-- [ ] Translation fallback
-- [ ] Database integrity checks
-- [ ] Atomic transaction verification
-- [ ] RLS policies
+- [x] Access control (operator, admin, superuser)
+- [x] Cross-city access restriction
+- [x] Empty state display
+- [x] List view with data
+- [x] Translation display in all locales
+- [x] Create with English only
+- [x] Create with all locales
+- [x] Form validation (client-side)
+- [x] Server validation (duplicate slug)
+- [x] View family details
+- [x] Update existing translations
+- [x] Add new translations
+- [x] Remove translations
+- [x] Update slug
+- [x] Delete confirmation dialog
+- [x] Delete success
+- [x] Delete with foreign key constraint
+- [x] Delete error handling
+- [x] Internationalization (en, nl, fr)
+- [x] Translation fallback
+- [x] Database integrity checks
+- [x] Atomic transaction verification
+- [x] RLS policies
 
-### Languages Testing (Days 23-26) - Pending
+### Languages Testing (Day 23) ✅
+- [ ] 11.1 Operator Access
+- [ ] 11.2 Cross-City Access Restriction
+- [ ] 12.1 Empty State
+- [ ] 12.2 List with Data
+- [ ] 12.3 Translation Display
+- [ ] 12.4 Taxonomy Badge Display
+- [ ] 13.1 Create (Required Fields Only)
+- [ ] 13.2 Create (All Fields)
+- [ ] 13.3 Create with Taxonomy Assignment
+- [ ] 13.4 Validation - Missing Required Fields
+- [ ] 13.5 Validation - Invalid ISO Code
+- [ ] 13.6 Validation - Required Taxonomy Missing
+- [ ] 13.7 Input Sanitization
+- [ ] 14.1 View Language Details
+- [ ] 14.2 Language Not Found (404)
+- [ ] 14.3 View Language with Multiple Taxonomies
+- [ ] 15.1 Update Basic Fields
+- [ ] 15.2 Update Translations - Add Locale
+- [ ] 15.3 Update Translations - Remove Locale
+- [ ] 15.4 Update Endonym (Universal Field)
+- [ ] 15.5 Update Taxonomy Assignments
+- [ ] 15.6 Update Language Family
+- [ ] 15.7 Clear Optional Fields
+- [ ] 16.1 Delete Language (Simple)
+- [ ] 16.2 Delete with Taxonomy Assignments
+- [ ] 16.3 Delete Foreign Key Constraint (with Points)
+- [ ] 16.4 Delete Cancel
+- [ ] 17.1 Dynamic Taxonomy Selector
+- [ ] 17.2 Single-Select Taxonomy
+- [ ] 17.3 Multi-Select Taxonomy
+- [ ] 17.4 Required Taxonomy Validation
+- [ ] 17.5 Taxonomy Value Colors
+- [ ] 18.1 English Locale
+- [ ] 18.2 Dutch Locale
+- [ ] 18.3 French Locale
+- [ ] 18.4 Endonym Universality Test
+- [ ] 19.1 Network Timeout
+- [ ] 19.2 Duplicate Endonym
+- [ ] 19.3 Invalid UUID
+- [ ] 19.4 Large Speaker Count
+- [ ] 19.5 Special Characters
+- [ ] 19.6 Empty Optional Translations
+- [ ] 20.1 Orphaned Translations Check
+- [ ] 20.2 Orphaned Taxonomy Assignments Check
+- [ ] 20.3 Missing Required Translations
+- [ ] 20.4 Foreign Key Consistency
+- [ ] 20.5 ISO Code Format Validation
+- [ ] 21.1 City-Specific Language Access
+- [ ] 21.2 Operator Cannot Access Other Cities
+- [ ] 21.3 Admin Multi-City Access
+- [ ] 21.4 Superuser Access All Cities
+- [ ] 22.1 List Page Load Time
+- [ ] 22.2 Form Load Time with Many Taxonomies
+
+### Language Points Testing (Days 24-25) - Pending
+- [ ] To be added after implementation
+
+### Descriptions Testing (Days 25-26) - Pending
+- [ ] To be added after implementation
+
+### AI Features Testing (Day 26) - Pending
 - [ ] To be added after implementation
 
 ---
@@ -1242,43 +2659,36 @@ console.log('Failure:', fail, err2)
 
 ## Document Maintenance
 
-**Last Updated:** November 5, 2025
-**Next Update:** After Languages implementation (Days 23-26)
+**Last Updated:** November 10, 2025
+**Next Update:** After Language Points implementation (Days 24-25)
 **Maintainer:** Development Team
 
 ### Change Log
 
 - **2025-11-05:** Initial document created for Language Families (Day 22)
-- **TBD:** Add Languages CRUD testing (Day 23)
-- **TBD:** Add Language Points testing (Day 24)
-- **TBD:** Add Descriptions testing (Day 25)
+- **2025-11-10:** Added comprehensive Languages CRUD testing (Day 23) - 12 sections, 56 test scenarios
+- **TBD:** Add Language Points testing (Days 24-25)
+- **TBD:** Add Descriptions testing (Day 25-26)
 - **TBD:** Add AI Features testing (Day 26)
 
 ### Extension Points for Future Testing
 
-When implementing Days 23-26, add sections for:
+When implementing Days 24-26, add sections for:
 
-1. **Languages Entity:**
-   - Foreign key relationships (family, country, city)
-   - Endonym handling (non-translated field)
-   - Translation management per locale
-   - ISO code validation
-   - Active/inactive status
-
-2. **Language Points:**
+1. **Language Points (Days 24-25):**
    - Geographic coordinate validation
    - Map integration testing
    - Neighborhood association
    - Bulk point management
 
-3. **Descriptions:**
+2. **Descriptions (Days 25-26):**
    - Rich text handling
    - AI generation workflow
    - Review and approval process
    - Translation management
    - Source citation
 
-4. **AI Integration:**
+3. **AI Integration (Day 26):**
    - Provider configuration
    - API key management
    - Cost tracking

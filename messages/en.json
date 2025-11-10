@@ -610,6 +610,75 @@
       }
     }
   },
+  "languages": {
+    "title": "Languages",
+    "description": "Manage languages and their translations",
+    "actions": {
+      "create": "Add Language",
+      "createFirst": "Create First Language",
+      "edit": "Edit Language",
+      "delete": "Delete Language",
+      "back": "Back to Languages"
+    },
+    "list": {
+      "title": "All Languages",
+      "count": "{count, plural, one {# language} other {# languages}}",
+      "empty": "No languages found. Create your first language to get started.",
+      "columns": {
+        "endonym": "Endonym",
+        "name": "Name",
+        "family": "Language Family",
+        "taxonomies": "Classifications",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Language",
+      "description": "Add a new language to your city's language map"
+    },
+    "edit": {
+      "title": "Edit Language",
+      "description": "Editing {name}"
+    },
+    "form": {
+      "coreInfo": "Core Information",
+      "coreInfoDescription": "Basic language information",
+      "endonym": "Endonym",
+      "endonymPlaceholder": "e.g., 日本語, Español, English",
+      "endonymHelp": "The language's name in its own language (not translated)",
+      "isoCode": "ISO 639-3 Code",
+      "isoCodeHelp": "Optional three-letter language code",
+      "languageFamily": "Language Family",
+      "selectLanguageFamily": "Select a language family",
+      "countryOfOrigin": "Country of Origin",
+      "selectCountry": "Select a country",
+      "speakerCount": "Speaker Count",
+      "none": "None",
+      "translations": "Translations",
+      "translationsDescription": "Provide names in different languages",
+      "englishName": "English Name",
+      "dutchName": "Dutch Name",
+      "frenchName": "French Name",
+      "namePlaceholder": "Enter the language name",
+      "taxonomies": "Classifications",
+      "taxonomiesDescription": "Assign taxonomy values to classify this language",
+      "multiSelect": "Multi-select",
+      "singleSelect": "Single-select",
+      "cancel": "Cancel",
+      "create": "Create Language",
+      "update": "Update Language",
+      "saving": "Saving..."
+    },
+    "help": {
+      "title": "About Languages",
+      "description": "Languages represent the linguistic diversity in your city. Each language can be classified using custom taxonomy types."
+    },
+    "error": {
+      "title": "Error",
+      "notFound": "Language not found",
+      "unknown": "An unexpected error occurred"
+    }
+  },
   "admin": {
     "invitations": {
       "title": "User Invitations"

@@ -612,5 +612,74 @@
         }
       }
     }
+  },
+  "languages": {
+    "title": "Langues",
+    "description": "Gérer les langues et leurs traductions",
+    "actions": {
+      "create": "Ajouter une Langue",
+      "createFirst": "Créer la Première Langue",
+      "edit": "Éditer la Langue",
+      "delete": "Supprimer la Langue",
+      "back": "Retour aux Langues"
+    },
+    "list": {
+      "title": "Toutes les Langues",
+      "count": "{count, plural, one {# langue} other {# langues}}",
+      "empty": "Aucune langue trouvée. Créez votre première langue pour commencer.",
+      "columns": {
+        "endonym": "Endonyme",
+        "name": "Nom",
+        "family": "Famille de Langues",
+        "taxonomies": "Classifications",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Créer une Langue",
+      "description": "Ajouter une nouvelle langue à la carte linguistique de votre ville"
+    },
+    "edit": {
+      "title": "Éditer la Langue",
+      "description": "Édition de {name}"
+    },
+    "form": {
+      "coreInfo": "Informations de Base",
+      "coreInfoDescription": "Informations de base sur la langue",
+      "endonym": "Endonyme",
+      "endonymPlaceholder": "ex. 日本語, Español, English",
+      "endonymHelp": "Le nom de la langue dans sa propre langue (non traduit)",
+      "isoCode": "Code ISO 639-3",
+      "isoCodeHelp": "Code de langue à trois lettres optionnel",
+      "languageFamily": "Famille de Langues",
+      "selectLanguageFamily": "Sélectionner une famille de langues",
+      "countryOfOrigin": "Pays d'Origine",
+      "selectCountry": "Sélectionner un pays",
+      "speakerCount": "Nombre de Locuteurs",
+      "none": "Aucun",
+      "translations": "Traductions",
+      "translationsDescription": "Fournir les noms dans différentes langues",
+      "englishName": "Nom Anglais",
+      "dutchName": "Nom Néerlandais",
+      "frenchName": "Nom Français",
+      "namePlaceholder": "Entrez le nom de la langue",
+      "taxonomies": "Classifications",
+      "taxonomiesDescription": "Attribuer des valeurs taxonomiques pour classifier cette langue",
+      "multiSelect": "Multi-sélection",
+      "singleSelect": "Sélection unique",
+      "cancel": "Annuler",
+      "create": "Créer la Langue",
+      "update": "Mettre à Jour la Langue",
+      "saving": "Enregistrement..."
+    },
+    "help": {
+      "title": "À Propos des Langues",
+      "description": "Les langues représentent la diversité linguistique dans votre ville. Chaque langue peut être classée à l'aide de types taxonomiques personnalisés."
+    },
+    "error": {
+      "title": "Erreur",
+      "notFound": "Langue non trouvée",
+      "unknown": "Une erreur inattendue s'est produite"
+    }
   }
 }

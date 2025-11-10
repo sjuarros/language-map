@@ -612,5 +612,74 @@
         }
       }
     }
+  },
+  "languages": {
+    "title": "Talen",
+    "description": "Beheer talen en hun vertalingen",
+    "actions": {
+      "create": "Taal Toevoegen",
+      "createFirst": "Eerste Taal Aanmaken",
+      "edit": "Taal Bewerken",
+      "delete": "Taal Verwijderen",
+      "back": "Terug naar Talen"
+    },
+    "list": {
+      "title": "Alle Talen",
+      "count": "{count, plural, one {# taal} other {# talen}}",
+      "empty": "Geen talen gevonden. Maak je eerste taal aan om te beginnen.",
+      "columns": {
+        "endonym": "Endoniem",
+        "name": "Naam",
+        "family": "Taalfamilie",
+        "taxonomies": "Classificaties",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Taal Aanmaken",
+      "description": "Voeg een nieuwe taal toe aan de taalkaart van je stad"
+    },
+    "edit": {
+      "title": "Taal Bewerken",
+      "description": "Bewerken van {name}"
+    },
+    "form": {
+      "coreInfo": "Kerngegevens",
+      "coreInfoDescription": "Basisinformatie over de taal",
+      "endonym": "Endoniem",
+      "endonymPlaceholder": "bijv. 日本語, Español, English",
+      "endonymHelp": "De naam van de taal in zijn eigen taal (niet vertaald)",
+      "isoCode": "ISO 639-3 Code",
+      "isoCodeHelp": "Optionele drieletterige taalcode",
+      "languageFamily": "Taalfamilie",
+      "selectLanguageFamily": "Selecteer een taalfamilie",
+      "countryOfOrigin": "Land van Oorsprong",
+      "selectCountry": "Selecteer een land",
+      "speakerCount": "Aantal Sprekers",
+      "none": "Geen",
+      "translations": "Vertalingen",
+      "translationsDescription": "Geef namen op in verschillende talen",
+      "englishName": "Engelse Naam",
+      "dutchName": "Nederlandse Naam",
+      "frenchName": "Franse Naam",
+      "namePlaceholder": "Voer de taalnaam in",
+      "taxonomies": "Classificaties",
+      "taxonomiesDescription": "Wijs taxonomiewaarden toe om deze taal te classificeren",
+      "multiSelect": "Multi-selectie",
+      "singleSelect": "Enkel-selectie",
+      "cancel": "Annuleren",
+      "create": "Taal Aanmaken",
+      "update": "Taal Bijwerken",
+      "saving": "Opslaan..."
+    },
+    "help": {
+      "title": "Over Talen",
+      "description": "Talen vertegenwoordigen de taalkundige diversiteit in je stad. Elke taal kan worden geclassificeerd met behulp van aangepaste taxonomietypes."
+    },
+    "error": {
+      "title": "Fout",
+      "notFound": "Taal niet gevonden",
+      "unknown": "Er is een onverwachte fout opgetreden"
+    }
   }
 }
