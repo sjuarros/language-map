@@ -20,7 +20,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getDatabaseAdminClient } from '@/lib/database/client'
 
 /**
  * GeoJSON Feature for a language point
@@ -178,10 +178,10 @@ export async function GET(
       }
     }
 
-    // Get database client for the city
+    // Get database client for the city (using admin client to bypass RLS for public API)
     let supabase
     try {
-      supabase = getDatabaseClient(citySlug)
+      supabase = getDatabaseAdminClient(citySlug)
 
       if (!supabase) {
         throw new Error('Failed to initialize database client')
