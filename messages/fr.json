@@ -797,5 +797,70 @@
     "invitations": {
       "title": "Invitations d'Utilisateurs"
     }
+  },
+  "descriptions": {
+    "title": "Descriptions",
+    "description": "Gérer les histoires communautaires et les descriptions linguistiques",
+    "list": {
+      "title": "Descriptions",
+      "empty": "Aucune description trouvée. Créez votre première description pour commencer.",
+      "addButton": "Ajouter une Description",
+      "columns": {
+        "language": "Langue",
+        "neighborhood": "Quartier",
+        "preview": "Aperçu de la Description",
+        "translations": "Traductions",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Créer une Description",
+      "description": "Ajouter une nouvelle histoire communautaire ou description linguistique"
+    },
+    "edit": {
+      "title": "Modifier la Description",
+      "description": "Mettre à jour les métadonnées de description pour {language}",
+      "metadataOnly": "Modification des métadonnées uniquement",
+      "useTranslationsPage": "Pour modifier le texte de description ou ajouter des traductions, utilisez la page Traductions."
+    },
+    "form": {
+      "language": "Langue",
+      "selectLanguage": "Sélectionnez une langue",
+      "languageCannotChange": "La langue ne peut pas être modifiée après la création",
+      "neighborhood": "Quartier",
+      "selectNeighborhood": "Sélectionnez un quartier (optionnel)",
+      "noNeighborhood": "Pas de quartier",
+      "optional": "Optionnel",
+      "description": "Description",
+      "descriptionPlaceholder": "Entrez l'histoire communautaire ou la description linguistique...",
+      "descriptionHint": "Cela sera enregistré comme la traduction {locale}",
+      "useTranslationsPage": "Pour modifier les traductions, utilisez la page Traductions",
+      "aiGenerated": "Généré par IA",
+      "aiTranslated": "Traduit par IA",
+      "model": "Modèle",
+      "cancel": "Annuler",
+      "create": "Créer la Description",
+      "update": "Mettre à jour la Description",
+      "saving": "Enregistrement...",
+      "errorGeneric": "Échec de l'enregistrement de la description. Veuillez réessayer.",
+      "errorTextRequired": "Le texte de description est requis",
+      "validation": {
+        "languageRequired": "Veuillez sélectionner une langue",
+        "textRequired": "Le texte de description est requis"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Supprimer la Description",
+      "confirmMessage": "Êtes-vous sûr de vouloir supprimer cette description ? Cette action ne peut pas être annulée et supprimera toutes les traductions.",
+      "confirmButton": "Supprimer",
+      "cancelButton": "Annuler",
+      "success": "Description supprimée avec succès",
+      "error": "Échec de la suppression de la description"
+    },
+    "translations": {
+      "title": "Traductions de Description",
+      "description": "Gérer le texte de description dans différentes langues",
+      "manageButton": "Gérer les Traductions"
+    }
   }
 }

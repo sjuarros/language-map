@@ -794,5 +794,70 @@
     "invitations": {
       "title": "User Invitations"
     }
+  },
+  "descriptions": {
+    "title": "Descriptions",
+    "description": "Manage community stories and language descriptions",
+    "list": {
+      "title": "Descriptions",
+      "empty": "No descriptions found. Create your first description to get started.",
+      "addButton": "Add Description",
+      "columns": {
+        "language": "Language",
+        "neighborhood": "Neighborhood",
+        "preview": "Description Preview",
+        "translations": "Translations",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Description",
+      "description": "Add a new community story or language description"
+    },
+    "edit": {
+      "title": "Edit Description",
+      "description": "Update description metadata for {language}",
+      "metadataOnly": "Editing metadata only",
+      "useTranslationsPage": "To edit the description text or add translations, use the Translations page."
+    },
+    "form": {
+      "language": "Language",
+      "selectLanguage": "Select a language",
+      "languageCannotChange": "Language cannot be changed after creation",
+      "neighborhood": "Neighborhood",
+      "selectNeighborhood": "Select a neighborhood (optional)",
+      "noNeighborhood": "No neighborhood",
+      "optional": "Optional",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter the community story or language description...",
+      "descriptionHint": "This will be saved as the {locale} translation",
+      "useTranslationsPage": "To edit translations, use the Translations page",
+      "aiGenerated": "AI Generated",
+      "aiTranslated": "AI Translated",
+      "model": "Model",
+      "cancel": "Cancel",
+      "create": "Create Description",
+      "update": "Update Description",
+      "saving": "Saving...",
+      "errorGeneric": "Failed to save description. Please try again.",
+      "errorTextRequired": "Description text is required",
+      "validation": {
+        "languageRequired": "Please select a language",
+        "textRequired": "Description text is required"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Delete Description",
+      "confirmMessage": "Are you sure you want to delete this description? This action cannot be undone and will remove all translations.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "success": "Description deleted successfully",
+      "error": "Failed to delete description"
+    },
+    "translations": {
+      "title": "Description Translations",
+      "description": "Manage description text in different languages",
+      "manageButton": "Manage Translations"
+    }
   }
 }

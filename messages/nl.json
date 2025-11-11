@@ -797,5 +797,70 @@
     "invitations": {
       "title": "Gebruikersuitnodigingen"
     }
+  },
+  "descriptions": {
+    "title": "Beschrijvingen",
+    "description": "Beheer gemeenschapsverhalen en taalbeschrijvingen",
+    "list": {
+      "title": "Beschrijvingen",
+      "empty": "Geen beschrijvingen gevonden. Maak uw eerste beschrijving aan om te beginnen.",
+      "addButton": "Beschrijving Toevoegen",
+      "columns": {
+        "language": "Taal",
+        "neighborhood": "Buurt",
+        "preview": "Beschrijving Voorvertoning",
+        "translations": "Vertalingen",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Beschrijving Aanmaken",
+      "description": "Voeg een nieuw gemeenschapsverhaal of taalbeschrijving toe"
+    },
+    "edit": {
+      "title": "Beschrijving Bewerken",
+      "description": "Update beschrijving metadata voor {language}",
+      "metadataOnly": "Alleen metadata bewerken",
+      "useTranslationsPage": "Gebruik de Vertalingen pagina om de beschrijvingstekst te bewerken of vertalingen toe te voegen."
+    },
+    "form": {
+      "language": "Taal",
+      "selectLanguage": "Selecteer een taal",
+      "languageCannotChange": "Taal kan niet worden gewijzigd na aanmaak",
+      "neighborhood": "Buurt",
+      "selectNeighborhood": "Selecteer een buurt (optioneel)",
+      "noNeighborhood": "Geen buurt",
+      "optional": "Optioneel",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Voer het gemeenschapsverhaal of de taalbeschrijving in...",
+      "descriptionHint": "Dit wordt opgeslagen als de {locale} vertaling",
+      "useTranslationsPage": "Gebruik de Vertalingen pagina om vertalingen te bewerken",
+      "aiGenerated": "AI Gegenereerd",
+      "aiTranslated": "AI Vertaald",
+      "model": "Model",
+      "cancel": "Annuleren",
+      "create": "Beschrijving Aanmaken",
+      "update": "Beschrijving Bijwerken",
+      "saving": "Opslaan...",
+      "errorGeneric": "Beschrijving opslaan mislukt. Probeer het opnieuw.",
+      "errorTextRequired": "Beschrijvingstekst is verplicht",
+      "validation": {
+        "languageRequired": "Selecteer een taal",
+        "textRequired": "Beschrijvingstekst is verplicht"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Beschrijving Verwijderen",
+      "confirmMessage": "Weet u zeker dat u deze beschrijving wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en zal alle vertalingen verwijderen.",
+      "confirmButton": "Verwijderen",
+      "cancelButton": "Annuleren",
+      "success": "Beschrijving succesvol verwijderd",
+      "error": "Beschrijving verwijderen mislukt"
+    },
+    "translations": {
+      "title": "Beschrijving Vertalingen",
+      "description": "Beheer beschrijvingstekst in verschillende talen",
+      "manageButton": "Vertalingen Beheren"
+    }
   }
 }
