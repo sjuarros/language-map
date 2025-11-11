@@ -9,7 +9,14 @@
     "edit": "Modifier",
     "create": "Créer",
     "search": "Rechercher",
-    "close": "Fermer"
+    "close": "Fermer",
+    "actions": {
+      "back": "Retour",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    }
   },
   "errors": {
     "permissionDenied": "Vous n'avez pas la permission d'effectuer cette action. Veuillez contacter votre administrateur.",
@@ -689,6 +696,40 @@
       "title": "Erreur",
       "notFound": "Langue non trouvée",
       "unknown": "Une erreur inattendue s'est produite"
+    },
+    "translations": {
+      "title": "Traductions des Noms de Langues",
+      "description": "Gérez comment le nom de cette langue apparaît dans différentes langues d'interface (Anglais, Néerlandais, Français)",
+      "manageButton": "Gérer les Traductions"
+    }
+  },
+  "languageTranslations": {
+    "title": "Traductions de Langues",
+    "help": {
+      "title": "À Propos des Traductions de Langues",
+      "description": "Gérez comment les noms de langues apparaissent dans différentes langues d'interface. L'endonyme (nom natif) reste constant - seuls les noms traduits changent."
+    },
+    "existingTranslations": {
+      "title": "Traductions Existantes",
+      "description": "{count, plural, one {# traduction existe} other {# traductions existent}}"
+    },
+    "missingTranslations": {
+      "title": "Ajouter des Traductions Manquantes",
+      "description": "{count, plural, one {# traduction nécessaire} other {# traductions nécessaires}}"
+    },
+    "noTranslations": "Aucune traduction disponible",
+    "aiInfo": {
+      "title": "Traductions Générées par IA",
+      "description": "Les traductions marquées avec un badge IA ont été générées automatiquement. Vous pouvez les modifier pour améliorer la précision."
+    },
+    "form": {
+      "nameLabel": "Nom Traduit",
+      "namePlaceholder": "Entrez le nom de la langue dans cette langue",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette traduction ?",
+      "aiTranslatedInfo": "Généré par IA par {model} le {date}",
+      "validation": {
+        "nameRequired": "Le nom de la traduction est requis"
+      }
     }
   }
 }

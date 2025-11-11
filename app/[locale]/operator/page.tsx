@@ -62,24 +62,18 @@ export default function OperatorDashboard() {
       } else {
         console.log('Cities raw data:', citiesData)
         // Format cities data
-        const formattedCities: City[] = citiesData?.map((cityUser: {
-          role: string;
-          city_id: string;
-          cities: Array<{
-            id: string;
-            slug: string;
-            city_translations: Array<{ name: string; locale_code: string }>;
-          }>;
-        }) => {
+        const formattedCities: City[] = citiesData?.map((cityUser) => {
           console.log('Processing city user:', cityUser)
-          const cityData = cityUser.cities[0]
+          // Handle both array and object response from Supabase
+          // TypeScript types say array, but runtime returns object for single relations
+          const cityData = Array.isArray(cityUser.cities) ? cityUser.cities[0] : cityUser.cities
           return {
             id: cityData?.id || '',
             slug: cityData?.slug || '',
             name: cityData?.city_translations?.[0]?.name || cityData?.slug || 'Unknown',
             role: cityUser.role
           }
-        }) || []
+        }).filter(city => city.id && city.slug) || []
         console.log('Formatted cities:', formattedCities)
         setCities(formattedCities)
       }

@@ -9,7 +9,14 @@
     "edit": "Bewerken",
     "create": "Aanmaken",
     "search": "Zoeken",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "actions": {
+      "back": "Terug",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "cancel": "Annuleren",
+      "delete": "Verwijderen"
+    }
   },
   "errors": {
     "permissionDenied": "Je hebt geen toestemming om deze actie uit te voeren. Neem contact op met je beheerder.",
@@ -689,6 +696,40 @@
       "title": "Fout",
       "notFound": "Taal niet gevonden",
       "unknown": "Er is een onverwachte fout opgetreden"
+    },
+    "translations": {
+      "title": "Taalnaamvertalingen",
+      "description": "Beheer hoe deze taalnaam verschijnt in verschillende interfacetalen (Engels, Nederlands, Frans)",
+      "manageButton": "Vertalingen Beheren"
+    }
+  },
+  "languageTranslations": {
+    "title": "Taalvertalingen",
+    "help": {
+      "title": "Over Taalvertalingen",
+      "description": "Beheer hoe taalnamen verschijnen in verschillende interfacetalen. Het endonym (eigen naam) blijft constant - alleen de vertaalde namen veranderen."
+    },
+    "existingTranslations": {
+      "title": "Bestaande Vertalingen",
+      "description": "{count, plural, one {# vertaling bestaat} other {# vertalingen bestaan}}"
+    },
+    "missingTranslations": {
+      "title": "Ontbrekende Vertalingen Toevoegen",
+      "description": "{count, plural, one {# vertaling nodig} other {# vertalingen nodig}}"
+    },
+    "noTranslations": "Geen vertalingen beschikbaar",
+    "aiInfo": {
+      "title": "AI-Gegenereerde Vertalingen",
+      "description": "Vertalingen gemarkeerd met een AI-badge zijn automatisch gegenereerd. U kunt ze bewerken om de nauwkeurigheid te verbeteren."
+    },
+    "form": {
+      "nameLabel": "Vertaalde Naam",
+      "namePlaceholder": "Voer de taalnaam in deze taal in",
+      "confirmDelete": "Weet u zeker dat u deze vertaling wilt verwijderen?",
+      "aiTranslatedInfo": "AI-gegenereerd door {model} op {date}",
+      "validation": {
+        "nameRequired": "Vertaalde naam is verplicht"
+      }
     }
   }
 }

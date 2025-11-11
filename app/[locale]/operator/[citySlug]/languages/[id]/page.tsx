@@ -9,8 +9,14 @@
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Languages as LanguagesIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { LanguageForm } from '@/components/languages/language-form'
 import { DeleteLanguageButton } from '@/components/languages/delete-language-button'
 import { FormErrorBoundary } from '@/components/ui/form-error-boundary'
@@ -165,6 +171,31 @@ export default async function EditLanguagePage({ params }: EditLanguagePageProps
           locale={locale}
         />
       </div>
+
+      {/* Translations Management Card */}
+      <Card className="bg-blue-50 border-blue-200">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-blue-900 flex items-center gap-2">
+                <LanguagesIcon className="h-5 w-5" />
+                {t('translations.title', { defaultValue: 'Language Name Translations' })}
+              </CardTitle>
+              <CardDescription className="text-blue-700">
+                {t('translations.description', {
+                  defaultValue: 'Manage how this language name appears in different interface languages (English, Dutch, French)'
+                })}
+              </CardDescription>
+            </div>
+            <Link href={`/${locale}/operator/${citySlug}/languages/${id}/translations`}>
+              <Button variant="outline" className="bg-white">
+                <LanguagesIcon className="mr-2 h-4 w-4" />
+                {t('translations.manageButton', { defaultValue: 'Manage Translations' })}
+              </Button>
+            </Link>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Language Form */}
       <FormErrorBoundary>
