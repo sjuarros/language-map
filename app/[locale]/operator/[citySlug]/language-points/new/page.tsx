@@ -27,13 +27,13 @@ interface PageParams {
  * Create Language Point Page.
  * Server component that fetches necessary data and renders the creation form.
  *
- * @param params - The page parameters containing locale and citySlug
+ * @param params - The page parameters containing locale and citySlug (Promise in Next.js 15+)
  * @param params.params.locale - The current locale
  * @param params.params.citySlug - The slug of the city
  * @returns JSX element containing the create form or error message
  */
 export default async function CreateLanguagePointPage({ params }: PageParams) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
 
   // Validate route parameters
   if (!locale || typeof locale !== 'string') {

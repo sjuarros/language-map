@@ -8,7 +8,39 @@
 
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
-import { getDatabaseClient } from '@/lib/database/client'
+import { getServerSupabaseWithCookies } from '@/lib/supabase/server-client'
+
+/**
+ * Type definitions for database query results
+ */
+interface Translation {
+  name: string
+  locale_code: string
+}
+
+interface LanguageWithTranslations {
+  id: string
+  endonym: string | null
+  translations: Translation[]
+}
+
+interface NeighborhoodWithTranslations {
+  id: string
+  slug: string
+  translations: Translation[]
+}
+
+interface RawLanguagePoint {
+  id: string
+  latitude: number
+  longitude: number
+  postal_code: string | null
+  community_name: string | null
+  notes: string | null
+  created_at: string
+  language: LanguageWithTranslations[] | null
+  neighborhood: NeighborhoodWithTranslations[] | null
+}
 
 /**
  * Validation schema for language point form data
@@ -45,7 +77,7 @@ export async function getLanguagePoints(citySlug: string, locale: string) {
   }
 
   try {
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city ID first
     const { data: city, error: cityError } = await supabase
@@ -59,7 +91,7 @@ export async function getLanguagePoints(citySlug: string, locale: string) {
     }
 
     // Get language points with related data
-    const { data, error } = await supabase
+    const { data: rawData, error } = await supabase
       .from('language_points')
       .select(`
         id,
@@ -69,29 +101,43 @@ export async function getLanguagePoints(citySlug: string, locale: string) {
         community_name,
         notes,
         created_at,
-        language:languages!inner (
+        language:languages (
           id,
           endonym,
-          translations:language_translations!inner (
-            name
+          translations:language_translations (
+            name,
+            locale_code
           )
         ),
         neighborhood:neighborhoods (
           id,
           slug,
-          translations:neighborhood_translations!inner (
-            name
+          translations:neighborhood_translations (
+            name,
+            locale_code
           )
         )
       `)
       .eq('city_id', city.id)
-      .eq('language.translations.locale_code', locale)
       .order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching language points:', error)
       throw new Error('Failed to fetch language points')
     }
+
+    // Filter translations to match the requested locale
+    const data = rawData?.map((point: RawLanguagePoint) => ({
+      ...point,
+      language: point.language?.map((lang: LanguageWithTranslations) => ({
+        ...lang,
+        translations: lang.translations?.filter((t: Translation) => t.locale_code === locale) || []
+      })) || [],
+      neighborhood: point.neighborhood?.map((nbhd: NeighborhoodWithTranslations) => ({
+        ...nbhd,
+        translations: nbhd.translations?.filter((t: Translation) => t.locale_code === locale) || []
+      })) || []
+    }))
 
     return data || []
   } catch (error) {
@@ -126,7 +172,7 @@ export async function getLanguagePoint(citySlug: string, pointId: string) {
   }
 
   try {
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     const { data, error } = await supabase
       .from('language_points')
@@ -183,7 +229,7 @@ export async function getLanguagesForPoints(citySlug: string, locale: string) {
   }
 
   try {
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city ID
     const { data: city, error: cityError } = await supabase
@@ -242,7 +288,7 @@ export async function getNeighborhoodsForPoints(citySlug: string, locale: string
   }
 
   try {
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city ID
     const { data: city, error: cityError } = await supabase
@@ -320,7 +366,7 @@ export async function createLanguagePoint(
     // Validate input
     const validatedData = LanguagePointSchema.parse(formData)
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Get city ID
     const { data: city, error: cityError } = await supabase
@@ -401,7 +447,7 @@ export async function updateLanguagePoint(
     // Validate input
     const validatedData = LanguagePointSchema.parse(formData)
 
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     // Update language point
     const { data, error } = await supabase
@@ -464,7 +510,7 @@ export async function deleteLanguagePoint(citySlug: string, pointId: string) {
   }
 
   try {
-    const supabase = getDatabaseClient(citySlug)
+    const supabase = await getServerSupabaseWithCookies(citySlug)
 
     const { error } = await supabase
       .from('language_points')

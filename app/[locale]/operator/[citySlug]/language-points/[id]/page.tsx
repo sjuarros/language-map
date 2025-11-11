@@ -30,14 +30,14 @@ interface PageParams {
  * Edit Language Point Page.
  * Server component that fetches language point data and renders the edit form.
  *
- * @param params - The page parameters containing locale, citySlug, and id
+ * @param params - The page parameters containing locale, citySlug, and id (Promise in Next.js 15+)
  * @param params.params.locale - The current locale
  * @param params.params.citySlug - The slug of the city
  * @param params.params.id - The ID of the language point to edit
  * @returns JSX element containing the edit form or error message
  */
 export default async function EditLanguagePointPage({ params }: PageParams) {
-  const { locale, citySlug, id } = params
+  const { locale, citySlug, id } = await params
 
   // Validate route parameters
   if (!locale || typeof locale !== 'string') {

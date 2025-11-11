@@ -201,13 +201,13 @@ async function LanguagePointsList({
  * Language Points Page.
  * Server component that renders the language points list with navigation and a header.
  *
- * @param params - The page parameters containing locale and citySlug
+ * @param params - The page parameters containing locale and citySlug (Promise in Next.js 15+)
  * @param params.params.locale - The current locale
  * @param params.params.citySlug - The slug of the city
  * @returns JSX element containing the language points page
  */
 export default async function LanguagePointsPage({ params }: PageParams) {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
 
   return (
     <div className="space-y-6">
