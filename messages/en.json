@@ -729,6 +729,67 @@
       }
     }
   },
+  "languagePoints": {
+    "title": "Language Points",
+    "description": "Manage geographic locations where languages are spoken",
+    "list": {
+      "title": "Language Points",
+      "empty": "No language points found. Create your first language point to get started.",
+      "addButton": "Add Language Point",
+      "columns": {
+        "language": "Language",
+        "neighborhood": "Neighborhood",
+        "coordinates": "Coordinates",
+        "communityName": "Community Name",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Language Point",
+      "description": "Add a new geographic location where a language is spoken"
+    },
+    "edit": {
+      "title": "Edit Language Point",
+      "description": "Update the geographic location details"
+    },
+    "form": {
+      "language": "Language",
+      "selectLanguage": "Select a language",
+      "neighborhood": "Neighborhood",
+      "selectNeighborhood": "Select a neighborhood (optional)",
+      "noNeighborhood": "No neighborhood",
+      "latitude": "Latitude",
+      "latitudeRange": "Range: -90 to 90",
+      "longitude": "Longitude",
+      "longitudeRange": "Range: -180 to 180",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "e.g., 1012AB",
+      "communityName": "Community Name",
+      "communityNamePlaceholder": "e.g., Turkish Community Center",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information about this location",
+      "cancel": "Cancel",
+      "create": "Create Language Point",
+      "update": "Update Language Point",
+      "saving": "Saving...",
+      "errorGeneric": "Failed to save language point. Please try again.",
+      "validation": {
+        "languageRequired": "Please select a language",
+        "latitudeRequired": "Latitude is required",
+        "longitudeRequired": "Longitude is required",
+        "latitudeInvalid": "Latitude must be between -90 and 90",
+        "longitudeInvalid": "Longitude must be between -180 and 180"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Delete Language Point",
+      "confirmMessage": "Are you sure you want to delete this language point? This action cannot be undone.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "success": "Language point deleted successfully",
+      "error": "Failed to delete language point"
+    }
+  },
   "admin": {
     "invitations": {
       "title": "User Invitations"

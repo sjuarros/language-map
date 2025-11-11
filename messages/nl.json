@@ -731,5 +731,71 @@
         "nameRequired": "Vertaalde naam is verplicht"
       }
     }
+  },
+  "languagePoints": {
+    "title": "Taalpunten",
+    "description": "Beheer geografische locaties waar talen worden gesproken",
+    "list": {
+      "title": "Taalpunten",
+      "empty": "Geen taalpunten gevonden. Maak uw eerste taalpunt om te beginnen.",
+      "addButton": "Taalpunt Toevoegen",
+      "columns": {
+        "language": "Taal",
+        "neighborhood": "Buurt",
+        "coordinates": "Coördinaten",
+        "communityName": "Gemeenschapsnaam",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Taalpunt Aanmaken",
+      "description": "Voeg een nieuwe geografische locatie toe waar een taal wordt gesproken"
+    },
+    "edit": {
+      "title": "Taalpunt Bewerken",
+      "description": "Werk de geografische locatiegegevens bij"
+    },
+    "form": {
+      "language": "Taal",
+      "selectLanguage": "Selecteer een taal",
+      "neighborhood": "Buurt",
+      "selectNeighborhood": "Selecteer een buurt (optioneel)",
+      "noNeighborhood": "Geen buurt",
+      "latitude": "Breedtegraad",
+      "latitudeRange": "Bereik: -90 tot 90",
+      "longitude": "Lengtegraad",
+      "longitudeRange": "Bereik: -180 tot 180",
+      "postalCode": "Postcode",
+      "postalCodePlaceholder": "bijv. 1012AB",
+      "communityName": "Gemeenschapsnaam",
+      "communityNamePlaceholder": "bijv. Turks Gemeenschapscentrum",
+      "notes": "Notities",
+      "notesPlaceholder": "Aanvullende informatie over deze locatie",
+      "cancel": "Annuleren",
+      "create": "Taalpunt Aanmaken",
+      "update": "Taalpunt Bijwerken",
+      "saving": "Opslaan...",
+      "errorGeneric": "Taalpunt opslaan mislukt. Probeer het opnieuw.",
+      "validation": {
+        "languageRequired": "Selecteer een taal",
+        "latitudeRequired": "Breedtegraad is verplicht",
+        "longitudeRequired": "Lengtegraad is verplicht",
+        "latitudeInvalid": "Breedtegraad moet tussen -90 en 90 liggen",
+        "longitudeInvalid": "Lengtegraad moet tussen -180 en 180 liggen"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Taalpunt Verwijderen",
+      "confirmMessage": "Weet u zeker dat u dit taalpunt wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "confirmButton": "Verwijderen",
+      "cancelButton": "Annuleren",
+      "success": "Taalpunt succesvol verwijderd",
+      "error": "Taalpunt verwijderen mislukt"
+    }
+  },
+  "admin": {
+    "invitations": {
+      "title": "Gebruikersuitnodigingen"
+    }
   }
 }

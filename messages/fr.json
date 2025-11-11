@@ -731,5 +731,71 @@
         "nameRequired": "Le nom de la traduction est requis"
       }
     }
+  },
+  "languagePoints": {
+    "title": "Points de Langue",
+    "description": "Gérer les emplacements géographiques où les langues sont parlées",
+    "list": {
+      "title": "Points de Langue",
+      "empty": "Aucun point de langue trouvé. Créez votre premier point de langue pour commencer.",
+      "addButton": "Ajouter un Point de Langue",
+      "columns": {
+        "language": "Langue",
+        "neighborhood": "Quartier",
+        "coordinates": "Coordonnées",
+        "communityName": "Nom de la Communauté",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Créer un Point de Langue",
+      "description": "Ajouter un nouvel emplacement géographique où une langue est parlée"
+    },
+    "edit": {
+      "title": "Modifier le Point de Langue",
+      "description": "Mettre à jour les détails de l'emplacement géographique"
+    },
+    "form": {
+      "language": "Langue",
+      "selectLanguage": "Sélectionner une langue",
+      "neighborhood": "Quartier",
+      "selectNeighborhood": "Sélectionner un quartier (optionnel)",
+      "noNeighborhood": "Aucun quartier",
+      "latitude": "Latitude",
+      "latitudeRange": "Plage : -90 à 90",
+      "longitude": "Longitude",
+      "longitudeRange": "Plage : -180 à 180",
+      "postalCode": "Code Postal",
+      "postalCodePlaceholder": "ex. 1012AB",
+      "communityName": "Nom de la Communauté",
+      "communityNamePlaceholder": "ex. Centre Communautaire Turc",
+      "notes": "Notes",
+      "notesPlaceholder": "Informations supplémentaires sur cet emplacement",
+      "cancel": "Annuler",
+      "create": "Créer un Point de Langue",
+      "update": "Mettre à Jour le Point de Langue",
+      "saving": "Enregistrement...",
+      "errorGeneric": "Échec de l'enregistrement du point de langue. Veuillez réessayer.",
+      "validation": {
+        "languageRequired": "Veuillez sélectionner une langue",
+        "latitudeRequired": "La latitude est requise",
+        "longitudeRequired": "La longitude est requise",
+        "latitudeInvalid": "La latitude doit être comprise entre -90 et 90",
+        "longitudeInvalid": "La longitude doit être comprise entre -180 et 180"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Supprimer le Point de Langue",
+      "confirmMessage": "Êtes-vous sûr de vouloir supprimer ce point de langue ? Cette action ne peut pas être annulée.",
+      "confirmButton": "Supprimer",
+      "cancelButton": "Annuler",
+      "success": "Point de langue supprimé avec succès",
+      "error": "Échec de la suppression du point de langue"
+    }
+  },
+  "admin": {
+    "invitations": {
+      "title": "Invitations d'Utilisateurs"
+    }
   }
 }
