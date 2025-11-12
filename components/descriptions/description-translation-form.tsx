@@ -195,7 +195,7 @@ export function DescriptionTranslationForm({
                   size="sm"
                   onClick={() => setIsEditing(true)}
                   disabled={isDeleting}
-                  aria-label={tCommon('actions.edit')}
+                  aria-label={tCommon('edit')}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>

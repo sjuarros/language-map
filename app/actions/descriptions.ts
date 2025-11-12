@@ -48,8 +48,8 @@ interface RawDescription {
   created_at: string
   updated_at: string
   created_by: string | null
-  language: LanguageWithTranslations[] | null
-  neighborhood: NeighborhoodWithTranslations[] | null
+  language: LanguageWithTranslations | null
+  neighborhood: NeighborhoodWithTranslations | null
   translations: Translation[]
 }
 
@@ -183,8 +183,8 @@ export async function getDescriptions(citySlug: string, locale: string) {
       created_at: desc.created_at,
       updated_at: desc.updated_at,
       created_by: desc.created_by,
-      language_name: langTransMap.get(desc.language_id) || desc.language?.[0]?.endonym || 'Unknown',
-      language_endonym: desc.language?.[0]?.endonym || null,
+      language_name: langTransMap.get(desc.language_id) || desc.language?.endonym || 'Unknown',
+      language_endonym: desc.language?.endonym || null,
       neighborhood_name: desc.neighborhood_id ? (neighborhoodTransMap.get(desc.neighborhood_id) || null) : null,
       translations: desc.translations || [],
     }))
@@ -290,9 +290,9 @@ export async function getDescription(
       created_at: desc.created_at,
       updated_at: desc.updated_at,
       created_by: desc.created_by,
-      language_name: desc.language?.[0]?.translations?.[0]?.name || 'Unknown',
-      language_endonym: desc.language?.[0]?.endonym || null,
-      neighborhood_name: desc.neighborhood?.[0]?.translations?.[0]?.name || null,
+      language_name: desc.language?.translations?.[0]?.name || 'Unknown',
+      language_endonym: desc.language?.endonym || null,
+      neighborhood_name: desc.neighborhood?.translations?.[0]?.name || null,
       translations: desc.translations || [],
     }
   } catch (error) {
