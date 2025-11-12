@@ -802,6 +802,9 @@
       "title": "Descriptions",
       "empty": "No descriptions found. Create your first description to get started.",
       "addButton": "Add Description",
+      "loading": "Loading descriptions...",
+      "noTranslation": "No translation for {locale}",
+      "loadError": "Failed to load descriptions",
       "columns": {
         "language": "Language",
         "neighborhood": "Neighborhood",

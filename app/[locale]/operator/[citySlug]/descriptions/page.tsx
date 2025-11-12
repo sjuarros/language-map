@@ -7,6 +7,7 @@
 
 import React, { Suspense } from 'react'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -98,6 +99,8 @@ async function DescriptionsList({
   citySlug: string
   locale: string
 }) {
+  const t = await getTranslations('descriptions')
+
   try {
     const descriptions = await getDescriptions(citySlug, locale)
 
@@ -106,16 +109,16 @@ async function DescriptionsList({
         <div className="text-center py-12">
           <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-2 text-sm font-semibold text-foreground">
-            No descriptions
+            {t('list.empty').split('.')[0]}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Get started by creating a new description.
+            {t('list.empty').split('. ')[1]}
           </p>
           <div className="mt-6">
             <Link href={`/${locale}/operator/${citySlug}/descriptions/new`}>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Create Description
+                {t('form.create')}
               </Button>
             </Link>
           </div>
@@ -128,18 +131,18 @@ async function DescriptionsList({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Language</TableHead>
-              <TableHead>Neighborhood</TableHead>
-              <TableHead>Description Preview</TableHead>
-              <TableHead>Translations</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>{t('list.columns.language')}</TableHead>
+              <TableHead>{t('list.columns.neighborhood')}</TableHead>
+              <TableHead>{t('list.columns.preview')}</TableHead>
+              <TableHead>{t('list.columns.translations')}</TableHead>
+              <TableHead className="text-right">{t('list.columns.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {descriptions.map((description) => {
               // Get current locale translation
               const currentTranslation = description.translations.find(
-                (t) => t.locale === locale
+                (t: { locale: string }) => t.locale === locale
               )
 
               return (
@@ -164,18 +167,18 @@ async function DescriptionsList({
                       <p className="line-clamp-2 text-sm">
                         {currentTranslation?.text || (
                           <span className="text-muted-foreground italic">
-                            No translation for {locale}
+                            {t('list.noTranslation', { locale })}
                           </span>
                         )}
                       </p>
                       {description.is_ai_generated && (
                         <Badge variant="secondary" className="w-fit">
-                          AI Generated
+                          {t('form.aiGenerated')}
                         </Badge>
                       )}
                       {currentTranslation?.is_ai_translated && (
                         <Badge variant="outline" className="w-fit">
-                          AI Translated
+                          {t('form.aiTranslated')}
                         </Badge>
                       )}
                     </div>
@@ -229,9 +232,9 @@ async function DescriptionsList({
     return (
       <div className="text-center py-12">
         <div className="rounded-md bg-red-50 p-4 text-sm text-red-800">
-          <p className="font-semibold">Failed to load descriptions</p>
+          <p className="font-semibold">{t('list.loadError')}</p>
           <p className="mt-1">
-            {error instanceof Error ? error.message : 'An unknown error occurred'}
+            {error instanceof Error ? error.message : t('form.errorGeneric')}
           </p>
         </div>
       </div>
@@ -249,22 +252,23 @@ async function DescriptionsList({
 export default async function DescriptionsPage({
   params
 }: PageParams): Promise<React.JSX.Element> {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
+  const t = await getTranslations('descriptions')
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Descriptions</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage community stories and language descriptions
+            {t('description')}
           </p>
         </div>
         <Link href={`/${locale}/operator/${citySlug}/descriptions/new`}>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            New Description
+            {t('list.addButton')}
           </Button>
         </Link>
       </div>
@@ -273,7 +277,7 @@ export default async function DescriptionsPage({
       <Suspense
         fallback={
           <div className="flex items-center justify-center py-12">
-            <div className="text-muted-foreground">Loading descriptions...</div>
+            <div className="text-muted-foreground">{t('list.loading')}</div>
           </div>
         }
       >

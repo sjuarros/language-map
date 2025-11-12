@@ -38,7 +38,7 @@ interface PageParams {
 export default async function EditDescriptionPage({
   params
 }: PageParams): Promise<React.JSX.Element> {
-  const { locale, citySlug, id } = params
+  const { locale, citySlug, id } = await params
 
   try {
     // Fetch description and related data

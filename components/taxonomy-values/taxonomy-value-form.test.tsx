@@ -17,6 +17,9 @@ vi.mock('@/app/actions/taxonomy-values', () => ({
   updateTaxonomyValue: vi.fn()
 }))
 
+// Import mocked actions after mock declaration
+import { createTaxonomyValue } from '@/app/actions/taxonomy-values'
+
 // Mock i18n
 vi.mock('next-intl', () => ({
   useTranslations: vi.fn((namespace?: string) => {
@@ -183,10 +186,8 @@ describe('TaxonomyValueForm', () => {
     })
 
     it('should submit form successfully', async () => {
-      // Import and mock the createTaxonomyValue action
-      const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      const mockCreate = vi.mocked(createTaxonomyValue)
-      mockCreate.mockResolvedValueOnce(undefined)
+      // Mock the createTaxonomyValue action to resolve successfully
+      vi.mocked(createTaxonomyValue).mockResolvedValueOnce(undefined)
 
       const user = userEvent.setup()
       render(
@@ -332,11 +333,10 @@ describe('TaxonomyValueForm', () => {
 
   describe('error handling', () => {
     it('should display error message on failed submission', async () => {
-      const user = userEvent.setup()
-      const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      const mockCreate = vi.mocked(createTaxonomyValue)
-      mockCreate.mockRejectedValueOnce(new Error('Database error'))
+      // Mock the createTaxonomyValue action to reject with an error
+      vi.mocked(createTaxonomyValue).mockRejectedValueOnce(new Error('Database error'))
 
+      const user = userEvent.setup()
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
       )
@@ -356,11 +356,10 @@ describe('TaxonomyValueForm', () => {
     })
 
     it('should handle unknown errors', async () => {
-      const user = userEvent.setup()
-      const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      const mockCreate = vi.mocked(createTaxonomyValue)
-      mockCreate.mockRejectedValueOnce('Unknown error')
+      // Mock the createTaxonomyValue action to reject with a non-Error value
+      vi.mocked(createTaxonomyValue).mockRejectedValueOnce('Unknown error')
 
+      const user = userEvent.setup()
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
       )
@@ -382,12 +381,10 @@ describe('TaxonomyValueForm', () => {
 
   describe('UI interactions', () => {
     it('should show loading state during submission', async () => {
-      const user = userEvent.setup()
-      const { createTaxonomyValue } = await import('@/app/actions/taxonomy-values')
-      const mockCreate = vi.mocked(createTaxonomyValue)
       // Mock a slow response
-      mockCreate.mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)))
+      vi.mocked(createTaxonomyValue).mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 100)))
 
+      const user = userEvent.setup()
       render(
         <TaxonomyValueForm taxonomyTypeId="type-1" locale="en" citySlug="amsterdam" />
       )

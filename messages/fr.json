@@ -226,6 +226,9 @@
       "title": "Quartiers",
       "subtitle": "Gérer les quartiers de {cityName}",
       "addButton": "Ajouter un Quartier",
+      "loading": "Chargement des descriptions...",
+      "noTranslation": "Aucune traduction pour {locale}",
+      "loadError": "Échec du chargement des descriptions",
       "noDistricts": {
         "title": "Aucun Quartier",
         "description": "Commencez par créer votre premier quartier pour cette ville",
@@ -297,6 +300,9 @@
       "title": "Secteurs",
       "subtitle": "Gérer les secteurs pour {cityName}",
       "addButton": "Ajouter un Secteur",
+      "loading": "Chargement des descriptions...",
+      "noTranslation": "Aucune traduction pour {locale}",
+      "loadError": "Échec du chargement des descriptions",
       "noNeighborhoods": {
         "title": "Aucun Secteur Encore",
         "description": "Commencez par créer votre premier secteur pour cette ville",
@@ -380,6 +386,9 @@
       "title": "Types de Taxonomie",
       "subtitle": "Gérer les types de classification pour {cityName}",
       "addButton": "Ajouter un Type de Taxonomie",
+      "loading": "Chargement des descriptions...",
+      "noTranslation": "Aucune traduction pour {locale}",
+      "loadError": "Échec du chargement des descriptions",
       "noTaxonomyTypes": {
         "title": "Aucun Type de Taxonomie pour le Moment",
         "description": "Commencez par créer votre premier type de taxonomie pour cette ville. Les types de taxonomie définissent des systèmes de classification comme \"Taille\" ou \"Statut\" qui peuvent être appliqués aux langues.",
@@ -739,6 +748,9 @@
       "title": "Points de Langue",
       "empty": "Aucun point de langue trouvé. Créez votre premier point de langue pour commencer.",
       "addButton": "Ajouter un Point de Langue",
+      "loading": "Chargement des descriptions...",
+      "noTranslation": "Aucune traduction pour {locale}",
+      "loadError": "Échec du chargement des descriptions",
       "columns": {
         "language": "Langue",
         "neighborhood": "Quartier",
@@ -805,6 +817,9 @@
       "title": "Descriptions",
       "empty": "Aucune description trouvée. Créez votre première description pour commencer.",
       "addButton": "Ajouter une Description",
+      "loading": "Chargement des descriptions...",
+      "noTranslation": "Aucune traduction pour {locale}",
+      "loadError": "Échec du chargement des descriptions",
       "columns": {
         "language": "Langue",
         "neighborhood": "Quartier",

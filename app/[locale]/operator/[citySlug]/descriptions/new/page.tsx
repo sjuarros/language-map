@@ -34,7 +34,7 @@ interface PageParams {
 export default async function CreateDescriptionPage({
   params
 }: PageParams): Promise<React.JSX.Element> {
-  const { locale, citySlug } = params
+  const { locale, citySlug } = await params
 
   try {
     // Fetch languages and neighborhoods for the selectors

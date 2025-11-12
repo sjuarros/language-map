@@ -805,6 +805,9 @@
       "title": "Beschrijvingen",
       "empty": "Geen beschrijvingen gevonden. Maak uw eerste beschrijving aan om te beginnen.",
       "addButton": "Beschrijving Toevoegen",
+      "loading": "Beschrijvingen laden...",
+      "noTranslation": "Geen vertaling voor {locale}",
+      "loadError": "Beschrijvingen laden mislukt",
       "columns": {
         "language": "Taal",
         "neighborhood": "Buurt",

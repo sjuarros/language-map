@@ -125,15 +125,9 @@ export async function getDescriptions(citySlug: string, locale: string) {
         created_at,
         updated_at,
         created_by,
-        language:languages!inner(
+        language:languages(
           id,
-          endonym,
-          translations:language_translations!inner(name, locale_code)
-        ),
-        neighborhood:neighborhoods(
-          id,
-          slug,
-          translations:neighborhood_translations!inner(name, locale_code)
+          endonym
         ),
         translations:description_translations(
           text,
@@ -146,19 +140,37 @@ export async function getDescriptions(citySlug: string, locale: string) {
         )
       `)
       .eq('city_id', city.id)
-      .eq('language.translations.locale_code', locale)
       .order('created_at', { ascending: false })
 
     if (error) {
       throw new Error(`Failed to fetch descriptions: ${error.message}`)
     }
 
-    // Transform the data to a more usable format
-    // The array indexing ([0]) is needed because Supabase returns nested relations as arrays
-    // even for one-to-one relationships. We extract the first (and only) item from each array.
-    // Fallbacks handle cases where translations or relations might not exist due to RLS policies
-    // or missing data (e.g., neighborhood is optional).
-    const descriptions = (rawData as unknown as RawDescription[] || []).map((desc) => ({
+    // Get language IDs and neighborhood IDs to fetch translations
+    const descriptions = rawData as unknown as RawDescription[]
+    const languageIds = [...new Set((descriptions || []).map(d => d.language_id).filter(Boolean))]
+    const neighborhoodIds = [...new Set((descriptions || []).map(d => d.neighborhood_id).filter(Boolean))]
+
+    // Fetch language translations
+    const { data: langTranslations } = await supabase
+      .from('language_translations')
+      .select('language_id, name, locale_code')
+      .in('language_id', languageIds)
+      .eq('locale_code', locale)
+
+    // Fetch neighborhood translations
+    const { data: neighborhoodTranslations } = await supabase
+      .from('neighborhood_translations')
+      .select('neighborhood_id, name, locale_code')
+      .in('neighborhood_id', neighborhoodIds)
+      .eq('locale_code', locale)
+
+    // Create lookup maps
+    const langTransMap = new Map((langTranslations || []).map(t => [t.language_id, t.name]))
+    const neighborhoodTransMap = new Map((neighborhoodTranslations || []).map(t => [t.neighborhood_id, t.name]))
+
+    // Transform the data
+    const result = descriptions.map((desc) => ({
       id: desc.id,
       city_id: desc.city_id,
       language_id: desc.language_id,
@@ -171,15 +183,13 @@ export async function getDescriptions(citySlug: string, locale: string) {
       created_at: desc.created_at,
       updated_at: desc.updated_at,
       created_by: desc.created_by,
-      // Extract translated name from first locale match, with fallback to 'Unknown'
-      language_name: desc.language?.[0]?.translations?.[0]?.name || 'Unknown',
+      language_name: langTransMap.get(desc.language_id) || desc.language?.[0]?.endonym || 'Unknown',
       language_endonym: desc.language?.[0]?.endonym || null,
-      // Neighborhood is optional, so name may be null
-      neighborhood_name: desc.neighborhood?.[0]?.translations?.[0]?.name || null,
+      neighborhood_name: desc.neighborhood_id ? (neighborhoodTransMap.get(desc.neighborhood_id) || null) : null,
       translations: desc.translations || [],
     }))
 
-    return descriptions
+    return result
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to fetch descriptions: ${error.message}`)
@@ -574,13 +584,19 @@ export async function getLanguagesForDescription(citySlug: string, locale: strin
       `)
       .eq('city_id', city.id)
       .eq('translations.locale_code', locale)
-      .order('translations.name')
 
     if (error) {
       throw new Error(`Failed to fetch languages: ${error.message}`)
     }
 
-    return data || []
+    // Sort by translation name on the client side
+    const languages = (data || []).sort((a, b) => {
+      const nameA = a.translations?.[0]?.name || ''
+      const nameB = b.translations?.[0]?.name || ''
+      return nameA.localeCompare(nameB)
+    })
+
+    return languages
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to fetch languages: ${error.message}`)
@@ -628,17 +644,25 @@ export async function getNeighborhoodsForDescription(citySlug: string, locale: s
       .select(`
         id,
         slug,
-        translations:neighborhood_translations!inner(name, locale_code)
+        district_id,
+        translations:neighborhood_translations!inner(name, locale_code),
+        district:districts!inner(city_id)
       `)
       .eq('district.city_id', city.id)
       .eq('translations.locale_code', locale)
-      .order('translations.name')
 
     if (error) {
       throw new Error(`Failed to fetch neighborhoods: ${error.message}`)
     }
 
-    return data || []
+    // Sort by translation name on the client side
+    const neighborhoods = (data || []).sort((a, b) => {
+      const nameA = a.translations?.[0]?.name || ''
+      const nameB = b.translations?.[0]?.name || ''
+      return nameA.localeCompare(nameB)
+    })
+
+    return neighborhoods
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to fetch neighborhoods: ${error.message}`)
