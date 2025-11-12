@@ -865,5 +865,35 @@
       "description": "Beheer beschrijvingstekst in verschillende talen",
       "manageButton": "Vertalingen Beheren"
     }
+  },
+  "descriptionTranslations": {
+    "title": "Beschrijving Vertalingen",
+    "help": {
+      "title": "Over Beschrijving Vertalingen",
+      "description": "Beheer beschrijvingstekst in verschillende interfacetalen. Elke vertaling bevat de volledige beschrijvingstekst voor die locale."
+    },
+    "existingTranslations": {
+      "title": "Bestaande Vertalingen",
+      "description": "{count, plural, one {# vertaling bestaat} other {# vertalingen bestaan}}"
+    },
+    "missingTranslations": {
+      "title": "Ontbrekende Vertalingen Toevoegen",
+      "description": "{count, plural, one {# vertaling nodig} other {# vertalingen nodig}}"
+    },
+    "noTranslations": "Geen vertalingen beschikbaar",
+    "aiInfo": {
+      "title": "AI-Gegenereerde Vertalingen",
+      "description": "Vertalingen gemarkeerd met een AI badge zijn automatisch gegenereerd. U kunt ze bewerken om de nauwkeurigheid te verbeteren."
+    },
+    "form": {
+      "textLabel": "Beschrijvingstekst",
+      "textPlaceholder": "Voer de beschrijvingstekst in deze locale in",
+      "charactersLabel": "tekens",
+      "confirmDelete": "Weet u zeker dat u deze vertaling wilt verwijderen?",
+      "aiTranslatedInfo": "AI-gegenereerd door {model} op {date}",
+      "validation": {
+        "textRequired": "Beschrijvingstekst is verplicht"
+      }
+    }
   }
 }

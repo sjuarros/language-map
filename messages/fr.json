@@ -877,5 +877,35 @@
       "description": "Gérer le texte de description dans différentes langues",
       "manageButton": "Gérer les Traductions"
     }
+  },
+  "descriptionTranslations": {
+    "title": "Traductions de Description",
+    "help": {
+      "title": "À propos des Traductions de Description",
+      "description": "Gérer le texte de description dans différentes langues d'interface. Chaque traduction contient le texte complet de la description pour cette locale."
+    },
+    "existingTranslations": {
+      "title": "Traductions Existantes",
+      "description": "{count, plural, one {# traduction existe} other {# traductions existent}}"
+    },
+    "missingTranslations": {
+      "title": "Ajouter les Traductions Manquantes",
+      "description": "{count, plural, one {# traduction nécessaire} other {# traductions nécessaires}}"
+    },
+    "noTranslations": "Aucune traduction disponible",
+    "aiInfo": {
+      "title": "Traductions Générées par IA",
+      "description": "Les traductions marquées d'un badge IA ont été générées automatiquement. Vous pouvez les modifier pour améliorer leur précision."
+    },
+    "form": {
+      "textLabel": "Texte de Description",
+      "textPlaceholder": "Entrez le texte de description dans cette locale",
+      "charactersLabel": "caractères",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette traduction ?",
+      "aiTranslatedInfo": "Généré par IA par {model} le {date}",
+      "validation": {
+        "textRequired": "Le texte de description est requis"
+      }
+    }
   }
 }
