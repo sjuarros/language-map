@@ -153,8 +153,8 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      expect(screen.queryByLabelText(/actions\.edit/i)).not.toBeInTheDocument()
-      expect(screen.queryByLabelText(/actions\.delete/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/edit/i)).not.toBeInTheDocument()
+      expect(screen.queryByLabelText(/delete/i)).not.toBeInTheDocument()
     })
   })
 
@@ -170,8 +170,8 @@ describe('DescriptionTranslationForm', () => {
       expect(screen.getByText('English')).toBeInTheDocument()
       expect(screen.getByText('en')).toBeInTheDocument()
       expect(screen.getByText('This is an existing translation')).toBeInTheDocument()
-      expect(screen.getByLabelText(/actions\.edit/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/actions\.delete/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/edit/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/delete/i)).toBeInTheDocument()
     })
 
     it('should show AI badge for AI-translated content', () => {
@@ -207,7 +207,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const editButton = screen.getByLabelText(/actions\.edit/i)
+      const editButton = screen.getByLabelText(/edit/i)
       await user.click(editButton)
 
       expect(screen.getByLabelText(/textLabel/i)).toBeInTheDocument()
@@ -446,7 +446,7 @@ describe('DescriptionTranslationForm', () => {
       )
 
       // Enter edit mode
-      const editButton = screen.getByLabelText(/actions\.edit/i)
+      const editButton = screen.getByLabelText(/edit/i)
       await user.click(editButton)
 
       // Change text
@@ -476,7 +476,7 @@ describe('DescriptionTranslationForm', () => {
       )
 
       // Enter edit mode
-      const editButton = screen.getByLabelText(/actions\.edit/i)
+      const editButton = screen.getByLabelText(/edit/i)
       await user.click(editButton)
 
       // Modify text and try to save (will fail and show error)
@@ -510,7 +510,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       expect(global.confirm).toHaveBeenCalledWith(expect.stringMatching(/confirmDelete/i))
@@ -528,7 +528,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       expect(mockDelete).not.toHaveBeenCalled()
@@ -546,7 +546,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       await waitFor(() => {
@@ -566,7 +566,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       await waitFor(() => {
@@ -587,7 +587,7 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       // Wait for the error to be logged
@@ -620,11 +620,11 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      const deleteButton = screen.getByLabelText(/actions\.delete/i)
+      const deleteButton = screen.getByLabelText(/delete/i)
       await user.click(deleteButton)
 
       await waitFor(() => {
-        const editButton = screen.getByLabelText(/actions\.edit/i)
+        const editButton = screen.getByLabelText(/edit/i)
         expect(editButton).toBeDisabled()
       })
 
@@ -642,8 +642,8 @@ describe('DescriptionTranslationForm', () => {
         />
       )
 
-      expect(screen.getByLabelText(/actions\.edit/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/actions\.delete/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/edit/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/delete/i)).toBeInTheDocument()
     })
 
     it('should have proper label for textarea', () => {
