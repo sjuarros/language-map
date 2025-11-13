@@ -42,18 +42,36 @@ vi.mock('next/link', () => ({
   default: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
 }))
 
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+  usePathname: () => '/login',
+}))
+
 // Mock lib/auth/client
 vi.mock('@/lib/auth/client', () => ({
   signInWithMagicLink: vi.fn(),
+  createAuthClient: vi.fn(() => ({
+    auth: {
+      setSession: vi.fn(),
+    },
+  })),
 }))
 
 describe('LoginPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Mock window.location.origin
+    // Mock window.location
     Object.defineProperty(window, 'location', {
-      value: { origin: 'http://localhost:3001' },
+      value: {
+        origin: 'http://localhost:3001',
+        pathname: '/login',
+        search: '',
+        href: 'http://localhost:3001/login',
+      },
       writable: true,
     })
   })
@@ -136,7 +154,8 @@ describe('LoginPage', () => {
 
       // Assert
       await waitFor(() => {
-        expect(vi.mocked(signInWithMagicLink)).toHaveBeenCalledWith('user@example.com', 'http://localhost:3001')
+        // Should be called with email and current path
+        expect(vi.mocked(signInWithMagicLink)).toHaveBeenCalledWith('user@example.com', '/login')
       })
     })
 

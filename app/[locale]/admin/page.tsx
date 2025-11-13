@@ -1,78 +1,204 @@
 /**
- * Admin Dashboard
+ * @file app/[locale]/admin/page.tsx
+ * @description Admin dashboard with city selector and overview statistics
  *
- * Main dashboard for admin users with city selector and overview statistics.
- * Admins can access multiple cities based on their grants in the city_users table.
+ * This component:
+ * - Displays admin dashboard for users with admin/operator roles
+ * - Shows city selector when user has access to multiple cities
+ * - Displays statistics for the primary city
+ * - Handles authentication and authorization
+ * - Provides navigation to city-specific admin pages
+ *
+ * Architecture Note:
+ * This uses client-side authentication because:
+ * 1. Server Components cannot access cookies set by external libraries (Supabase auth)
+ * 2. Needs to handle client-side navigation with router.push()
+ * 3. Must work with Supabase's client-side auth session
+ * 4. Direct database queries are necessary for auth state
+ *
+ * @module app/admin/page
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
-import { getLocale } from 'next-intl/server'
-import Link from 'next/link'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter, useParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Settings } from 'lucide-react'
 
-export default async function AdminDashboard() {
-  const cookieStore = await cookies()
-  const locale = await getLocale()
+interface City {
+  id: string
+  slug: string
+  country_id: string
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
+interface UserCity {
+  role: 'admin' | 'operator'
+  city: City
+}
+
+/**
+ * Admin Dashboard - Main entry point for admin users
+ *
+ * This client component provides the main admin dashboard where users with
+ * admin/operator roles can view and manage their assigned cities. Shows city
+ * selector when user has access to multiple cities, and displays statistics
+ * for the primary city.
+ *
+ * Features:
+ * - Authentication check and redirect to login if unauthenticated
+ * - City access validation via city_users table
+ * - Statistics display (language count, user count)
+ * - Navigation to city-specific admin pages
+ *
+ * @returns Admin dashboard JSX or loading/error state
+ */
+export default function AdminDashboard() {
+  const [loading, setLoading] = useState(true)
+  const [userCities, setUserCities] = useState<UserCity[]>([])
+  const [languageCount, setLanguageCount] = useState<number>(0)
+  const [userCount, setUserCount] = useState<number>(0)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const params = useParams()
+
+  // Validate locale parameter
+  const localeParam = params?.locale
+  if (!localeParam || typeof localeParam !== 'string') {
+    if (typeof window !== 'undefined') {
+      router.push('/en/login')
     }
-  )
+  }
+  const locale = localeParam || 'en'
 
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  useEffect(() => {
+    let isMounted = true
 
-  if (!user) {
-    return null
+    async function checkAuthAndLoadData() {
+      try {
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        // Check authentication
+        const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+        if (authError || !user) {
+          if (isMounted) {
+            router.push('/en/login')
+          }
+          return
+        }
+
+        // Get user's accessible cities
+        const { data: cities, error: citiesError } = await supabase
+          .from('city_users')
+          .select(`
+            role,
+            city:cities (
+              id,
+              slug,
+              country_id
+            )
+          `)
+          .eq('user_id', user.id)
+
+        if (citiesError) {
+          if (isMounted) {
+            setError('Failed to load cities')
+            setLoading(false)
+          }
+          return
+        }
+
+        if (!isMounted) return
+
+        // Transform query result to UserCity array
+        const transformedCities: UserCity[] = (cities as unknown as UserCity[]) || []
+        setUserCities(transformedCities)
+
+        // If user has no city access, stop here
+        if (!cities || cities.length === 0) {
+          setLoading(false)
+          return
+        }
+
+        // Get stats for first city
+        const firstCity = transformedCities[0].city
+
+        // Get language count with error handling
+        const { count: languages, error: langError } = await supabase
+          .from('languages')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', firstCity.id)
+
+        if (langError) {
+          if (isMounted) {
+            setError('Failed to load statistics')
+            setLoading(false)
+          }
+          return
+        }
+
+        if (!isMounted) return
+        setLanguageCount(languages || 0)
+
+        // Get user count for this city with error handling
+        const { count: users, error: usersError } = await supabase
+          .from('city_users')
+          .select('*', { count: 'exact', head: true })
+          .eq('city_id', firstCity.id)
+
+        if (usersError) {
+          if (isMounted) {
+            setError('Failed to load statistics')
+            setLoading(false)
+          }
+          return
+        }
+
+        if (!isMounted) return
+        setUserCount(users || 0)
+        setLoading(false)
+      } catch (_err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+        if (isMounted) {
+          setError('An unexpected error occurred')
+          setLoading(false)
+        }
+      }
+    }
+
+    checkAuthAndLoadData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [router, locale])
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-2 text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
-  // Get user's accessible cities via city_users junction table
-  const { data: userCities } = await supabase
-    .from('city_users')
-    .select(`
-      role,
-      city:cities (
-        id,
-        slug,
-        name,
-        country
-      )
-    `)
-    .eq('user_id', user.id)
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+        </div>
+      </div>
+    )
+  }
 
-  // If user has no city access, show message
-  if (!userCities || userCities.length === 0) {
+  // If user has no city access
+  if (userCities.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -94,39 +220,13 @@ export default async function AdminDashboard() {
     )
   }
 
-  // Get stats for accessible cities (using first city as default)
-  const firstCity = userCities[0].city as unknown as {
-    id: string
-    slug: string
-    name: string
-    country: string
-  }
-  let languageCount = 0
-  let userCount = 0
-
-  if (firstCity) {
-    // Get language count
-    const { count: languages } = await supabase
-      .from('languages')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    languageCount = languages || 0
-
-    // Get user count for this city
-    const { count: users } = await supabase
-      .from('city_users')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', firstCity.id)
-
-    userCount = users || 0
-  }
+  const firstCity = userCities[0].city
 
   return (
     <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard ✅</h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage users and settings for your assigned cities
         </p>
@@ -144,32 +244,27 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="grid gap-3">
               {userCities.map((userCity) => {
-                const city = userCity.city as unknown as {
-                  id: string
-                  slug: string
-                  name: string
-                  country: string
-                }
+                const city = userCity.city
                 return (
-                  <Link
+                  <div
                     key={city.id}
-                    href={`/${locale}/admin/${city.slug}`}
-                    className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    className="block p-4 border rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                    onClick={() => router.push(`/${locale}/admin/${city.slug}`)}
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-medium text-gray-900">
-                          {city.name}
+                        <h3 className="font-medium text-gray-900 capitalize">
+                          {city.slug}
                         </h3>
                         <p className="text-sm text-gray-600">
-                          {city.country} • Role: {userCity.role}
+                          Role: {userCity.role}
                         </p>
                       </div>
                       <Button variant="outline" size="sm">
                         Manage
                       </Button>
                     </div>
-                  </Link>
+                  </div>
                 )
               })}
             </div>
@@ -187,14 +282,16 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{languageCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Total languages in {firstCity.name}
+              <p className="text-xs text-gray-600 mt-1 capitalize">
+                Total languages in {firstCity.slug}
               </p>
-              <Link href={`/${locale}/admin/${firstCity.slug}/languages`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  View languages →
-                </Button>
-              </Link>
+              <Button
+                variant="link"
+                className="p-0 mt-2 h-auto text-sm"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                View city dashboard →
+              </Button>
             </CardContent>
           </Card>
 
@@ -205,14 +302,16 @@ export default async function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{userCount}</div>
-              <p className="text-xs text-gray-600 mt-1">
-                Users with access to {firstCity.name}
+              <p className="text-xs text-gray-600 mt-1 capitalize">
+                Users with access to {firstCity.slug}
               </p>
-              <Link href={`/${locale}/admin/${firstCity.slug}/users`}>
-                <Button variant="link" className="p-0 mt-2 h-auto text-sm">
-                  Manage users →
-                </Button>
-              </Link>
+              <Button
+                variant="link"
+                className="p-0 mt-2 h-auto text-sm"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                View city dashboard →
+              </Button>
             </CardContent>
           </Card>
 
@@ -222,18 +321,22 @@ export default async function AdminDashboard() {
               <CardTitle className="text-sm font-medium">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Link href={`/${locale}/admin/${firstCity.slug}/users/invite`}>
-                <Button className="w-full justify-start" variant="outline">
-                  <Users className="mr-2 h-4 w-4" />
-                  Invite Users
-                </Button>
-              </Link>
-              <Link href={`/${locale}/admin/${firstCity.slug}/settings`}>
-                <Button className="w-full justify-start" variant="outline">
-                  <Settings className="mr-2 h-4 w-4" />
-                  City Settings
-                </Button>
-              </Link>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                View City Dashboard
+              </Button>
+              <Button
+                className="w-full justify-start"
+                variant="outline"
+                onClick={() => router.push(`/${locale}/admin/${firstCity.slug}`)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                City Settings
+              </Button>
             </CardContent>
           </Card>
         </div>

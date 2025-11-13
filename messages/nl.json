@@ -9,7 +9,21 @@
     "edit": "Bewerken",
     "create": "Aanmaken",
     "search": "Zoeken",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "actions": {
+      "back": "Terug",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "cancel": "Annuleren",
+      "delete": "Verwijderen"
+    }
+  },
+  "errors": {
+    "permissionDenied": "Je hebt geen toestemming om deze actie uit te voeren. Neem contact op met je beheerder.",
+    "validationFailed": "Controleer je invoer en probeer het opnieuw. Zorg dat alle verplichte velden correct zijn ingevuld.",
+    "networkError": "Er is een netwerkfout opgetreden. Controleer je verbinding en probeer het opnieuw.",
+    "duplicateSlug": "Er bestaat al een taxonomie type met deze slug. Kies een andere slug.",
+    "saveFailed": "Er is een fout opgetreden bij het opslaan"
   },
   "home": {
     "title": "Talenkaart Platform",
@@ -112,6 +126,57 @@
         "currentRole": "Uw huidige rol: {role}"
       }
     },
+    "operator": {
+      "languageFamilies": {
+        "list": {
+          "title": "Taalfamilies",
+          "description": "Beheer taalfamilies voor {city}",
+          "createButton": "Taalfamilie Toevoegen",
+          "empty": "Nog Geen Taalfamilies",
+          "createFirst": "Taalfamilie Aanmaken",
+          "translations": "vertalingen",
+          "help": {
+            "title": "Wat zijn Taalfamilies?",
+            "description": "Taalfamilies zijn wereldwijde groepen van verwante talen. Ze helpen talen te organiseren op basis van hun historische oorsprong en linguïstische relaties. Bijvoorbeeld, 'Indo-Europees' is een taalfamilie die Engels, Nederlands, Frans en veel andere talen omvat."
+          }
+        },
+        "create": {
+          "title": "Taalfamilie Aanmaken",
+          "description": "Voeg een nieuwe taalfamilie toe aan het systeem",
+          "form": {
+            "slug": {
+              "label": "Slug",
+              "placeholder": "bijv. indo-europees",
+              "help": "URL-vriendelijke identificatie (alleen kleine letters, cijfers en koppeltekens)"
+            },
+            "translations": {
+              "title": "Vertalingen",
+              "description": {
+                "label": "Beschrijving",
+                "placeholder": "Korte beschrijving van deze taalfamilie..."
+              },
+              "basicInformation": "Basisinformatie",
+              "englishRequired": "Engels (Vereist)",
+              "dutchOptional": "Nederlands (Optioneel)",
+              "frenchOptional": "Frans (Optioneel)",
+              "name": {
+                "label": "Naam",
+                "placeholder": "bijv. Indo-Europees"
+              }
+            }
+          },
+          "actions": {
+            "cancel": "Annuleren",
+            "create": "Taalfamilie Aanmaken",
+            "saving": "Bezig met opslaan..."
+          }
+        },
+        "edit": {
+          "title": "Taalfamilie Bewerken",
+          "description": "Update taalfamilie-informatie"
+        }
+      }
+    },
     "admin": {
       "invitations": {
         "title": "Gebruikersuitnodigingen",
@@ -155,6 +220,679 @@
           "emptyState": "Geen uitstaande uitnodigingen",
           "emptyStateDescription": "Uitnodigingen verschijnen hier zodra u ze aanmaakt."
         }
+      }
+    },
+    "districts": {
+      "title": "Districten",
+      "subtitle": "Beheer districten voor {cityName}",
+      "addButton": "District Toevoegen",
+      "noDistricts": {
+        "title": "Nog Geen Districten",
+        "description": "Begin door je eerste district voor deze stad aan te maken",
+        "createButton": "District Aanmaken"
+      },
+      "form": {
+        "title": "District Aanmaken",
+        "editTitle": "District Bewerken",
+        "basicInfo": {
+          "title": "Basisinformatie",
+          "description": "District identificatie en status",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv. centrum, west, noord",
+          "slugHelpText": "URL-vriendelijke identifier. Alleen kleine letters, cijfers en koppeltekens.",
+          "activeLabel": "Actief",
+          "activeHelpText": "Inactieve districten zijn verborgen in de publieke interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Stadscentrum",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Centrum",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Districtnaam",
+            "namePlaceholder": "bijv., Centre-ville",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          }
+        },
+        "submitButton": "District Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "District succesvol aangemaakt",
+        "successUpdate": "District succesvol bijgewerkt"
+      },
+      "info": {
+        "title": "Over Districten",
+        "description": "Districten zijn de primaire geografische indelingen binnen een stad. Ze helpen bij het organiseren van buurten en bieden een hiërarchische structuur voor het organiseren van taalgegevens.",
+        "vsNeighborhoods": {
+          "title": "Districten vs Buurten",
+          "description": "Districten zijn grotere geografische gebieden, terwijl buurten kleinere indelingen binnen districten zijn. Dit creëert een duidelijke hiërarchie: Stad → District → Buurt."
+        },
+        "translations": {
+          "title": "Vertalingen",
+          "description": "Districtnamen en beschrijvingen moeten worden vertaald in alle ondersteunde talen (Engels, Nederlands, Frans) om toegankelijkheid voor alle gebruikers te garanderen."
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een district verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook alle gekoppelde buurten en eventuele taalpunten die aan die buurten zijn gekoppeld verwijderen.",
+        "deleteButton": "District Verwijderen",
+        "confirmDelete": "Weet je zeker dat je dit district wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "neighborhoods": {
+      "title": "Buurten",
+      "subtitle": "Beheer buurten voor {cityName}",
+      "addButton": "Buurt Toevoegen",
+      "noNeighborhoods": {
+        "title": "Nog Geen Buurten",
+        "description": "Begin met het aanmaken van je eerste buurt voor deze stad",
+        "createButton": "Buurt Aanmaken"
+      },
+      "form": {
+        "title": "Buurt Aanmaken",
+        "editTitle": "Buurt Bewerken",
+        "basicInfo": {
+          "title": "Basisinformatie",
+          "description": "Buurt identificatie en geografische hiërarchie",
+          "districtLabel": "District",
+          "districtPlaceholder": "Selecteer een district",
+          "districtHelpText": "Selecteer het district waartoe deze buurt behoort",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv., jordaan, de-pijp, vondelpark",
+          "slugHelpText": "URL-vriendelijke identificatie. Alleen kleine letters, cijfers en streepjes.",
+          "activeLabel": "Actief",
+          "activeHelpText": "Inactieve buurten worden verborgen in de openbare interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Buurtnaam",
+            "namePlaceholder": "bijv., Jordaan",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          }
+        },
+        "submitButton": "Buurt Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "Buurt succesvol aangemaakt",
+        "successUpdate": "Buurt succesvol bijgewerkt",
+        "noDistrictsWarning": {
+          "title": "Geen Districten Beschikbaar",
+          "description": "Je moet ten minste één district aanmaken voordat je buurten kunt aanmaken. Buurten moeten worden toegewezen aan een district als onderdeel van de geografische hiërarchie.",
+          "createButton": "Eerst District Aanmaken"
+        }
+      },
+      "info": {
+        "title": "Over Buurten",
+        "description": "Buurten zijn kleinere geografische indelingen binnen districten. Ze bieden een fijnmaziger niveau van geografische organisatie voor taalgegevens.",
+        "hierarchy": {
+          "title": "Geografische Hiërarchie",
+          "description": "De geografische hiërarchie volgt deze structuur: Stad → District → Buurt. Dit zorgt voor een precieze organisatie van taalpunten binnen specifieke gebieden."
+        },
+        "translations": {
+          "title": "Vertalingen",
+          "description": "Buurtnamen en beschrijvingen moeten worden vertaald in alle ondersteunde talen (Engels, Nederlands, Frans) om toegankelijkheid voor alle gebruikers te garanderen."
+        },
+        "districtAssignment": {
+          "title": "District Toewijzing",
+          "description": "Elke buurt moet worden toegewezen aan een district. Dit creëert de geografische hiërarchie en maakt een betere organisatie van gegevens mogelijk."
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een buurt verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook eventuele taalpunten verwijderen die aan deze buurt zijn gekoppeld.",
+        "deleteButton": "Buurt Verwijderen",
+        "confirmDelete": "Weet je zeker dat je deze buurt wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "taxonomyTypes": {
+      "title": "Taxonomietypen",
+      "subtitle": "Beheer classificatietypes voor {cityName}",
+      "addButton": "Taxonomie Type Toevoegen",
+      "noTaxonomyTypes": {
+        "title": "Nog Geen Taxonomie Types",
+        "description": "Begin met het aanmaken van je eerste taxonomie type voor deze stad. Taxonomie types definiëren classificatiesystemen zoals \"Grootte\" of \"Status\" die kunnen worden toegepast op talen.",
+        "createButton": "Taxonomie Type Aanmaken"
+      },
+      "form": {
+        "title": "Taxonomie Type Aanmaken",
+        "editTitle": "Taxonomie Type Bewerken",
+        "basicInfo": {
+          "title": "Basis Informatie",
+          "description": "Taxonomie type identifier, configuratie en weergave-instellingen",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "bijv. grootte, status, schrifttype",
+          "slugHelpText": "URL-vriendelijke identifier. Alleen kleine letters, cijfers en koppeltekens.",
+          "displayOrderLabel": "Weergave Volgorde",
+          "displayOrderHelpText": "Volgorde waarin dit taxonomie type wordt weergegeven in lijsten (0 = eerste)",
+          "configOptionsTitle": "Configuratie Opties",
+          "isRequiredLabel": "Vereist",
+          "isRequiredHelpText": "Talen moeten een waarde uit deze taxonomie toegewezen hebben",
+          "allowMultipleLabel": "Meerdere Waarden Toestaan",
+          "allowMultipleHelpText": "Talen kunnen meerdere waarden uit deze taxonomie hebben",
+          "useForMapStylingLabel": "Gebruik voor Kaart Styling",
+          "useForMapStylingHelpText": "Gebruik deze taxonomie om taalpunten op de kaart te stylen (kleur, grootte)",
+          "useForFilteringLabel": "Toon in Filters",
+          "useForFilteringHelpText": "Toon deze taxonomie in het openbare kaart filter interface"
+        },
+        "translations": {
+          "english": {
+            "title": "Engelse Vertaling",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Gemeenschapsgrootte",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "dutch": {
+            "title": "Nederlandse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Nederlandstalige gebruikers",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Gemeenschapsgrootte",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "french": {
+            "title": "Franse Vertaling (Optioneel)",
+            "description": "Secundaire taal voor Franstalige gebruikers",
+            "nameLabel": "Taxonomie Type Naam",
+            "namePlaceholder": "bijv., Taille de la Communauté",
+            "descriptionLabel": "Beschrijving",
+            "descriptionPlaceholder": "Brève description de ce système de classification..."
+          }
+        },
+        "submitButton": "Taxonomie Type Opslaan",
+        "submitting": "Opslaan...",
+        "successCreate": "Taxonomie type succesvol aangemaakt",
+        "successUpdate": "Taxonomie type succesvol bijgewerkt"
+      },
+      "info": {
+        "title": "Over Taxonomie Types",
+        "description": "Taxonomie types definiëren classificatiesystemen voor talen. Elke stad kan zijn eigen aangepaste taxonomie types maken in plaats van hardgecodeerde classificaties te gebruiken.",
+        "examples": {
+          "title": "Voorbeelden van Taxonomie Types",
+          "items": [
+            "Grootte (Klein/Medium/Groot) - voor gemeenschapsgrootte",
+            "Status (Bedreigd/Stabiel) - voor bedreigingsstatus",
+            "Schrifttype (Logografisch/Syllabisch/Alfabetisch) - voor schriftsystemen",
+            "Officiele Status (Officieel/Erkend/Minder) - voor officiële erkenning"
+          ]
+        },
+        "configuration": {
+          "title": "Configuratie Opties",
+          "items": [
+            "Vereist: Talen moeten deze taxonomie toegewezen hebben",
+            "Meerdere Waarden: Talen kunnen meerdere waarden uit deze taxonomie hebben",
+            "Kaart Styling: Gebruik deze taxonomie om taalpunten op de kaart te stylen",
+            "Filtering: Toon deze taxonomie in het openbare kaart filter"
+          ]
+        }
+      },
+      "dangerZone": {
+        "title": "Gevaarlijke Zone",
+        "description": "Zodra je een taxonomie type verwijdert, is er geen manier om dit ongedaan te maken. Dit zal ook alle taxonomie waarden en taal toewijzingen verwijderen die aan dit taxonomie type gekoppeld zijn.",
+        "deleteButton": "Taxonomie Type Verwijderen",
+        "confirmDelete": "Weet je zeker dat je dit taxonomie type wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+      }
+    },
+    "taxonomyValues": {
+      "title": "Taxonomie Waarden",
+      "subtitle": "Beheer waarden voor {typeName}",
+      "list": {
+        "title": "{typeName} Waarden",
+        "description": "Definieer specifieke waarden voor dit taxonomie type",
+        "empty": "Nog geen taxonomie waarden",
+        "actions": {
+          "create": "Waarde Toevoegen",
+          "createFirst": "Eerste Waarde Maken",
+          "edit": "Bewerken"
+        },
+        "details": {
+          "icon": "Icoon",
+          "order": "Weergave Volgorde"
+        }
+      },
+      "badges": {
+        "aiGenerated": "AI Gegenereerd"
+      },
+      "form": {
+        "title": "Taxonomie Waarde Maken",
+        "editTitle": "Taxonomie Waarde Bewerken",
+        "basicInfo": {
+          "title": "Basis Informatie",
+          "description": "Waarde identificatie en weergave instellingen",
+          "slug": {
+            "label": "Slug",
+            "placeholder": "bijv. klein, middel, groot",
+            "help": "URL-vriendelijke identificatie. Alleen kleine letters, cijfers en koppeltekens."
+          },
+          "displayOrder": {
+            "label": "Weergave Volgorde",
+            "help": "Volgorde waarin deze waarde in lijsten verschijnt (0 = eerste)"
+          }
+        },
+        "visualStyling": {
+          "title": "Visuele Styling",
+          "description": "Configureer hoe deze waarde op de kaart verschijnt",
+          "color": {
+            "label": "Kleur",
+            "help": "Hex kleurcode voor kaart styling (bijv. #FFA500)"
+          },
+          "icon": {
+            "label": "Icoon Naam",
+            "placeholder": "bijv. Circle, Square, Star",
+            "help": "Lucide icoon naam voor kaart markeringen (optioneel)"
+          },
+          "iconSize": {
+            "label": "Icoon Grootte Vermenigvuldiger",
+            "help": "Grootte vermenigvuldiger voor iconen (0.5x tot 3.0x, 1.0 = standaard)"
+          }
+        },
+        "translations": {
+          "title": "Vertalingen",
+          "description": {
+            "label": "Beschrijving",
+            "placeholder": "Korte beschrijving van deze waarde..."
+          },
+          "name": {
+            "label": "Waarde Naam",
+            "placeholder": "bijv. Kleine Gemeenschap"
+          }
+        },
+        "actions": {
+          "cancel": "Annuleren",
+          "create": "Waarde Maken",
+          "update": "Waarde Bijwerken",
+          "saving": "Bezig met opslaan..."
+        }
+      },
+      "success": {
+        "created": "Taxonomie waarde succesvol aangemaakt",
+        "updated": "Taxonomie waarde succesvol bijgewerkt"
+      },
+      "error": {
+        "unknown": "Er is een fout opgetreden. Probeer het opnieuw."
+      },
+      "validation": {
+        "translationRequired": "Vertaling vereist voor {locale}"
+      },
+      "locale": {
+        "en": "Engels",
+        "nl": "Nederlands",
+        "fr": "Frans"
+      }
+    }
+  },
+  "operator": {
+    "languageFamilies": {
+      "list": {
+        "title": "Taalfamilies",
+        "description": "Beheer taalfamilies voor {city}",
+        "createButton": "Taalfamilie Toevoegen",
+        "translations": "vertalingen",
+        "help": {
+          "title": "Wat zijn Taalfamilies?",
+          "description": "Taalfamilies zijn wereldwijde groepen van verwante talen."
+        }
+      },
+      "delete": {
+        "confirmTitle": "Taalfamilie Verwijderen?",
+        "confirmMessage": "Dit zal '{familyName}' en alle vertalingen permanent verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+      },
+      "create": {
+        "new": {
+          "back": "Terug naar Taalfamilies",
+          "title": "Taalfamilie Aanmaken",
+          "description": "Voeg een nieuwe taalfamilie toe aan het systeem"
+        },
+        "form": {
+          "basicInfo": {
+            "title": "Basisinformatie",
+            "description": "Geef basisinformatie voor deze taalfamilie",
+            "slugLabel": "Slug",
+            "slugHelpText": "URL-vriendelijke identificatie (alleen kleine letters, cijfers en koppeltekens)"
+          },
+          "english": {
+            "title": "Engels (Vereist)",
+            "description": "Vereiste vertaling - Primaire taal",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "dutch": {
+            "title": "Nederlands (Optioneel)",
+            "description": "Secundaire taal voor Nederlandse gebruikers",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "french": {
+            "title": "Frans (Optioneel)",
+            "description": "Secundaire taal voor Franse gebruikers",
+            "nameLabel": "Naam",
+            "descriptionLabel": "Beschrijving"
+          },
+          "actions": {
+            "cancel": "Annuleren",
+            "createButton": "Taalfamilie Aanmaken",
+            "saving": "Aanmaken..."
+          }
+        }
+      },
+      "edit": {
+        "back": "Terug naar Taalfamilies",
+        "title": "Taalfamilie Bewerken",
+        "updateButton": "Taalfamilie Bijwerken",
+        "saving": "Bijwerken...",
+        "dangerZone": {
+          "title": "Gevaarlijke Zone",
+          "description": "Het verwijderen van een taalfamilie kan niet ongedaan worden gemaakt. Talen die naar deze familie verwijzen worden niet verwijderd, maar krijgen null als familie."
+        }
+      }
+    }
+  },
+  "languages": {
+    "title": "Talen",
+    "description": "Beheer talen en hun vertalingen",
+    "actions": {
+      "create": "Taal Toevoegen",
+      "createFirst": "Eerste Taal Aanmaken",
+      "edit": "Taal Bewerken",
+      "delete": "Taal Verwijderen",
+      "back": "Terug naar Talen"
+    },
+    "list": {
+      "title": "Alle Talen",
+      "count": "{count, plural, one {# taal} other {# talen}}",
+      "empty": "Geen talen gevonden. Maak je eerste taal aan om te beginnen.",
+      "columns": {
+        "endonym": "Endoniem",
+        "name": "Naam",
+        "family": "Taalfamilie",
+        "taxonomies": "Classificaties",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Taal Aanmaken",
+      "description": "Voeg een nieuwe taal toe aan de taalkaart van je stad"
+    },
+    "edit": {
+      "title": "Taal Bewerken",
+      "description": "Bewerken van {name}"
+    },
+    "form": {
+      "coreInfo": "Kerngegevens",
+      "coreInfoDescription": "Basisinformatie over de taal",
+      "endonym": "Endoniem",
+      "endonymPlaceholder": "bijv. 日本語, Español, English",
+      "endonymHelp": "De naam van de taal in zijn eigen taal (niet vertaald)",
+      "isoCode": "ISO 639-3 Code",
+      "isoCodeHelp": "Optionele drieletterige taalcode",
+      "languageFamily": "Taalfamilie",
+      "selectLanguageFamily": "Selecteer een taalfamilie",
+      "countryOfOrigin": "Land van Oorsprong",
+      "selectCountry": "Selecteer een land",
+      "speakerCount": "Aantal Sprekers",
+      "none": "Geen",
+      "translations": "Vertalingen",
+      "translationsDescription": "Geef namen op in verschillende talen",
+      "englishName": "Engelse Naam",
+      "dutchName": "Nederlandse Naam",
+      "frenchName": "Franse Naam",
+      "namePlaceholder": "Voer de taalnaam in",
+      "taxonomies": "Classificaties",
+      "taxonomiesDescription": "Wijs taxonomiewaarden toe om deze taal te classificeren",
+      "multiSelect": "Multi-selectie",
+      "singleSelect": "Enkel-selectie",
+      "cancel": "Annuleren",
+      "create": "Taal Aanmaken",
+      "update": "Taal Bijwerken",
+      "saving": "Opslaan..."
+    },
+    "help": {
+      "title": "Over Talen",
+      "description": "Talen vertegenwoordigen de taalkundige diversiteit in je stad. Elke taal kan worden geclassificeerd met behulp van aangepaste taxonomietypes."
+    },
+    "delete": {
+      "confirmTitle": "Taal Verwijderen",
+      "confirmMessage": "Weet je zeker dat je \"{languageName}\" wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "deleting": "Verwijderen...",
+      "errors": {
+        "deleteFailed": "Taal verwijderen mislukt",
+        "stillReferenced": "Deze taal kan niet worden verwijderd omdat het nog wordt verwezen door andere gegevens."
+      }
+    },
+    "error": {
+      "title": "Fout",
+      "notFound": "Taal niet gevonden",
+      "unknown": "Er is een onverwachte fout opgetreden"
+    },
+    "translations": {
+      "title": "Taalnaamvertalingen",
+      "description": "Beheer hoe deze taalnaam verschijnt in verschillende interfacetalen (Engels, Nederlands, Frans)",
+      "manageButton": "Vertalingen Beheren"
+    }
+  },
+  "languageTranslations": {
+    "title": "Taalvertalingen",
+    "help": {
+      "title": "Over Taalvertalingen",
+      "description": "Beheer hoe taalnamen verschijnen in verschillende interfacetalen. Het endonym (eigen naam) blijft constant - alleen de vertaalde namen veranderen."
+    },
+    "existingTranslations": {
+      "title": "Bestaande Vertalingen",
+      "description": "{count, plural, one {# vertaling bestaat} other {# vertalingen bestaan}}"
+    },
+    "missingTranslations": {
+      "title": "Ontbrekende Vertalingen Toevoegen",
+      "description": "{count, plural, one {# vertaling nodig} other {# vertalingen nodig}}"
+    },
+    "noTranslations": "Geen vertalingen beschikbaar",
+    "aiInfo": {
+      "title": "AI-Gegenereerde Vertalingen",
+      "description": "Vertalingen gemarkeerd met een AI-badge zijn automatisch gegenereerd. U kunt ze bewerken om de nauwkeurigheid te verbeteren."
+    },
+    "form": {
+      "nameLabel": "Vertaalde Naam",
+      "namePlaceholder": "Voer de taalnaam in deze taal in",
+      "confirmDelete": "Weet u zeker dat u deze vertaling wilt verwijderen?",
+      "aiTranslatedInfo": "AI-gegenereerd door {model} op {date}",
+      "validation": {
+        "nameRequired": "Vertaalde naam is verplicht"
+      }
+    }
+  },
+  "languagePoints": {
+    "title": "Taalpunten",
+    "description": "Beheer geografische locaties waar talen worden gesproken",
+    "list": {
+      "title": "Taalpunten",
+      "empty": "Geen taalpunten gevonden. Maak uw eerste taalpunt om te beginnen.",
+      "addButton": "Taalpunt Toevoegen",
+      "columns": {
+        "language": "Taal",
+        "neighborhood": "Buurt",
+        "coordinates": "Coördinaten",
+        "communityName": "Gemeenschapsnaam",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Taalpunt Aanmaken",
+      "description": "Voeg een nieuwe geografische locatie toe waar een taal wordt gesproken"
+    },
+    "edit": {
+      "title": "Taalpunt Bewerken",
+      "description": "Werk de geografische locatiegegevens bij"
+    },
+    "form": {
+      "language": "Taal",
+      "selectLanguage": "Selecteer een taal",
+      "neighborhood": "Buurt",
+      "selectNeighborhood": "Selecteer een buurt (optioneel)",
+      "noNeighborhood": "Geen buurt",
+      "latitude": "Breedtegraad",
+      "latitudeRange": "Bereik: -90 tot 90",
+      "longitude": "Lengtegraad",
+      "longitudeRange": "Bereik: -180 tot 180",
+      "postalCode": "Postcode",
+      "postalCodePlaceholder": "bijv. 1012AB",
+      "communityName": "Gemeenschapsnaam",
+      "communityNamePlaceholder": "bijv. Turks Gemeenschapscentrum",
+      "notes": "Notities",
+      "notesPlaceholder": "Aanvullende informatie over deze locatie",
+      "cancel": "Annuleren",
+      "create": "Taalpunt Aanmaken",
+      "update": "Taalpunt Bijwerken",
+      "saving": "Opslaan...",
+      "errorGeneric": "Taalpunt opslaan mislukt. Probeer het opnieuw.",
+      "validation": {
+        "languageRequired": "Selecteer een taal",
+        "latitudeRequired": "Breedtegraad is verplicht",
+        "longitudeRequired": "Lengtegraad is verplicht",
+        "latitudeInvalid": "Breedtegraad moet tussen -90 en 90 liggen",
+        "longitudeInvalid": "Lengtegraad moet tussen -180 en 180 liggen"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Taalpunt Verwijderen",
+      "confirmMessage": "Weet u zeker dat u dit taalpunt wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "confirmButton": "Verwijderen",
+      "cancelButton": "Annuleren",
+      "success": "Taalpunt succesvol verwijderd",
+      "error": "Taalpunt verwijderen mislukt"
+    }
+  },
+  "admin": {
+    "invitations": {
+      "title": "Gebruikersuitnodigingen"
+    }
+  },
+  "descriptions": {
+    "title": "Beschrijvingen",
+    "description": "Beheer gemeenschapsverhalen en taalbeschrijvingen",
+    "list": {
+      "title": "Beschrijvingen",
+      "empty": "Geen beschrijvingen gevonden. Maak uw eerste beschrijving aan om te beginnen.",
+      "addButton": "Beschrijving Toevoegen",
+      "loading": "Beschrijvingen laden...",
+      "noTranslation": "Geen vertaling voor {locale}",
+      "loadError": "Beschrijvingen laden mislukt",
+      "columns": {
+        "language": "Taal",
+        "neighborhood": "Buurt",
+        "preview": "Beschrijving Voorvertoning",
+        "translations": "Vertalingen",
+        "actions": "Acties"
+      }
+    },
+    "create": {
+      "title": "Beschrijving Aanmaken",
+      "description": "Voeg een nieuw gemeenschapsverhaal of taalbeschrijving toe"
+    },
+    "edit": {
+      "title": "Beschrijving Bewerken",
+      "description": "Update beschrijving metadata voor {language}",
+      "metadataOnly": "Alleen metadata bewerken",
+      "useTranslationsPage": "Gebruik de Vertalingen pagina om de beschrijvingstekst te bewerken of vertalingen toe te voegen."
+    },
+    "form": {
+      "language": "Taal",
+      "selectLanguage": "Selecteer een taal",
+      "languageCannotChange": "Taal kan niet worden gewijzigd na aanmaak",
+      "neighborhood": "Buurt",
+      "selectNeighborhood": "Selecteer een buurt (optioneel)",
+      "noNeighborhood": "Geen buurt",
+      "optional": "Optioneel",
+      "description": "Beschrijving",
+      "descriptionPlaceholder": "Voer het gemeenschapsverhaal of de taalbeschrijving in...",
+      "descriptionHint": "Dit wordt opgeslagen als de {locale} vertaling",
+      "useTranslationsPage": "Gebruik de Vertalingen pagina om vertalingen te bewerken",
+      "aiGenerated": "AI Gegenereerd",
+      "aiTranslated": "AI Vertaald",
+      "model": "Model",
+      "cancel": "Annuleren",
+      "create": "Beschrijving Aanmaken",
+      "update": "Beschrijving Bijwerken",
+      "saving": "Opslaan...",
+      "errorGeneric": "Beschrijving opslaan mislukt. Probeer het opnieuw.",
+      "errorTextRequired": "Beschrijvingstekst is verplicht",
+      "validation": {
+        "languageRequired": "Selecteer een taal",
+        "textRequired": "Beschrijvingstekst is verplicht"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Beschrijving Verwijderen",
+      "confirmMessage": "Weet u zeker dat u deze beschrijving wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt en zal alle vertalingen verwijderen.",
+      "confirmButton": "Verwijderen",
+      "cancelButton": "Annuleren",
+      "success": "Beschrijving succesvol verwijderd",
+      "error": "Beschrijving verwijderen mislukt"
+    },
+    "translations": {
+      "title": "Beschrijving Vertalingen",
+      "description": "Beheer beschrijvingstekst in verschillende talen",
+      "manageButton": "Vertalingen Beheren"
+    }
+  },
+  "descriptionTranslations": {
+    "title": "Beschrijving Vertalingen",
+    "help": {
+      "title": "Over Beschrijving Vertalingen",
+      "description": "Beheer beschrijvingstekst in verschillende interfacetalen. Elke vertaling bevat de volledige beschrijvingstekst voor die locale."
+    },
+    "existingTranslations": {
+      "title": "Bestaande Vertalingen",
+      "description": "{count, plural, one {# vertaling bestaat} other {# vertalingen bestaan}}"
+    },
+    "missingTranslations": {
+      "title": "Ontbrekende Vertalingen Toevoegen",
+      "description": "{count, plural, one {# vertaling nodig} other {# vertalingen nodig}}"
+    },
+    "noTranslations": "Geen vertalingen beschikbaar",
+    "aiInfo": {
+      "title": "AI-Gegenereerde Vertalingen",
+      "description": "Vertalingen gemarkeerd met een AI badge zijn automatisch gegenereerd. U kunt ze bewerken om de nauwkeurigheid te verbeteren."
+    },
+    "form": {
+      "textLabel": "Beschrijvingstekst",
+      "textPlaceholder": "Voer de beschrijvingstekst in deze locale in",
+      "charactersLabel": "tekens",
+      "confirmDelete": "Weet u zeker dat u deze vertaling wilt verwijderen?",
+      "aiTranslatedInfo": "AI-gegenereerd door {model} op {date}",
+      "validation": {
+        "textRequired": "Beschrijvingstekst is verplicht"
       }
     }
   }

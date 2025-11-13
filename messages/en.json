@@ -9,7 +9,21 @@
     "edit": "Edit",
     "create": "Create",
     "search": "Search",
-    "close": "Close"
+    "close": "Close",
+    "actions": {
+      "back": "Back",
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    }
+  },
+  "errors": {
+    "permissionDenied": "You do not have permission to perform this action. Please contact your administrator.",
+    "validationFailed": "Please check your input and try again. Make sure all required fields are filled correctly.",
+    "networkError": "A network error occurred. Please check your connection and try again.",
+    "duplicateSlug": "A taxonomy type with this slug already exists. Please choose a different slug.",
+    "saveFailed": "An error occurred while saving"
   },
   "home": {
     "title": "Language Map Platform",
@@ -112,6 +126,56 @@
         "currentRole": "Your current role: {role}"
       }
     },
+    "operator": {
+      "languageFamilies": {
+        "list": {
+          "title": "Language Families",
+          "description": "Manage language families for {city}",
+          "createButton": "Add Language Family",
+          "empty": "No Language Families Yet",
+          "createFirst": "Create Language Family",
+          "help": {
+            "title": "What are Language Families?",
+            "description": "Language families are global groups of related languages. They help organize languages by their historical origins and linguistic relationships. For example, 'Indo-European' is a language family that includes English, Dutch, French, and many other languages."
+          }
+        },
+        "create": {
+          "title": "Create Language Family",
+          "description": "Add a new language family to the system",
+          "form": {
+            "slug": {
+              "label": "Slug",
+              "placeholder": "e.g., indo-european",
+              "help": "URL-friendly identifier (lowercase letters, numbers, and hyphens only)"
+            },
+            "translations": {
+              "title": "Translations",
+              "description": {
+                "label": "Description",
+                "placeholder": "Brief description of this language family..."
+              },
+              "basicInformation": "Basic Information",
+              "englishRequired": "English (Required)",
+              "dutchOptional": "Dutch (Optional)",
+              "frenchOptional": "French (Optional)",
+              "name": {
+                "label": "Name",
+                "placeholder": "e.g., Indo-European"
+              }
+            }
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "create": "Create Language Family",
+            "saving": "Saving..."
+          }
+        },
+        "edit": {
+          "title": "Edit Language Family",
+          "description": "Update language family information"
+        }
+      }
+    },
     "admin": {
       "invitations": {
         "title": "User Invitations",
@@ -155,6 +219,677 @@
           "emptyState": "No pending invitations",
           "emptyStateDescription": "Invitations will appear here once you create them."
         }
+      }
+    },
+    "districts": {
+      "title": "Districts",
+      "subtitle": "Manage districts for {cityName}",
+      "addButton": "Add District",
+      "noDistricts": {
+        "title": "No Districts Yet",
+        "description": "Get started by creating your first district for this city",
+        "createButton": "Create District"
+      },
+      "form": {
+        "title": "Create District",
+        "editTitle": "Edit District",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "District identifier and status",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "e.g., centrum, west, north",
+          "slugHelpText": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens.",
+          "activeLabel": "Active",
+          "activeHelpText": "Inactive districts are hidden from the public interface"
+        },
+        "translations": {
+          "english": {
+            "title": "English Translation",
+            "description": "Required translation - Primary language",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., City Center",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brief description of the district..."
+          },
+          "dutch": {
+            "title": "Dutch Translation (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., Centrum",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van het district..."
+          },
+          "french": {
+            "title": "French Translation (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "District Name",
+            "namePlaceholder": "e.g., Centre-ville",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          }
+        },
+        "submitButton": "Save District",
+        "submitting": "Saving...",
+        "successCreate": "District created successfully",
+        "successUpdate": "District updated successfully"
+      },
+      "info": {
+        "title": "About Districts",
+        "description": "Districts are the primary geographic divisions within a city. They help organize neighborhoods and provide a hierarchical structure for organizing language data.",
+        "vsNeighborhoods": {
+          "title": "Districts vs Neighborhoods",
+          "description": "Districts are larger geographic areas, while neighborhoods are smaller divisions within districts. This creates a clear hierarchy: City → District → Neighborhood."
+        },
+        "translations": {
+          "title": "Translations",
+          "description": "District names and descriptions should be translated into all supported languages (English, Dutch, French) to ensure accessibility for all users."
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Once you delete a district, there is no way to undo this action. This will also delete all associated neighborhoods and any language points linked to those neighborhoods.",
+        "deleteButton": "Delete District",
+        "confirmDelete": "Are you sure you want to delete this district? This action cannot be undone."
+      }
+    },
+    "neighborhoods": {
+      "title": "Neighborhoods",
+      "subtitle": "Manage neighborhoods for {cityName}",
+      "addButton": "Add Neighborhood",
+      "noNeighborhoods": {
+        "title": "No Neighborhoods Yet",
+        "description": "Get started by creating your first neighborhood for this city",
+        "createButton": "Create Neighborhood"
+      },
+      "form": {
+        "title": "Create Neighborhood",
+        "editTitle": "Edit Neighborhood",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "Neighborhood identifier and geographic hierarchy",
+          "districtLabel": "District",
+          "districtPlaceholder": "Select a district",
+          "districtHelpText": "Select the district this neighborhood belongs to",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "e.g., jordaan, de-pijp, vondelpark",
+          "slugHelpText": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens.",
+          "activeLabel": "Active",
+          "activeHelpText": "Inactive neighborhoods are hidden from the public interface"
+        },
+        "translations": {
+          "english": {
+            "title": "English Translation",
+            "description": "Required translation - Primary language",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brief description of the neighborhood..."
+          },
+          "dutch": {
+            "title": "Dutch Translation (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van de buurt..."
+          },
+          "french": {
+            "title": "French Translation (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "Neighborhood Name",
+            "namePlaceholder": "e.g., Jordaan",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description du quartier..."
+          }
+        },
+        "submitButton": "Save Neighborhood",
+        "submitting": "Saving...",
+        "successCreate": "Neighborhood created successfully",
+        "successUpdate": "Neighborhood updated successfully",
+        "noDistrictsWarning": {
+          "title": "No Districts Available",
+          "description": "You need to create at least one district before creating neighborhoods. Neighborhoods must be assigned to a district as part of the geographic hierarchy.",
+          "createButton": "Create District First"
+        }
+      },
+      "info": {
+        "title": "About Neighborhoods",
+        "description": "Neighborhoods are smaller geographic divisions within districts. They provide a more granular level of geographic organization for language data.",
+        "hierarchy": {
+          "title": "Geographic Hierarchy",
+          "description": "The geographic hierarchy follows this structure: City → District → Neighborhood. This allows for precise organization of language points within specific areas."
+        },
+        "translations": {
+          "title": "Translations",
+          "description": "Neighborhood names and descriptions should be translated into all supported languages (English, Dutch, French) to ensure accessibility for all users."
+        },
+        "districtAssignment": {
+          "title": "District Assignment",
+          "description": "Each neighborhood must be assigned to a district. This creates the geographic hierarchy and allows for better organization of data."
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Once you delete a neighborhood, there is no way to undo this action. This will also delete any language points linked to this neighborhood.",
+        "deleteButton": "Delete Neighborhood",
+        "confirmDelete": "Are you sure you want to delete this neighborhood? This action cannot be undone."
+      }
+    },
+    "taxonomyTypes": {
+      "title": "Taxonomy Types",
+      "subtitle": "Manage classification types for {cityName}",
+      "addButton": "Add Taxonomy Type",
+      "noTaxonomyTypes": {
+        "title": "No Taxonomy Types Yet",
+        "description": "Get started by creating your first taxonomy type for this city. Taxonomy types define classification systems like \"Size\" or \"Status\" that can be applied to languages.",
+        "createButton": "Create Taxonomy Type"
+      },
+      "form": {
+        "title": "Create Taxonomy Type",
+        "editTitle": "Edit Taxonomy Type",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "Taxonomy type identifier, configuration, and display settings",
+          "slugLabel": "Slug",
+          "slugPlaceholder": "e.g., size, status, script-type",
+          "slugHelpText": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens.",
+          "displayOrderLabel": "Display Order",
+          "displayOrderHelpText": "Order in which this taxonomy type appears in lists (0 = first)",
+          "configOptionsTitle": "Configuration Options",
+          "isRequiredLabel": "Required",
+          "isRequiredHelpText": "Languages must have a value from this taxonomy assigned",
+          "allowMultipleLabel": "Allow Multiple Values",
+          "allowMultipleHelpText": "Languages can have multiple values from this taxonomy",
+          "useForMapStylingLabel": "Use for Map Styling",
+          "useForMapStylingHelpText": "Use this taxonomy to style language points on the map (color, size)",
+          "useForFilteringLabel": "Show in Filters",
+          "useForFilteringHelpText": "Show this taxonomy in the public map filter interface"
+        },
+        "translations": {
+          "english": {
+            "title": "English Translation",
+            "description": "Required translation - Primary language",
+            "nameLabel": "Taxonomy Type Name",
+            "namePlaceholder": "e.g., Community Size",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brief description of this classification system..."
+          },
+          "dutch": {
+            "title": "Dutch Translation (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "Taxonomy Type Name",
+            "namePlaceholder": "e.g., Gemeenschapsgrootte",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Korte beschrijving van dit classificatiesysteem..."
+          },
+          "french": {
+            "title": "French Translation (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "Taxonomy Type Name",
+            "namePlaceholder": "e.g., Taille de la Communauté",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "Brève description de ce système de classification..."
+          }
+        },
+        "submitButton": "Save Taxonomy Type",
+        "submitting": "Saving...",
+        "successCreate": "Taxonomy type created successfully",
+        "successUpdate": "Taxonomy type updated successfully"
+      },
+      "info": {
+        "title": "About Taxonomy Types",
+        "description": "Taxonomy types define classification systems for languages. Each city can create its own custom taxonomy types instead of using hardcoded classifications.",
+        "examples": {
+          "title": "Example Taxonomy Types",
+          "items": [
+            "Size (Small/Medium/Large) - for community size",
+            "Status (Endangered/Stable) - for endangerment status",
+            "Script Type (Logographic/Syllabic/Alphabetic) - for writing systems",
+            "Official Status (Official/Recognized/Minority) - for official recognition"
+          ]
+        },
+        "configuration": {
+          "title": "Configuration Options",
+          "items": [
+            "Required: Languages must have this taxonomy assigned",
+            "Multiple Values: Languages can have multiple values from this taxonomy",
+            "Map Styling: Use this taxonomy to style language points on the map",
+            "Filtering: Show this taxonomy in the public map filter"
+          ]
+        }
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "description": "Once you delete a taxonomy type, there is no way to undo this action. This will also delete all taxonomy values and language assignments associated with this taxonomy type.",
+        "deleteButton": "Delete Taxonomy Type",
+        "confirmDelete": "Are you sure you want to delete this taxonomy type? This action cannot be undone."
+      }
+    },
+    "taxonomyValues": {
+      "title": "Taxonomy Values",
+      "subtitle": "Manage values for {typeName}",
+      "list": {
+        "title": "{typeName} Values",
+        "description": "Define specific values for this taxonomy type",
+        "empty": "No taxonomy values yet",
+        "actions": {
+          "create": "Add Value",
+          "createFirst": "Create First Value",
+          "edit": "Edit"
+        },
+        "details": {
+          "icon": "Icon",
+          "order": "Display Order"
+        }
+      },
+      "badges": {
+        "aiGenerated": "AI Generated"
+      },
+      "form": {
+        "title": "Create Taxonomy Value",
+        "editTitle": "Edit Taxonomy Value",
+        "basicInfo": {
+          "title": "Basic Information",
+          "description": "Value identifier and display settings",
+          "slug": {
+            "label": "Slug",
+            "placeholder": "e.g., small, medium, large",
+            "help": "URL-friendly identifier. Only lowercase letters, numbers, and hyphens."
+          },
+          "displayOrder": {
+            "label": "Display Order",
+            "help": "Order in which this value appears in lists (0 = first)"
+          }
+        },
+        "visualStyling": {
+          "title": "Visual Styling",
+          "description": "Configure how this value appears on the map",
+          "color": {
+            "label": "Color",
+            "help": "Hex color code for map styling (e.g., #FFA500)"
+          },
+          "icon": {
+            "label": "Icon Name",
+            "placeholder": "e.g., Circle, Square, Star",
+            "help": "Lucide icon name for map markers (optional)"
+          },
+          "iconSize": {
+            "label": "Icon Size Multiplier",
+            "help": "Size multiplier for icons (0.5x to 3.0x, 1.0 = default)"
+          }
+        },
+        "translations": {
+          "title": "Translations",
+          "description": {
+            "label": "Description",
+            "placeholder": "Brief description of this value..."
+          },
+          "name": {
+            "label": "Value Name",
+            "placeholder": "e.g., Small Community"
+          }
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "create": "Create Value",
+          "update": "Update Value",
+          "saving": "Saving..."
+        }
+      },
+      "success": {
+        "created": "Taxonomy value created successfully",
+        "updated": "Taxonomy value updated successfully"
+      },
+      "error": {
+        "unknown": "An error occurred. Please try again."
+      },
+      "validation": {
+        "translationRequired": "Translation required for {locale}"
+      },
+      "locale": {
+        "en": "English",
+        "nl": "Dutch",
+        "fr": "French"
+      }
+    }
+  },
+  "operator": {
+    "languageFamilies": {
+      "list": {
+        "title": "Language Families",
+        "description": "Manage language families for {city}",
+        "createButton": "Add Language Family",
+        "empty": "No Language Families Yet",
+        "createFirst": "Create Language Family",
+        "translations": "translations",
+        "help": {
+          "title": "What are Language Families?",
+          "description": "Language families are global groups of related languages."
+        }
+      },
+      "create": {
+        "new": {
+          "back": "Back to Language Families",
+          "title": "Create Language Family",
+          "description": "Add a new language family to the system"
+        },
+        "form": {
+          "basicInfo": {
+            "title": "Basic Information",
+            "description": "Provide basic information for this language family",
+            "slugLabel": "Slug",
+            "slugHelpText": "URL-friendly identifier (lowercase letters, numbers, and hyphens only)"
+          },
+          "english": {
+            "title": "English (Required)",
+            "description": "Required translation - Primary language",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "dutch": {
+            "title": "Dutch (Optional)",
+            "description": "Secondary language for Dutch-speaking users",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "french": {
+            "title": "French (Optional)",
+            "description": "Secondary language for French-speaking users",
+            "nameLabel": "Name",
+            "descriptionLabel": "Description"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "createButton": "Create Language Family",
+            "saving": "Creating..."
+          }
+        }
+      },
+      "edit": {
+        "back": "Back to Language Families",
+        "title": "Edit Language Family",
+        "updateButton": "Update Language Family",
+        "saving": "Updating...",
+        "dangerZone": {
+          "title": "Danger Zone",
+          "description": "Deleting a language family cannot be undone. Languages referencing this family will not be deleted but will have their family set to null."
+        }
+      }
+    }
+  },
+  "languages": {
+    "title": "Languages",
+    "description": "Manage languages and their translations",
+    "actions": {
+      "create": "Add Language",
+      "createFirst": "Create First Language",
+      "edit": "Edit Language",
+      "delete": "Delete Language",
+      "back": "Back to Languages"
+    },
+    "list": {
+      "title": "All Languages",
+      "count": "{count, plural, one {# language} other {# languages}}",
+      "empty": "No languages found. Create your first language to get started.",
+      "columns": {
+        "endonym": "Endonym",
+        "name": "Name",
+        "family": "Language Family",
+        "taxonomies": "Classifications",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Language",
+      "description": "Add a new language to your city's language map"
+    },
+    "edit": {
+      "title": "Edit Language",
+      "description": "Editing {name}"
+    },
+    "form": {
+      "coreInfo": "Core Information",
+      "coreInfoDescription": "Basic language information",
+      "endonym": "Endonym",
+      "endonymPlaceholder": "e.g., 日本語, Español, English",
+      "endonymHelp": "The language's name in its own language (not translated)",
+      "isoCode": "ISO 639-3 Code",
+      "isoCodeHelp": "Optional three-letter language code",
+      "languageFamily": "Language Family",
+      "selectLanguageFamily": "Select a language family",
+      "countryOfOrigin": "Country of Origin",
+      "selectCountry": "Select a country",
+      "speakerCount": "Speaker Count",
+      "none": "None",
+      "translations": "Translations",
+      "translationsDescription": "Provide names in different languages",
+      "englishName": "English Name",
+      "dutchName": "Dutch Name",
+      "frenchName": "French Name",
+      "namePlaceholder": "Enter the language name",
+      "taxonomies": "Classifications",
+      "taxonomiesDescription": "Assign taxonomy values to classify this language",
+      "multiSelect": "Multi-select",
+      "singleSelect": "Single-select",
+      "cancel": "Cancel",
+      "create": "Create Language",
+      "update": "Update Language",
+      "saving": "Saving..."
+    },
+    "help": {
+      "title": "About Languages",
+      "description": "Languages represent the linguistic diversity in your city. Each language can be classified using custom taxonomy types."
+    },
+    "delete": {
+      "confirmTitle": "Delete Language?",
+      "confirmMessage": "Are you sure you want to delete {languageName}? This action cannot be undone and will remove all associated data including translations and taxonomy assignments.",
+      "deleting": "Deleting...",
+      "errors": {
+        "stillReferenced": "Cannot delete this language because it is still referenced by other data (such as language points or descriptions). Please remove those references first.",
+        "deleteFailed": "Failed to delete language"
+      }
+    },
+    "error": {
+      "title": "Error",
+      "notFound": "Language not found",
+      "unknown": "An unexpected error occurred"
+    },
+    "translations": {
+      "title": "Language Name Translations",
+      "description": "Manage how this language name appears in different interface languages (English, Dutch, French)",
+      "manageButton": "Manage Translations"
+    }
+  },
+  "languageTranslations": {
+    "title": "Language Translations",
+    "help": {
+      "title": "About Language Translations",
+      "description": "Manage how language names appear in different interface languages. The endonym (native name) remains constant - only the translated names change."
+    },
+    "existingTranslations": {
+      "title": "Existing Translations",
+      "description": "{count, plural, one {# translation exists} other {# translations exist}}"
+    },
+    "missingTranslations": {
+      "title": "Add Missing Translations",
+      "description": "{count, plural, one {# translation needed} other {# translations needed}}"
+    },
+    "noTranslations": "No translations available",
+    "aiInfo": {
+      "title": "AI-Generated Translations",
+      "description": "Translations marked with an AI badge were automatically generated. You can edit them to improve accuracy."
+    },
+    "form": {
+      "nameLabel": "Translated Name",
+      "namePlaceholder": "Enter the language name in this locale",
+      "confirmDelete": "Are you sure you want to delete this translation?",
+      "aiTranslatedInfo": "AI-generated by {model} on {date}",
+      "validation": {
+        "nameRequired": "Translation name is required"
+      }
+    }
+  },
+  "languagePoints": {
+    "title": "Language Points",
+    "description": "Manage geographic locations where languages are spoken",
+    "list": {
+      "title": "Language Points",
+      "empty": "No language points found. Create your first language point to get started.",
+      "addButton": "Add Language Point",
+      "columns": {
+        "language": "Language",
+        "neighborhood": "Neighborhood",
+        "coordinates": "Coordinates",
+        "communityName": "Community Name",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Language Point",
+      "description": "Add a new geographic location where a language is spoken"
+    },
+    "edit": {
+      "title": "Edit Language Point",
+      "description": "Update the geographic location details"
+    },
+    "form": {
+      "language": "Language",
+      "selectLanguage": "Select a language",
+      "neighborhood": "Neighborhood",
+      "selectNeighborhood": "Select a neighborhood (optional)",
+      "noNeighborhood": "No neighborhood",
+      "latitude": "Latitude",
+      "latitudeRange": "Range: -90 to 90",
+      "longitude": "Longitude",
+      "longitudeRange": "Range: -180 to 180",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "e.g., 1012AB",
+      "communityName": "Community Name",
+      "communityNamePlaceholder": "e.g., Turkish Community Center",
+      "notes": "Notes",
+      "notesPlaceholder": "Additional information about this location",
+      "cancel": "Cancel",
+      "create": "Create Language Point",
+      "update": "Update Language Point",
+      "saving": "Saving...",
+      "errorGeneric": "Failed to save language point. Please try again.",
+      "validation": {
+        "languageRequired": "Please select a language",
+        "latitudeRequired": "Latitude is required",
+        "longitudeRequired": "Longitude is required",
+        "latitudeInvalid": "Latitude must be between -90 and 90",
+        "longitudeInvalid": "Longitude must be between -180 and 180"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Delete Language Point",
+      "confirmMessage": "Are you sure you want to delete this language point? This action cannot be undone.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "success": "Language point deleted successfully",
+      "error": "Failed to delete language point"
+    }
+  },
+  "admin": {
+    "invitations": {
+      "title": "User Invitations"
+    }
+  },
+  "descriptions": {
+    "title": "Descriptions",
+    "description": "Manage community stories and language descriptions",
+    "list": {
+      "title": "Descriptions",
+      "empty": "No descriptions found. Create your first description to get started.",
+      "addButton": "Add Description",
+      "loading": "Loading descriptions...",
+      "noTranslation": "No translation for {locale}",
+      "loadError": "Failed to load descriptions",
+      "columns": {
+        "language": "Language",
+        "neighborhood": "Neighborhood",
+        "preview": "Description Preview",
+        "translations": "Translations",
+        "actions": "Actions"
+      }
+    },
+    "create": {
+      "title": "Create Description",
+      "description": "Add a new community story or language description"
+    },
+    "edit": {
+      "title": "Edit Description",
+      "description": "Update description metadata for {language}",
+      "metadataOnly": "Editing metadata only",
+      "useTranslationsPage": "To edit the description text or add translations, use the Translations page."
+    },
+    "form": {
+      "language": "Language",
+      "selectLanguage": "Select a language",
+      "languageCannotChange": "Language cannot be changed after creation",
+      "neighborhood": "Neighborhood",
+      "selectNeighborhood": "Select a neighborhood (optional)",
+      "noNeighborhood": "No neighborhood",
+      "optional": "Optional",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter the community story or language description...",
+      "descriptionHint": "This will be saved as the {locale} translation",
+      "useTranslationsPage": "To edit translations, use the Translations page",
+      "aiGenerated": "AI Generated",
+      "aiTranslated": "AI Translated",
+      "model": "Model",
+      "cancel": "Cancel",
+      "create": "Create Description",
+      "update": "Update Description",
+      "saving": "Saving...",
+      "errorGeneric": "Failed to save description. Please try again.",
+      "errorTextRequired": "Description text is required",
+      "validation": {
+        "languageRequired": "Please select a language",
+        "textRequired": "Description text is required"
+      }
+    },
+    "delete": {
+      "confirmTitle": "Delete Description",
+      "confirmMessage": "Are you sure you want to delete this description? This action cannot be undone and will remove all translations.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "success": "Description deleted successfully",
+      "error": "Failed to delete description"
+    },
+    "translations": {
+      "title": "Description Translations",
+      "description": "Manage description text in different languages",
+      "manageButton": "Manage Translations"
+    }
+  },
+  "descriptionTranslations": {
+    "title": "Description Translations",
+    "help": {
+      "title": "About Description Translations",
+      "description": "Manage description text in different interface languages. Each translation contains the full description text for that locale."
+    },
+    "existingTranslations": {
+      "title": "Existing Translations",
+      "description": "{count, plural, one {# translation exists} other {# translations exist}}"
+    },
+    "missingTranslations": {
+      "title": "Add Missing Translations",
+      "description": "{count, plural, one {# translation needed} other {# translations needed}}"
+    },
+    "noTranslations": "No translations available",
+    "aiInfo": {
+      "title": "AI-Generated Translations",
+      "description": "Translations marked with an AI badge were automatically generated. You can edit them to improve accuracy."
+    },
+    "form": {
+      "textLabel": "Description Text",
+      "textPlaceholder": "Enter the description text in this locale",
+      "charactersLabel": "characters",
+      "confirmDelete": "Are you sure you want to delete this translation?",
+      "aiTranslatedInfo": "AI-generated by {model} on {date}",
+      "validation": {
+        "textRequired": "Description text is required"
       }
     }
   }

@@ -14,16 +14,71 @@ tags: [architecture, database, security, performance, technical-specs]
 
 ## Table of Contents
 
-1. [Technology Stack](#technology-stack)
-2. [Database Architecture](#database-architecture)
-3. [Multi-Database Strategy](#multi-database-strategy)
-4. [Database Schema](#database-schema)
-5. [Row-Level Security (RLS)](#row-level-security-rls)
-6. [Database Indexes](#database-indexes)
-7. [URL Structure](#url-structure)
-8. [Authentication & Authorization](#authentication--authorization)
-9. [Performance Optimization](#performance-optimization)
-10. [Security Considerations](#security-considerations)
+1. [**⚠️ CRITICAL: Database Instance Configuration**](#-critical-database-instance-configuration)
+2. [Technology Stack](#technology-stack)
+3. [Database Architecture](#database-architecture)
+4. [**Working with Supabase CLI**](#working-with-supabase-cli)
+5. [Multi-Database Strategy](#multi-database-strategy)
+6. [Database Schema](#database-schema)
+7. [Row-Level Security (RLS)](#row-level-security-rls)
+8. [Database Indexes](#database-indexes)
+9. [URL Structure](#url-structure)
+10. [Authentication & Authorization](#authentication--authorization)
+11. [Performance Optimization](#performance-optimization)
+12. [Security Considerations](#security-considerations)
+
+---
+
+## ⚠️ CRITICAL: Database Instance Configuration
+
+### Supabase Instance Information
+
+**Container Name**: `supabase_db_language-map`
+**Instance Type**: Custom local development instance
+**Ports**: 54331-54336 (NON-STANDARD PORTS)
+
+### Port Configuration
+
+| Service | Port | URL |
+|---------|------|-----|
+| API Gateway | 54331 | http://localhost:54331 |
+| PostgreSQL | 54332 | localhost:54332 |
+| Studio (DB UI) | 54333 | http://localhost:54333 |
+| Inbucket (Email) | 54334 | http://localhost:54334 |
+| PostgREST | 54335 | http://localhost:54335 |
+| Realtime | 54336 | ws://localhost:54336 |
+
+### ⚠️ CRITICAL WARNING
+
+**DO NOT USE** the default Supabase instance (`supabase_db_supabase`):
+- Default instance runs on ports 54321-54324
+- Belongs to a different project
+- **Using the wrong instance can corrupt the other project's database!**
+
+### Verifying Correct Instance
+
+```bash
+# Check if the correct instance is running
+docker ps | grep supabase_db_language-map
+
+# Should show something like:
+# CONTAINER ID   IMAGE                  COMMAND                  PORTS
+# abc123def456   supabase/postgres      "docker-entrypoint.s…"   0.0.0.0:54332->5432/tcp
+#                                       0.0.0.0:54331->54321/tcp
+```
+
+### Environment Variables
+
+**⚠️ IMPORTANT**: All environment variables must point to the correct ports:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54331
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+DATABASE_URL=postgresql://postgres:postgres@localhost:54332/postgres
+```
+
+**DO NOT USE**: URLs with ports 54321-54324 (wrong instance!)
 
 ---
 
@@ -122,6 +177,8 @@ Vercel Analytics       // Web analytics (optional)
 
 ## Database Architecture
 
+> ⚠️ **IMPORTANT**: Before working with the database, read the [Database Instance Configuration](#-critical-database-instance-configuration) section above to ensure you're using the correct Supabase instance (`supabase_db_language-map`).
+
 ### Multi-Tenancy Model
 
 The platform uses **Row-Level Security (RLS)** for multi-city isolation in a shared database, with abstraction layer support for future dedicated databases.
@@ -143,6 +200,110 @@ The platform uses **Row-Level Security (RLS)** for multi-city isolation in a sha
 │ Supabase EU      │  │ Supabase US      │  │ Supabase Asia    │
 │ Amsterdam, Paris │  │ NYC, Toronto     │  │ Tokyo (dedicated)│
 └──────────────────┘  └──────────────────┘  └──────────────────┘
+```
+
+---
+
+## Working with Supabase CLI
+
+### ⚠️ CRITICAL: Verify Instance Before Running Commands
+
+**Before running ANY Supabase CLI command**, verify you're using the correct instance:
+
+```bash
+# ✅ CORRECT: Check for supabase_db_language-map
+docker ps | grep supabase_db_language-map
+
+# ❌ WRONG: If you see supabase_db_supabase, you're on the wrong instance!
+docker ps | grep supabase_db_supabase
+```
+
+### Common Commands
+
+#### Start Supabase
+```bash
+# ✅ Start the correct instance (supabase_db_language-map)
+npx supabase start
+
+# ⚠️ This will start containers on ports 54331-54336
+# Verify with: docker ps | grep 5433
+```
+
+#### Check Status
+```bash
+# Shows which instance is running and on which ports
+npx supabase status
+
+# Expected output should show ports 54331-54336, NOT 54321-54324
+# API URL: http://127.0.0.1:54331
+# DB URL: postgresql://postgres:postgres@127.0.0.1:54332
+# Studio URL: http://127.0.0.1:54333
+```
+
+#### Link Project
+```bash
+# ⚠️ CRITICAL: Verify you're linking the correct instance
+npx supabase link --project-ref your-project-ref
+
+# The project-ref should be for supabase_db_language-map
+# Never link to the project that belongs to supabase_db_supabase
+```
+
+#### Reset Database
+```bash
+# ⚠️ DANGER: This will reset the database
+# Only run this if you're sure you're on the correct instance!
+npx supabase db reset
+
+# Always verify first with: docker ps | grep supabase_db_language-map
+```
+
+#### Run Migrations
+```bash
+# ⚠️ CRITICAL: Verify instance before running migrations
+# Wrong instance = corrupted data in the other project!
+
+# Create migration
+npx supabase migration new your_migration_name
+
+# Apply migration
+npx supabase db push
+
+# ⚠️ Always verify with: npx supabase status
+```
+
+### Environment Setup
+
+**Before starting development, ensure your `.env.local` contains:**
+
+```env
+# ⚠️ CRITICAL: Verify these point to ports 54331-54332
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54331
+DATABASE_URL=postgresql://postgres:postgres@localhost:54332
+```
+
+**Never use these (wrong instance):**
+```env
+# ❌ WRONG: These point to the default instance (supabase_db_supabase)
+NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
+DATABASE_URL=postgresql://postgres:postgres@localhost:54322
+```
+
+### Troubleshooting
+
+**Problem**: "Database connection refused"
+**Solution**: Check if supabase_db_language-map is running
+```bash
+docker ps | grep supabase_db_language-map
+# If not running: npx supabase start
+```
+
+**Problem**: "Migration failed on wrong database"
+**Solution**: You probably ran commands on the wrong instance!
+```bash
+# Always verify before running destructive commands
+docker ps | grep supabase
+# Check the container name and ports carefully!
 ```
 
 ---

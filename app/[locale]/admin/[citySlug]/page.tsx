@@ -2,120 +2,275 @@
  * City-Specific Admin Dashboard
  *
  * Dashboard for managing a specific city with statistics and quick actions.
+ *
+ * This component displays:
+ * - City overview and statistics (languages, users, descriptions, data quality)
+ * - Quick actions for common administrative tasks
+ * - Recent user activity for the city
+ *
+ * NOTE: Uses Client Components for consistent authentication.
+ * NOTE: Authentication and authorization are handled by the parent layout component.
+ *
+ * @async
+ * @returns The rendered admin dashboard for a specific city
  */
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { CookieOptions } from '@supabase/ssr'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, FileText, BarChart3, Languages, Settings } from 'lucide-react'
 
-export default async function CityAdminPage({
-  params,
-}: {
-  params: Promise<{ citySlug: string }>
-}) {
-  const cookieStore = await cookies()
-  const { citySlug } = await params
+interface City {
+  id: string
+  slug: string
+  translations?: {
+    name?: string
+  }
+}
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
+interface RecentUser {
+  role: string
+  created_at: string
+  user: {
+    email?: string
+    full_name?: string
+  } | null
+}
+
+export default function CityAdminPage() {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  const [city, setCity] = useState<City | null>(null)
+  const [languageCount, setLanguageCount] = useState(0)
+  const [userCount, setUserCount] = useState(0)
+  const [descriptionCount, setDescriptionCount] = useState(0)
+  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([])
+  const router = useRouter()
+  const params = useParams()
+
+  // Input validation
+  const citySlug = params?.citySlug as string
+  const locale = (params?.locale as string) || 'en'
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadCityData() {
+      // Validate citySlug inside useEffect (after hooks)
+      if (!citySlug) {
+        return
+      }
+
+      try {
+        // Clear previous errors
+        setError(null)
+
+        // Get database client for client-side queries
+        // For client components, we use createAuthClient which connects to the database
+        // with the user's authentication session
+        const { createAuthClient } = await import('@/lib/auth/client')
+        const supabase = createAuthClient()
+
+        // Get city information
+        const { data: cityData, error: cityError } = await supabase
+          .from('cities')
+          .select(`
+            id,
+            slug,
+            translations:city_translations!inner(
+              name
+            )
+          `)
+          .eq('slug', citySlug)
+          .eq('translations.locale_code', locale)
+          .single()
+
+        if (cityError || !cityData) {
+          const errorMsg = cityError?.message || 'City not found'
+          const error = new Error(`Failed to load city: ${errorMsg}`)
+          if (isMounted) {
+            setError(error)
+            setLoading(false)
           }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
+          return
+        }
+
+        // Validate city data structure
+        if (!cityData.id || !cityData.slug) {
+          const error = new Error('Invalid city data structure received')
+          if (isMounted) {
+            setError(error)
+            setLoading(false)
           }
-        },
-      },
+          return
+        }
+
+        // Extract city name from translations (translations is an array from the join)
+        const cityWithName: City = {
+          id: cityData.id,
+          slug: cityData.slug,
+          translations: cityData.translations?.[0] ? { name: cityData.translations[0].name } : { name: cityData.slug }
+        }
+
+        if (!isMounted) return
+        setCity(cityWithName)
+
+        // Get stats for this city
+        const [languageResult, userResult, descriptionResult] = await Promise.all([
+          // Language count
+          supabase
+            .from('languages')
+            .select('*', { count: 'exact', head: true })
+            .eq('city_id', cityData.id),
+
+          // User count for this city
+          supabase
+            .from('city_users')
+            .select('*', { count: 'exact', head: true })
+            .eq('city_id', cityData.id),
+
+          // Description count
+          supabase
+            .from('descriptions')
+            .select('*', { count: 'exact', head: true })
+            .eq('city_id', cityData.id),
+        ])
+
+        if (!isMounted) return
+
+        setLanguageCount(languageResult.count || 0)
+        setUserCount(userResult.count || 0)
+        setDescriptionCount(descriptionResult.count || 0)
+
+        // Get recent users
+        const { data: usersData } = await supabase
+          .from('city_users')
+          .select(`
+            role,
+            created_at,
+            user:user_profiles (
+              email,
+              full_name
+            )
+          `)
+          .eq('city_id', cityData.id)
+          .order('created_at', { ascending: false })
+          .limit(5)
+
+        if (!isMounted) return
+
+        // Validate and map user data (cast user field from potential array to object)
+        const validatedUsers: RecentUser[] = (usersData || []).map(item => ({
+          role: item?.role || 'unknown',
+          created_at: item?.created_at || new Date().toISOString(),
+          user: (item?.user as { email?: string; full_name?: string } | null) || null
+        }))
+
+        setRecentUsers(validatedUsers)
+
+        if (isMounted) {
+          setLoading(false)
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('An unknown error occurred')
+        if (isMounted) {
+          setError(error)
+          setLoading(false)
+        }
+      }
     }
-  )
 
-  // Get city information
-  const { data: city } = await supabase
-    .from('cities')
-    .select('id, name, country')
-    .eq('slug', citySlug)
-    .single()
+    if (citySlug) {
+      loadCityData()
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [citySlug, locale])
+
+  // Validate citySlug after useEffect
+  if (!citySlug) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-red-600">Invalid Request</div>
+          <p className="mt-2 text-sm text-gray-600">City parameter is missing</p>
+          <Button
+            onClick={() => router.push('/en/admin')}
+            className="mt-4"
+            variant="outline"
+          >
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-gray-900">Loading city data...</div>
+          <p className="mt-2 text-sm text-gray-600">Fetching statistics and recent activity</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-red-600">Error Loading Dashboard</div>
+          <p className="mt-2 text-sm text-gray-600">{error.message}</p>
+          <div className="mt-4 space-x-2">
+            <Button
+              onClick={() => {
+                setError(null)
+                setLoading(true)
+                // Trigger reload
+                window.location.reload()
+              }}
+              variant="outline"
+            >
+              Retry
+            </Button>
+            <Button
+              onClick={() => router.push('/en/admin')}
+              variant="outline"
+            >
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!city) {
-    return null
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <div className="text-lg font-medium text-red-600">City not found</div>
+          <p className="mt-2 text-sm text-gray-600">Unable to load city data</p>
+        </div>
+      </div>
+    )
   }
-
-  // Get current user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return null
-  }
-
-  // Get stats for this city
-  const [languageCount, userCount, descriptionCount] = await Promise.all([
-    // Language count
-    supabase
-      .from('languages')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', city.id)
-      .then(({ count }) => count || 0),
-
-    // User count for this city
-    supabase
-      .from('city_users')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', city.id)
-      .then(({ count }) => count || 0),
-
-    // Description count
-    supabase
-      .from('descriptions')
-      .select('*', { count: 'exact', head: true })
-      .eq('city_id', city.id)
-      .then(({ count }) => count || 0),
-  ])
-
-  // Get recent users
-  const { data: recentUsers } = await supabase
-    .from('city_users')
-    .select(`
-      role,
-      created_at,
-      user:user_profiles (
-        email,
-        full_name
-      )
-    `)
-    .eq('city_id', city.id)
-    .order('created_at', { ascending: false })
-    .limit(5)
 
   return (
     <div className="space-y-6">
       {/* City overview */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">{city.name}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{city.translations?.name || city.slug}</h2>
         <p className="mt-1 text-sm text-gray-600">
-          {city.country} • Manage users, settings, and data
+          Manage users, settings, and data
         </p>
       </div>
 
@@ -177,17 +332,17 @@ export default async function CityAdminPage({
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>
-              Common administrative tasks for {city.name}
+              Common administrative tasks for {city.translations?.name || city.slug}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link href={`/admin/${citySlug}/users/invite`}>
+            <Link href={`/${locale}/admin/${citySlug}/users/invite`}>
               <Button className="w-full justify-start">
                 <Users className="mr-2 h-4 w-4" />
                 Invite New Users
               </Button>
             </Link>
-            <Link href={`/admin/${citySlug}/settings`}>
+            <Link href={`/${locale}/admin/${citySlug}/settings`}>
               <Button className="w-full justify-start" variant="outline">
                 <Settings className="mr-2 h-4 w-4" />
                 City Settings
@@ -200,7 +355,7 @@ export default async function CityAdminPage({
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              Latest user additions to {city.name}
+              Latest user additions to {city.translations?.name || city.slug}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -221,7 +376,7 @@ export default async function CityAdminPage({
                     </div>
                   )
                 })}
-                <Link href={`/admin/${citySlug}/users`}>
+                <Link href={`/${locale}/admin/${citySlug}/users`}>
                   <Button variant="link" className="p-0 mt-2 h-auto text-sm">
                     View all users →
                   </Button>

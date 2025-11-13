@@ -23,47 +23,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { getDatabaseAdminClient } from '@/lib/database/client'
 import { randomBytes } from 'crypto'
 import { z } from 'zod'
-
-/**
- * Create a server-side Supabase client
- */
-async function getSupabaseServerClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value, ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie set operation failed:', error)
-            }
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: '', ...options })
-          } catch (error) {
-            if (process.env.NODE_ENV === 'development') {
-              console.warn('Cookie remove operation failed:', error)
-            }
-          }
-        },
-      },
-    }
-  )
-}
 
 /**
  * Schema for creating an invitation
@@ -110,7 +72,7 @@ export async function createInvitation(input: {
   const { email, fullName, role, cityIds } = validation.data
 
   try {
-    const supabase = await getSupabaseServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     // Get current user
     const {
@@ -272,7 +234,7 @@ export async function acceptInvitation(token: string): Promise<{ success: boolea
       throw new Error('Invalid invitation token')
     }
 
-    const supabase = await getSupabaseServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     // Get current user
     const {
@@ -329,7 +291,7 @@ export async function revokeInvitation(invitationId: string): Promise<{ success:
       throw new Error('Invalid invitation ID')
     }
 
-    const supabase = await getSupabaseServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     // Get current user
     const {
@@ -410,7 +372,7 @@ export async function getInvitations(): Promise<Array<{
   revoked_at: string | null
 }>> {
   try {
-    const supabase = await getSupabaseServerClient()
+    const supabase = getDatabaseAdminClient('system')
 
     // Get current user
     const {
