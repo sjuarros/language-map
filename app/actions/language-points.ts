@@ -30,7 +30,12 @@ interface NeighborhoodWithTranslations {
   translations: Translation[]
 }
 
-interface RawLanguagePoint {
+/**
+ * Type returned by Supabase for language points with joins
+ * Note: Supabase infers arrays for foreign key relationships in TypeScript,
+ * but returns single objects at runtime
+ */
+interface SupabaseLanguagePointQuery {
   id: string
   latitude: number
   longitude: number
@@ -40,6 +45,21 @@ interface RawLanguagePoint {
   created_at: string
   language: LanguageWithTranslations[] | null
   neighborhood: NeighborhoodWithTranslations[] | null
+}
+
+/**
+ * Actual runtime type of language points (single objects, not arrays)
+ */
+interface RawLanguagePoint {
+  id: string
+  latitude: number
+  longitude: number
+  postal_code: string | null
+  community_name: string | null
+  notes: string | null
+  created_at: string
+  language: LanguageWithTranslations | null
+  neighborhood: NeighborhoodWithTranslations | null
 }
 
 /**
@@ -126,18 +146,25 @@ export async function getLanguagePoints(citySlug: string, locale: string) {
       throw new Error('Failed to fetch language points')
     }
 
-    // Filter translations to match the requested locale
-    const data = rawData?.map((point: RawLanguagePoint) => ({
-      ...point,
-      language: point.language?.map((lang: LanguageWithTranslations) => ({
-        ...lang,
-        translations: lang.translations?.filter((t: Translation) => t.locale_code === locale) || []
-      })) || [],
-      neighborhood: point.neighborhood?.map((nbhd: NeighborhoodWithTranslations) => ({
-        ...nbhd,
-        translations: nbhd.translations?.filter((t: Translation) => t.locale_code === locale) || []
-      })) || []
-    }))
+    // Transform from Supabase's inferred type to actual runtime type
+    // Supabase returns single objects for foreign keys, but TypeScript infers arrays
+    const supabaseData = rawData as unknown as SupabaseLanguagePointQuery[]
+    const data = supabaseData?.map((point): RawLanguagePoint => {
+      // At runtime, these are single objects (not arrays) despite TypeScript's inference
+      const runtimePoint = point as unknown as RawLanguagePoint
+
+      return {
+        ...runtimePoint,
+        language: runtimePoint.language ? {
+          ...runtimePoint.language,
+          translations: runtimePoint.language.translations?.filter((t: Translation) => t.locale_code === locale) || []
+        } : null,
+        neighborhood: runtimePoint.neighborhood ? {
+          ...runtimePoint.neighborhood,
+          translations: runtimePoint.neighborhood.translations?.filter((t: Translation) => t.locale_code === locale) || []
+        } : null
+      }
+    })
 
     return data || []
   } catch (error) {

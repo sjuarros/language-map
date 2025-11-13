@@ -134,15 +134,15 @@ async function LanguagePointsList({
             {points.map((point) => (
               <TableRow key={point.id}>
                 <TableCell className="font-medium">
-                  {Array.isArray(point.language) && point.language.length > 0
-                    ? point.language[0].translations?.[0]?.name ||
-                      point.language[0].endonym ||
+                  {point.language
+                    ? point.language.translations?.[0]?.name ||
+                      point.language.endonym ||
                       'Unknown'
                     : 'Unknown'}
                 </TableCell>
                 <TableCell>
-                  {Array.isArray(point.neighborhood) && point.neighborhood.length > 0
-                    ? point.neighborhood[0].translations?.[0]?.name
+                  {point.neighborhood
+                    ? point.neighborhood.translations?.[0]?.name
                     : '-'}
                 </TableCell>
                 <TableCell className="font-mono text-sm">
