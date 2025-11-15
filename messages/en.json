@@ -933,5 +933,73 @@
     "failedRows": "Failed Rows:",
     "viewLanguages": "View Imported Languages",
     "error": "Error"
+  },
+  "aiSources": {
+    "title": "AI Sources",
+    "description": "Manage whitelist and blacklist for AI description generation",
+    "list": {
+      "title": "AI Sources",
+      "empty": {
+        "title": "No AI sources configured",
+        "description": "Add sources to control which websites AI can use for description generation."
+      },
+      "loading": "Loading AI sources...",
+      "columns": {
+        "url": "URL / Domain",
+        "listType": "Type",
+        "notes": "Notes",
+        "actions": "Actions"
+      }
+    },
+    "fields": {
+      "url": {
+        "label": "URL or Domain",
+        "placeholder": "wikipedia.org or https://en.wikipedia.org",
+        "help": "Enter a domain name (e.g., wikipedia.org) or full URL"
+      },
+      "listType": {
+        "label": "List Type",
+        "whitelist": "Whitelist",
+        "blacklist": "Blacklist",
+        "whitelistHelp": "AI can only use sources from the whitelist",
+        "blacklistHelp": "AI cannot use sources from the blacklist"
+      },
+      "notes": {
+        "label": "Notes",
+        "placeholder": "Why is this source whitelisted or blacklisted?",
+        "help": "Optional explanation for this source"
+      }
+    },
+    "actions": {
+      "create": "Add Source",
+      "update": "Update Source",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "back": "Back to AI Sources"
+    },
+    "form": {
+      "create": "Add AI Source",
+      "createDescription": "Add a new source to the whitelist or blacklist",
+      "edit": "Edit AI Source",
+      "editDescription": "Update source settings"
+    },
+    "errors": {
+      "urlRequired": "URL is required",
+      "urlTooLong": "URL must be less than {max} characters",
+      "notesTooLong": "Notes must be less than {max} characters",
+      "saveFailed": "Failed to save AI source. Please try again.",
+      "loadFailed": "Failed to load AI sources. Please try again.",
+      "authenticationRequired": "You must be logged in to perform this action.",
+      "duplicateUrl": "This URL already exists in the list for this city.",
+      "cityNotFound": "City not found. Please check the city slug.",
+      "permissionDenied": "You do not have permission to perform this action.",
+      "navigationFailed": "Navigation failed. Invalid city identifier."
+    },
+    "help": {
+      "title": "How AI Sources Work",
+      "whitelistDescription": "Whitelist: When AI generates descriptions, it will only use information from whitelisted sources. This ensures high-quality, trusted information.",
+      "blacklistDescription": "Blacklist: AI will avoid using information from blacklisted sources, even if they appear in search results.",
+      "example": "Example: Add 'wikipedia.org' to whitelist for encyclopedia content, or add unreliable sites to blacklist."
+    }
   }
 }

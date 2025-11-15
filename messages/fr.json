@@ -948,5 +948,73 @@
     "failedRows": "Lignes Échouées :",
     "viewLanguages": "Voir les Langues Importées",
     "error": "Erreur"
+  },
+  "aiSources": {
+    "title": "Sources IA",
+    "description": "Gérer la liste blanche et la liste noire pour la génération de descriptions IA",
+    "list": {
+      "title": "Sources IA",
+      "empty": {
+        "title": "Aucune source IA configurée",
+        "description": "Ajoutez des sources pour contrôler quels sites Web l'IA peut utiliser pour la génération de descriptions."
+      },
+      "loading": "Chargement des sources IA...",
+      "columns": {
+        "url": "URL / Domaine",
+        "listType": "Type",
+        "notes": "Notes",
+        "actions": "Actions"
+      }
+    },
+    "fields": {
+      "url": {
+        "label": "URL ou Domaine",
+        "placeholder": "wikipedia.org ou https://fr.wikipedia.org",
+        "help": "Entrez un nom de domaine (par ex. wikipedia.org) ou une URL complète"
+      },
+      "listType": {
+        "label": "Type de Liste",
+        "whitelist": "Liste Blanche",
+        "blacklist": "Liste Noire",
+        "whitelistHelp": "L'IA ne peut utiliser que les sources de la liste blanche",
+        "blacklistHelp": "L'IA ne peut pas utiliser les sources de la liste noire"
+      },
+      "notes": {
+        "label": "Notes",
+        "placeholder": "Pourquoi cette source est-elle sur la liste blanche ou noire ?",
+        "help": "Explication optionnelle pour cette source"
+      }
+    },
+    "actions": {
+      "create": "Ajouter une Source",
+      "update": "Mettre à Jour la Source",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "back": "Retour aux Sources IA"
+    },
+    "form": {
+      "create": "Ajouter une Source IA",
+      "createDescription": "Ajouter une nouvelle source à la liste blanche ou noire",
+      "edit": "Modifier la Source IA",
+      "editDescription": "Mettre à jour les paramètres de la source"
+    },
+    "errors": {
+      "urlRequired": "L'URL est requise",
+      "urlTooLong": "L'URL doit contenir moins de {max} caractères",
+      "notesTooLong": "Les notes doivent contenir moins de {max} caractères",
+      "saveFailed": "Échec de l'enregistrement de la source IA. Veuillez réessayer.",
+      "loadFailed": "Échec du chargement des sources IA. Veuillez réessayer.",
+      "authenticationRequired": "Vous devez être connecté pour effectuer cette action.",
+      "duplicateUrl": "Cette URL existe déjà dans la liste pour cette ville.",
+      "cityNotFound": "Ville introuvable. Veuillez vérifier le slug de la ville.",
+      "permissionDenied": "Vous n'avez pas la permission d'effectuer cette action.",
+      "navigationFailed": "Échec de la navigation. Identifiant de ville invalide."
+    },
+    "help": {
+      "title": "Comment Fonctionnent les Sources IA",
+      "whitelistDescription": "Liste Blanche : Lorsque l'IA génère des descriptions, elle n'utilise que les informations des sources de la liste blanche. Cela garantit des informations de haute qualité et fiables.",
+      "blacklistDescription": "Liste Noire : L'IA évite d'utiliser les informations des sources de la liste noire, même si elles apparaissent dans les résultats de recherche.",
+      "example": "Exemple : Ajoutez 'wikipedia.org' à la liste blanche pour le contenu encyclopédique, ou ajoutez des sites non fiables à la liste noire."
+    }
   }
 }

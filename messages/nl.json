@@ -936,5 +936,73 @@
     "failedRows": "Mislukte Rijen:",
     "viewLanguages": "Geïmporteerde Talen Bekijken",
     "error": "Fout"
+  },
+  "aiSources": {
+    "title": "AI-Bronnen",
+    "description": "Beheer witte lijst en zwarte lijst voor AI-beschrijvingsgeneratie",
+    "list": {
+      "title": "AI-Bronnen",
+      "empty": {
+        "title": "Geen AI-bronnen geconfigureerd",
+        "description": "Voeg bronnen toe om te bepalen welke websites AI kan gebruiken voor beschrijvingsgeneratie."
+      },
+      "loading": "AI-bronnen laden...",
+      "columns": {
+        "url": "URL / Domein",
+        "listType": "Type",
+        "notes": "Notities",
+        "actions": "Acties"
+      }
+    },
+    "fields": {
+      "url": {
+        "label": "URL of Domein",
+        "placeholder": "wikipedia.org of https://nl.wikipedia.org",
+        "help": "Voer een domeinnaam (bijv. wikipedia.org) of volledige URL in"
+      },
+      "listType": {
+        "label": "Lijsttype",
+        "whitelist": "Witte Lijst",
+        "blacklist": "Zwarte Lijst",
+        "whitelistHelp": "AI kan alleen bronnen uit de witte lijst gebruiken",
+        "blacklistHelp": "AI kan geen bronnen uit de zwarte lijst gebruiken"
+      },
+      "notes": {
+        "label": "Notities",
+        "placeholder": "Waarom staat deze bron op de witte of zwarte lijst?",
+        "help": "Optionele uitleg voor deze bron"
+      }
+    },
+    "actions": {
+      "create": "Bron Toevoegen",
+      "update": "Bron Bijwerken",
+      "cancel": "Annuleren",
+      "saving": "Opslaan...",
+      "back": "Terug naar AI-Bronnen"
+    },
+    "form": {
+      "create": "AI-Bron Toevoegen",
+      "createDescription": "Voeg een nieuwe bron toe aan de witte of zwarte lijst",
+      "edit": "AI-Bron Bewerken",
+      "editDescription": "Broninstellingen bijwerken"
+    },
+    "errors": {
+      "urlRequired": "URL is verplicht",
+      "urlTooLong": "URL moet minder dan {max} tekens bevatten",
+      "notesTooLong": "Notities moeten minder dan {max} tekens bevatten",
+      "saveFailed": "Opslaan van AI-bron mislukt. Probeer het opnieuw.",
+      "loadFailed": "Laden van AI-bronnen mislukt. Probeer het opnieuw.",
+      "authenticationRequired": "U moet ingelogd zijn om deze actie uit te voeren.",
+      "duplicateUrl": "Deze URL bestaat al in de lijst voor deze stad.",
+      "cityNotFound": "Stad niet gevonden. Controleer de stadslug.",
+      "permissionDenied": "U heeft geen toestemming om deze actie uit te voeren.",
+      "navigationFailed": "Navigatie mislukt. Ongeldige stadsidentificatie."
+    },
+    "help": {
+      "title": "Hoe AI-Bronnen Werken",
+      "whitelistDescription": "Witte Lijst: Wanneer AI beschrijvingen genereert, gebruikt het alleen informatie van bronnen op de witte lijst. Dit zorgt voor hoogwaardige, betrouwbare informatie.",
+      "blacklistDescription": "Zwarte Lijst: AI vermijdt het gebruik van informatie van bronnen op de zwarte lijst, zelfs als ze verschijnen in zoekresultaten.",
+      "example": "Voorbeeld: Voeg 'wikipedia.org' toe aan de witte lijst voor encyclopedische inhoud, of voeg onbetrouwbare sites toe aan de zwarte lijst."
+    }
   }
 }
